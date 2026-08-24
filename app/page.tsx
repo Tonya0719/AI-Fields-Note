@@ -48,6 +48,11 @@ export default function Home() {
   }, [issueIndex]);
 
   const chooseIssue = (index: number) => { setIssueIndex(index); setLens(0); setOpenStory(0); setStoryView("summary"); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const openCase = (index: number) => {
+    setOpenStory(index);
+    setStoryView("summary");
+    requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById(`case-${issueIndex}-${index}`)?.scrollIntoView({ behavior: "smooth", block: "start" })));
+  };
 
   return <main className="site-shell" id="top">
     <div className="scroll-progress" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
@@ -73,8 +78,8 @@ export default function Home() {
 
     <section className="cases" id="cases" aria-label="案例拆解">
       <header className="section-title reveal" data-reveal><span>02 / CASE INDEX</span><h2>把真实案例拆到可以行动。</h2><p>点击案例或内容标签，在摘要、系统设计、证据边界与项目启发之间切换。</p></header>
-      <div className="case-list">{briefing.items.map((item, index) => { const isOpen = openStory === index; const visual = caseVisuals[item.url]; const content = storyView === "summary" ? item.summary : storyView === "design" ? item.design : storyView === "evidence" ? item.evidence : item.idea; return <article className={`case-row ${isOpen ? "is-open" : ""}`} key={item.title}>
-        <button className="case-heading" type="button" aria-expanded={isOpen} onClick={() => { setOpenStory(index); setStoryView("summary"); }}><span>{String(index + 1).padStart(2, "0")}</span><div><small>{item.source} / {item.type}</small><h3>{item.title}</h3></div><i aria-hidden="true">{isOpen ? "—" : "+"}</i></button>
+      <div className="case-list">{briefing.items.map((item, index) => { const isOpen = openStory === index; const visual = caseVisuals[item.url]; const content = storyView === "summary" ? item.summary : storyView === "design" ? item.design : storyView === "evidence" ? item.evidence : item.idea; return <article id={`case-${issueIndex}-${index}`} className={`case-row ${isOpen ? "is-open" : ""}`} key={item.title}>
+        <button className="case-heading" type="button" aria-expanded={isOpen} onClick={() => openCase(index)}><span>{String(index + 1).padStart(2, "0")}</span><div><small>{item.source} / {item.type}</small><h3>{item.title}</h3></div><i aria-hidden="true">{isOpen ? "—" : "+"}</i></button>
         {isOpen && <div className={`case-body has-visual visual-${index % 2 === 0 ? "right" : "left"}`}><div className="story-tabs" role="tablist" aria-label={`${item.title} 内容视图`}>{views.map((view) => <button type="button" role="tab" aria-selected={storyView === view.key} className={storyView === view.key ? "active" : ""} onClick={() => setStoryView(view.key)} key={view.key}>{view.label}</button>)}</div><div className="story-main"><p key={storyView} className="story-copy">{content}</p><a href={item.url} target="_blank" rel="noreferrer">阅读原始资料 <Arrow /></a></div><figure className="case-visual"><a href={item.url} target="_blank" rel="noreferrer"><img src={visual.src} alt={visual.alt} /></a><figcaption><span>SOURCE VISUAL / {String(index + 1).padStart(2, "0")}</span><p>{visual.caption}</p></figcaption></figure></div>}
       </article>; })}</div>
     </section>
