@@ -6,6 +6,29 @@ import { briefings } from "./briefing";
 type StoryView = "summary" | "design" | "evidence" | "idea";
 const views: { key: StoryView; label: string }[] = [{ key: "summary", label: "摘要" }, { key: "design", label: "系统设计" }, { key: "evidence", label: "证据与局限" }, { key: "idea", label: "项目启发" }];
 const Arrow = ({ down = false }: { down?: boolean }) => <span aria-hidden="true">{down ? "↓" : "↗"}</span>;
+const caseVisuals = {
+  "https://engineering.salesforce.com/building-reliable-production-ai-with-durable-workflows/": { src: "/cases/salesforce-durable-workflows.png", alt: "Salesforce Agentforce Grid 的持久化列工作流架构图", caption: "父工作流拆分批次、保存执行状态，并仅重试未完成单元。" },
+  "https://arxiv.org/html/2605.10912v1": { src: "/cases/wildclawbench-teaser.png", alt: "WildClawBench 与传统 Agent 基准的结构对比图", caption: "真实工具、长任务与环境审计构成了这一评测的核心差异。" },
+  "https://www.tcs.com/who-we-are/newsroom/press-release/tcs-launches-agentic-ai-platform-transform-drug-development": { src: "/cases/tcs-pharma.jpg", alt: "TCS 关于生成式 AI 在制药行业应用的资料图", caption: "TCS 将生成式 AI 放入制药研发与运营场景，强调行业流程而非通用助手。" },
+  "https://www.msi.org/working-paper/generative-ai-and-firm-productivity-field-experiments-in-online-retail/": { src: "/cases/msi-retail-experiments.jpg", alt: "生成式 AI 在线零售现场实验的销售影响图表", caption: "七个零售工作流的效果并不一致，增量能力决定了最终业务结果。" },
+  "https://podcasts.apple.com/us/podcast/lexisnexis-on-why-standard-rag-fails-in-law/id1839285239?i=1000750307310": { src: "/cases/lexis-podcast.jpg", alt: "LexisNexis 法律 RAG 播客节目封面", caption: "节目讨论专业法律检索中的权威性、判例关系与证据复核。" },
+  "https://www.reuters.com/world/asia-pacific/strong-majority-japanese-firms-have-yet-fully-embrace-ai-2026-08-12/": { src: "/cases/japan-ai-adoption.jpg", alt: "日本不同行业企业的 AI 采用阶段图表", caption: "企业采用深度在行业之间明显分化，开放使用并不等于嵌入工作流。" },
+  "https://www.telerik.com/blogs/telerik-and-kendo-meet-webmcp": { src: "/cases/telerik-webmcp.png", alt: "Telerik 与 Kendo UI 的 WebMCP 产品演示图", caption: "界面组件把排序、筛选和导出暴露为 Agent 可发现的结构化工具。" },
+  "https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-real-world-lessons-from-building-agentic-systems-at-amazon/": { src: "/cases/amazon-agent-evals.png", alt: "Amazon Agent 评估方法的文章主图", caption: "任务结果、执行轨迹与生产系统指标需要被放在同一评估闭环中。" },
+  "https://www.mckinsey.com/capabilities/operations/our-insights/redefining-procurement-performance-in-the-era-of-agentic-ai": { src: "/cases/procurement-agentic-ai.jpg", alt: "Agentic AI 编排采购流程的资料图", caption: "采购 Agent 的价值来自贯通合同、订单、发票与异常处理，而不是孤立生成文本。" },
+  "https://www.mdpi.com/2674-113X/5/2/15": { src: "/cases/graph-rag.png", alt: "知识图谱增强客户服务 RAG 的流程图", caption: "向量检索与实体关系图共同为复杂客服问题提供可追踪上下文。" },
+  "https://www.expresscomputer.in/news/86-of-enterprises-have-deployed-ai-agents-but-just-34-trust-them-forrester-study/136898/": { src: "/cases/boomi-forrester.jpg", alt: "企业采用人工智能的报道主图", caption: "部署率与信任度之间的落差提示：上线并不等于形成可靠自治能力。" },
+  "https://www.ncsc.gov.uk/blogs/managing-the-cyber-risk-of-agentic-ai": { src: "/cases/ncsc-agentic-risk.jpg", alt: "英国 NCSC 关于 Agentic AI 网络风险的文章主图", caption: "最小权限、网络隔离、人工批准和紧急停止构成基础安全边界。" },
+  "https://arxiv.org/abs/2605.05253": { src: "/cases/enterprise-rag-pipeline.png", alt: "EnterpriseRAG-Bench 企业资料生成与评测管线图", caption: "评测主动注入跨应用关系、重复、冲突与缺失信息，模拟企业知识库的混乱。" },
+  "https://codeforamerica.org/explore/government-ai-landscape-assessment/": { src: "/cases/gov-ai-assessment.png", alt: "Code for America 政府 AI 景观评估资料图", caption: "评估从准备度、试点与实施进一步延伸到影响测量和持续学习。" },
+  "https://www.appen.com/podcasts/future-of-ai-agents-long-context-benchmarks": { src: "/cases/appen-context-benchmark.jpg", alt: "Appen 关于 AI 评测的播客资料图", caption: "长任务评估需要同时观察上下文恢复、工具选择、失败恢复和交接时机。" },
+  "https://www.wearedevelopers.com/videos/100108-building-sovereign-ai-lessons-from-deploying-secure-rag-systems-using-confidential-computing": { src: "/cases/confidential-rag-video.jpg", alt: "机密计算与安全 RAG 技术演讲画面", caption: "敏感数据在解析、向量检索和推理期间同样需要隔离与保护。" },
+  "https://arxiv.org/pdf/2512.04123": { src: "/cases/production-agent-survey.png", alt: "生产 Agent 调查中的验证方法共现图", caption: "部署团队组合多种验证方法，并普遍保留人工检查与短工作流。" },
+  "https://arxiv.org/html/2605.05538v1": { src: "/cases/microsoft-agentic-rag.png", alt: "Microsoft AgenticRAG 的迭代调查循环图", caption: "模型通过搜索、进入文档和检查证据循环调查，而非接受一次检索的结果。" },
+  "https://arxiv.org/html/2605.05287v1": { src: "/cases/permission-aware-rag.webp", alt: "多租户权限感知 RAG 的参考架构图", caption: "租户身份和角色过滤进入检索层，降低跨租户证据泄漏风险。" },
+  "https://arxiv.org/html/2602.15859v1": { src: "/cases/customer-service-rag.png", alt: "客户服务知识提取与自动处理结果图表", caption: "历史对话经过质检、知识提取和模拟评估后，只自动处理高置信度问题。" },
+  "https://arxiv.org/html/2606.04037v2": { src: "/cases/agent-licensing-evals.png", alt: "Agent 上线测试的跨模型评估热力图", caption: "规则生成的正常、边缘与攻击场景共同形成上线前的证据矩阵。" },
+} as const;
 
 export default function Home() {
   const [issueIndex, setIssueIndex] = useState(0);
@@ -50,9 +73,9 @@ export default function Home() {
 
     <section className="cases" id="cases" aria-label="案例拆解">
       <header className="section-title reveal" data-reveal><span>02 / CASE INDEX</span><h2>把真实案例拆到可以行动。</h2><p>点击案例或内容标签，在摘要、系统设计、证据边界与项目启发之间切换。</p></header>
-      <div className="case-list">{briefing.items.map((item, index) => { const isOpen = openStory === index; const content = storyView === "summary" ? item.summary : storyView === "design" ? item.design : storyView === "evidence" ? item.evidence : item.idea; return <article className={`case-row ${isOpen ? "is-open" : ""}`} key={item.title}>
+      <div className="case-list">{briefing.items.map((item, index) => { const isOpen = openStory === index; const visual = caseVisuals[item.url]; const content = storyView === "summary" ? item.summary : storyView === "design" ? item.design : storyView === "evidence" ? item.evidence : item.idea; return <article className={`case-row ${isOpen ? "is-open" : ""}`} key={item.title}>
         <button className="case-heading" type="button" aria-expanded={isOpen} onClick={() => { setOpenStory(index); setStoryView("summary"); }}><span>{String(index + 1).padStart(2, "0")}</span><div><small>{item.source} / {item.type}</small><h3>{item.title}</h3></div><i aria-hidden="true">{isOpen ? "—" : "+"}</i></button>
-        {isOpen && <div className={`case-body ${"image" in item ? `has-visual visual-${index % 2 === 0 ? "right" : "left"}` : ""}`}><div className="story-tabs" role="tablist" aria-label={`${item.title} 内容视图`}>{views.map((view) => <button type="button" role="tab" aria-selected={storyView === view.key} className={storyView === view.key ? "active" : ""} onClick={() => setStoryView(view.key)} key={view.key}>{view.label}</button>)}</div><div className="story-main"><p key={storyView} className="story-copy">{content}</p><a href={item.url} target="_blank" rel="noreferrer">阅读原始资料 <Arrow /></a></div>{"image" in item && <figure className="case-visual"><a href={item.url} target="_blank" rel="noreferrer"><img src={item.image} alt={item.imageAlt} /></a><figcaption><span>ORIGINAL EVIDENCE / {String(index + 1).padStart(2, "0")}</span><p>{item.imageCaption}</p></figcaption></figure>}</div>}
+        {isOpen && <div className={`case-body has-visual visual-${index % 2 === 0 ? "right" : "left"}`}><div className="story-tabs" role="tablist" aria-label={`${item.title} 内容视图`}>{views.map((view) => <button type="button" role="tab" aria-selected={storyView === view.key} className={storyView === view.key ? "active" : ""} onClick={() => setStoryView(view.key)} key={view.key}>{view.label}</button>)}</div><div className="story-main"><p key={storyView} className="story-copy">{content}</p><a href={item.url} target="_blank" rel="noreferrer">阅读原始资料 <Arrow /></a></div><figure className="case-visual"><a href={item.url} target="_blank" rel="noreferrer"><img src={visual.src} alt={visual.alt} /></a><figcaption><span>SOURCE VISUAL / {String(index + 1).padStart(2, "0")}</span><p>{visual.caption}</p></figcaption></figure></div>}
       </article>; })}</div>
     </section>
 
