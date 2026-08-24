@@ -1,4 +1,21 @@
 export const briefings = [{
+  issue: "ISSUE 003", date: "2026.08.24",
+  thesis: "可靠企业 AI 的差距，越来越少来自模型本身，越来越多来自工作流恢复、评估设计和证据治理。",
+  takeaways: ["把长任务拆成可检查、可重试的最小单元", "固定模型后，Agent 编排框架仍可带来巨大差异", "用真实业务指标比较现有流程与 AI 增量", "RAG 必须检查证据的版本、权威性与替代关系"],
+  contrarian: "公开工程资料能证明可靠性机制，随机实验能证明少数业务结果，但多数 Agent 产品发布仍缺少客户级错误率、长期人工介入率和完整单位经济性。",
+  items: [
+    { type:"生产工程复盘 / 产品演示", source:"Salesforce Engineering", title:"可靠 Agent 首先是分布式执行问题", summary:"Agentforce Grid 需要对约一万条记录反复读取、调用模型、验证并写回。关键改造不是更换模型，而是将任务拆成持久化的父子工作流，每行成功后保存检查点，仅重试未完成单元。", design:"列任务作为父工作流 → 行或批次作为子工作流 → 每行成功后 Checkpoint → 仅重试未完成单元 → 幂等写入。", evidence:"内部压力测试中，旧同步路径约 90% 失败，迁移后为 0%，P95 完成时间改善约 60%；但数据来自厂商内部，尚不能视为独立生产 SLA。", idea:"做一个可恢复文档处理器，为每个合同、发票或 PII 检查任务保存状态与输出哈希，并主动注入超时和重复回调。", url:"https://engineering.salesforce.com/building-reliable-production-ai-with-durable-workflows/" },
+    { type:"论文 / 开源基准 / 排行榜", source:"WildClawBench", title:"同一模型，仅更换 Agent 运行框架就可能相差 18 个百分点", summary:"60 个双语真实任务中有 26 个多模态任务，每次运行平均约 8 分钟、超过 20 次工具调用。评测不仅检查最终产物，还审计环境状态与副作用。", design:"Docker 中运行真实 CLI Agent → 调用浏览器、邮件、日历和文件工具 → 确定性产物检查 → 环境状态与副作用审计 → 必要时使用 LLM/VLM 评委。", evidence:"任务、容器和评分代码公开，可复现性较好；但仅有 60 题，主要模拟个人数字工作环境，缺少真实企业权限和合规审批链。", idea:"固定模型与任务，只比较有无任务账本、错误恢复或结构化工具两种编排，并记录成功率、成本、时长和副作用。", url:"https://arxiv.org/html/2605.10912v1" },
+    { type:"产品发布 / 行业报道", source:"TCS ADD AgentHub", title:"药物安全 Agent 已瞄准个案处理，但收益仍是厂商自报", summary:"平台将 Agent 限定为具体角色，覆盖药物安全报告摄取、数据录入编码、文献分析、复核质控与人工最终决策，并强调角色权限、审计和渐进部署。", design:"ICSR 报告摄取 → 数据录入与编码 → 文献分析 → 复核与质控 → 人工治理和最终决策。", evidence:"TCS 宣称多项效率与成本改善，但未披露客户、样本量、基线、模型或错误率，二手报道也明确指出这些只是内部评估。", idea:"不要做完整药物安全 Agent；只做文献到安全个案字段提取，每个字段强制附原文 Span、置信度与 NEEDS REVIEW 状态。", url:"https://www.tcs.com/who-we-are/newsroom/press-release/tcs-launches-agentic-ai-platform-transform-drug-development" },
+    { type:"研究报告 / 随机现场实验", source:"MSI + Columbia", title:"GenAI 是否有用，取决于它相对原流程增加了多少能力", summary:"一家跨境零售平台在数百万用户和商品上随机测试七个工作流。五个有细粒度交易数据的实验中，销售影响从无法检测到提升 16.3%，收益主要来自转化率，而非客单价。", design:"保持价格与其他投入不变，随机比较现有流程与现有流程加 AI，并用真实交易、退货率和评分衡量结果。", evidence:"本期证据最强：随机分配、多个工作流和真实交易结果；但公司匿名，实验较早，Prompt、模型与运行成本均未公开。", idea:"优先选择现有流程有明显缺口的环节，主指标直接使用转化、处理时长或遗漏率，而不是回答是否流畅。", url:"https://www.msi.org/working-paper/generative-ai-and-firm-productivity-field-experiments-in-online-retail/" },
+    { type:"播客 / 专业 RAG", source:"LexisNexis", title:"法律 RAG 的危险不是找不到相似判例，而是找到已被推翻的判例", summary:"专业法律检索不能只依赖向量相似度，还需要法律要点知识图谱、权威来源和判例关系检查，并由 Reflection Agent 复核回答。", design:"问题规划 Agent → 法律要点知识图谱检索 → 权威来源与判例关系检查 → 回答生成 → Reflection Agent 复核。", evidence:"架构说明揭示了专业 RAG 的真实失败模式，但来自商业产品负责人，未公开测试集规模、真实错误率或对照实验。", idea:"做一个失效证据检测器，检查文档版本、生效日期、替代关系与权威等级；引用失效证据时拒绝生成最终答案。", url:"https://podcasts.apple.com/us/podcast/lexisnexis-on-why-standard-rag-fails-in-law/id1839285239?i=1000750307310" },
+    { type:"独立媒体调查", source:"Reuters / Nikkei Research", title:"采用率与采用深度是两件不同的事", summary:"日本企业调查中，60% 只在部分业务使用 AI，24% 尚未决定或不考虑采用，只有 16% 称已作为全公司工具；即使全公司使用，部分受访者也仅用于文档生成。", design:"采用深度应分层记录：开放账号 → 偶尔使用 → 嵌入工作流 → 产生可审计结果 → 改善业务指标。", evidence:"来源独立于 AI 厂商，有助于纠正采用即转型的统计幻觉；但数据来自管理者自报，缺少 ROI 与实际使用日志。", idea:"项目至少记录任务完成率、人工修改率、重复使用率与每个合格结果成本。", url:"https://www.reuters.com/world/asia-pacific/strong-majority-japanese-firms-have-yet-fully-embrace-ai-2026-08-12/" },
+  ],
+  projectIdeas: [
+    { title:"可恢复的批量 AI 检查流水线", description:"以文档或记录为最小重试单元，具备 Checkpoint、幂等写入和明确人工复核状态，用故障恢复与处理时长证明价值。", tags:["Durable Workflow", "幂等", "故障恢复"] },
+    { title:"带版本关系的 RAG 证据检查器", description:"专门发现过期、被替代或互相冲突的政策、合同条款与操作文档，而不是尝试回答所有知识问题。", tags:["RAG", "证据治理", "版本关系"] },
+  ],
+}, {
   issue: "ISSUE 002", date: "2026.08.22",
   thesis: "企业 AI 的下一步，不是让 Agent 更自由，而是让每一步更可控、可评估、可追踪。",
   takeaways: ["默认限制 Agent 的网络、身份与工具权限", "让 RAG 明确识别冲突、缺失与权限边界", "从模型准确率扩展到采纳率、耗时和业务影响", "记录任务状态，减少重复检索和上下文浪费"],
