@@ -1,5 +1,5 @@
 export const briefings = [{
-  issue: "ISSUE 003", date: "2026.08.24",
+  issue: "ISSUE 004", date: "2026.08.24",
   thesis: "可靠企业 AI 的差距，越来越少来自模型本身，越来越多来自工作流恢复、评估设计和证据治理。",
   takeaways: ["把长任务拆成可检查、可重试的最小单元", "固定模型后，Agent 编排框架仍可带来巨大差异", "用真实业务指标比较现有流程与 AI 增量", "RAG 必须检查证据的版本、权威性与替代关系"],
   contrarian: "公开工程资料能证明可靠性机制，随机实验能证明少数业务结果，但多数 Agent 产品发布仍缺少客户级错误率、长期人工介入率和完整单位经济性。",
@@ -14,6 +14,22 @@ export const briefings = [{
   projectIdeas: [
     { title:"可恢复的批量 AI 检查流水线", description:"以文档或记录为最小重试单元，具备 Checkpoint、幂等写入和明确人工复核状态，用故障恢复与处理时长证明价值。", tags:["Durable Workflow", "幂等", "故障恢复"] },
     { title:"带版本关系的 RAG 证据检查器", description:"专门发现过期、被替代或互相冲突的政策、合同条款与操作文档，而不是尝试回答所有知识问题。", tags:["RAG", "证据治理", "版本关系"] },
+  ],
+}, {
+  issue: "ISSUE 003", date: "2026.08.23",
+  thesis: "Agent 真正进入业务流程后，关键不只是完成任务，而是用更稳定的接口执行、持续评估失败，并优先处理可追溯的异常。",
+  takeaways: ["结构化工具调用比视觉点击更稳定", "任务、轨迹和系统指标必须一起评估", "从发票与合同一致性等窄任务证明价值", "把用户纠错自动转成回归测试案例"],
+  contrarian: "调查和咨询报告声称 Agent 部署与 ROI 快速增长，但工程团队仍在解决基本的评估、权限和可靠性问题；“已部署”并不等于已经获得稳定自治能力。",
+  items: [
+    { type:"产品发布 / 技术文章 / 演示视频", source:"Progress WebMCP", title:"与其让 Agent 看屏幕点按钮，不如让界面暴露结构化工具", summary:"新版 Telerik 和 Kendo UI 让网页组件能以结构化工具被 Agent 发现和调用，避免依赖截图、坐标和 DOM 猜测。表格排序、筛选和导出都可以注册成带参数的明确工具。", design:"网页组件注册工具描述 → Agent 发现工具与参数 → 应用自身执行排序、筛选或导出 → 返回结构化结果。", evidence:"产品能力已经可以试用，但公开证据主要来自厂商演示，尚无大规模成功率、权限测试或与 GUI 操作 Agent 的正式比较；旧系统也需要主动改造。", idea:"比较视觉点击与结构化工具调用完成同一表格任务时的成功率、步骤数，以及界面变化后的稳定性。", url:"https://www.telerik.com/blogs/telerik-and-kendo-meet-webmcp" },
+    { type:"企业工程博客 / 技术 Workshop", source:"Amazon", title:"最终答案正确，不代表 Agent 的执行过程可靠", summary:"Amazon 将 Agent 评估拆为任务、轨迹和系统三个层次，并把生产监控发现的新失败案例持续加入 Golden Dataset。人工专家负责检查多 Agent 冲突并校准 LLM 评委。", design:"任务完成度评估 → 工具与步骤轨迹检查 → 延迟、成本和安全监控 → 生产失败回流 Golden Dataset → 人工校准。", evidence:"资料来自真实 Amazon 团队经验，但没有披露各类 Agent 的失败率或详细对照数据，也自然偏向 AWS 产品体系。", idea:"用户恢复或修改某个 PII Span 后，自动保存为失败案例并加入回归测试集，下一版本必须重新通过。", url:"https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-real-world-lessons-from-building-agentic-systems-at-amazon/" },
+    { type:"行业分析 / 匿名企业案例", source:"McKinsey", title:"采购 Agent 最可信的起点，是发票与合同一致性检查", summary:"一家制药企业让 Agent 持续比较合同条款、采购订单、发票与交付情况，据报告减少了 4% 的价值泄漏。这个任务比自动谈判更窄，也更容易用差异清单验证。", design:"读取合同条款 → 获取采购订单与发票 → 对齐产品、价格、数量和付款条件 → 标记差异 → 人工处理异常。", evidence:"报告提供量化结果，但企业匿名，未公开模型、样本量、实施成本或计算方法，应视为咨询项目中的客户主张，而非独立验证。", idea:"输入合同和发票，输出带证据位置的差异清单，并把模糊条款标记为 NEEDS REVIEW。", url:"https://www.mckinsey.com/capabilities/operations/our-insights/redefining-procurement-performance-in-the-era-of-agentic-ai" },
+    { type:"同行评审论文 / 行业案例", source:"Knowledge Graph + RAG", title:"知识图谱加 RAG 在进出口客服中的小规模验证", summary:"系统同时使用向量知识库、Neo4j 关系图谱和已验证答案缓存，处理质量异常、订单追踪和替代产品等问题。在 101 个企业问题上，加入图谱后的平均评分高于纯 RAG。", design:"内部文档与对话 → 向量检索 + 实体关系图谱 → 生成回答 → GPT 评估 → 高分答案缓存。", evidence:"架构与行业问题较具体，但测试集只有 101 题且主要依赖 GPT 评分；自动缓存高分答案还可能把评估错误固化进知识库。", idea:"先证明普通向量检索在哪类实体关系问题上失败，再决定是否为产品、供应商、质量问题和替代品增加知识图谱。", url:"https://www.mdpi.com/2674-113X/5/2/15" },
+    { type:"委托调查 / 媒体摘要", source:"Forrester Consulting + Boomi", title:"86% 已部署与 34% 信任 Agent 之间，可能存在统计口径问题", summary:"对 409 名 IT 管理者的调查称 86% 已越过 Agent 试点阶段，但只有 34% 信任 Agent 采取的行动。治理较成熟的组织更常使用 API 管理、集中式 MCP 治理与 Agent 控制层。", design:"API 与集成管理 → 集中式 MCP 治理 → Agent 控制和编排层 → AI 与系统集成团队统一运营。", evidence:"调查由厂商委托，受访者是管理者而非一线用户；部署、信任和损失的定义在公开摘要中并不充分，部署率也显著高于其他调查。", idea:"不要把是否上线当作成功指标，改测自动完成率、人工修改率、异常升级率、直接采纳率和每个合格结果成本。", url:"https://www.expresscomputer.in/news/86-of-enterprises-have-deployed-ai-agents-but-just-34-trust-them-forrester-study/136898/" },
+  ],
+  projectIdeas: [
+    { title:"Exception-first Checker", description:"让 AI 只比较两类业务材料并定位可追溯的不一致，例如发票与合同、文本与 PII 规则、回答与证据。", tags:["异常优先", "证据定位", "Human-in-the-loop"] },
+    { title:"Failure-to-Eval Loop", description:"把用户修改、拒绝和人工接管记录自动转为下一轮回归测试案例，让真实失败持续改善评估集。", tags:["Evaluation", "回归测试", "反馈闭环"] },
   ],
 }, {
   issue: "ISSUE 002", date: "2026.08.22",
