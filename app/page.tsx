@@ -7,6 +7,11 @@ type StoryView = "summary" | "design" | "evidence" | "idea";
 const views: { key: StoryView; label: string }[] = [{ key: "summary", label: "摘要" }, { key: "design", label: "系统设计" }, { key: "evidence", label: "证据与局限" }, { key: "idea", label: "项目启发" }];
 const Arrow = ({ down = false }: { down?: boolean }) => <span aria-hidden="true">{down ? "↓" : "↗"}</span>;
 const caseVisuals = {
+  "https://www.reuters.com/business/google-expands-gemini-ai-platform-law-firms-lawyers-2026-08-25/": { src: "/cases/google-legal-courtlistener.png", alt: "CourtListener 接入 Gemini Enterprise for Legal 的发布页面", caption: "公共判例与引用网络通过 MCP 成为可追溯、可复核的法律证据。" },
+  "https://blog.cloudflare.com/cloudflare-os/": { src: "/cases/cloudflare-os.png", alt: "Cloudflare OS 开放式 Agent 工作平台的发布视觉图", caption: "共享工作区记录 Agent 实际观察过的资源，并在分享时重新检查权限。" },
+  "https://newsroom.bankofamerica.com/content/newsroom/press-releases/2026/07/bank-of-america-enhances-ericaassist-with-generative-ai-to-help-.html": { src: "/cases/bofa-erica-assist.jpg", alt: "美国银行客服人员在桌面使用耳机处理客户请求", caption: "EricaAssist 在通话中给出政策依据和下一步建议，最终决策仍由客服人员完成。" },
+  "https://www.gao.gov/products/gao-26-107859": { src: "/cases/gao-ai-procurement.png", alt: "美国政府问责局 AI 采购审计报告页面", caption: "独立审计追踪采购需求、合同、持续成本和未被复用的失败经验。" },
+  "https://digital-strategy.ec.europa.eu/en/policies/guidelines-ai-transparency-obligations": { src: "/cases/eu-ai-transparency.jpg", alt: "欧盟委员会 AI 透明度指南的官方视觉图", caption: "AI 身份披露、机器可读标记和人工审阅状态进入统一合规证据链。" },
   "https://github.blog/engineering/user-experience/your-alt-text-passes-automated-checks-that-doesnt-mean-its-any-good/": { src: "/cases/github-alt-text-quality.png", alt: "GitHub 无障碍扫描插件的文章视觉图", caption: "确定性规则与可选视觉模型被设计为两套不同的质量门。" },
   "https://www.reuters.com/business/starbucks-scraps-ai-inventory-tool-across-north-america-2026-05-21/": { src: "/cases/starbucks-ai-inventory.jpg", alt: "Starbucks 员工使用移动设备扫描货架库存", caption: "真实门店里的光照、货架和相似包装共同挑战视觉盘点系统。" },
   "https://github.blog/engineering/turn-one-giant-ai-generated-pull-request-to-a-reviewable-stack/": { src: "/cases/github-stacked-prs.png", alt: "GitHub 关于可审查 PR 堆栈的文章视觉图", caption: "把巨型 Agent 改动拆成依赖清晰、可分别审查的 PR。" },

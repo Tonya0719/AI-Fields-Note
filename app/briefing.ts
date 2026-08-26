@@ -1,4 +1,20 @@
 export const briefings = [{
+  issue: "ISSUE 006", date: "2026.08.26",
+  thesis: "企业 Agent 的新边界，不是能生成什么，而是能访问哪些证据、继承谁的权限，以及输出如何被验证。",
+  takeaways: ["分享 RAG 结果时重新验证证据权限", "把引用、版本与人工审阅写入输出来源记录", "让员工决定是否采用 AI 给出的下一步", "把 Pilot 的成本、失败与退出标准沉淀下来"],
+  contrarian: "连接器、治理功能和使用规模正在快速增长，但公开资料仍很少同时给出任务错误率、人工修改率、持续成本与长期业务结果；“接入更多数据”本身并不能证明 Agent 更可靠。",
+  items: [
+    { type:"新闻报道 / 非营利数据接口 / MCP", source:"Reuters + Free Law Project", title:"法律 Agent 接入公共判例 MCP：引用可验证，自治效果仍待证明", summary:"Gemini Enterprise for Legal 接入 CourtListener，让 Agent 检索判例、联邦法院文件、引用网络、口头辩论记录和案件提醒，而不是只依赖模型记忆。公开用例集中在引用核验、巡回法院观点分歧和新案件追踪。", design:"法律任务 → 专用 Agent 技能 → 文档系统或 CourtListener MCP 检索 → 判例与引用网络核验 → 起草或标记问题 → 律师复核。", evidence:"平台、连接器和 CourtListener MCP 已发布，多家律所参与产品设计；但没有公开任务准确率、漏检率、律师复核时间或真实案件结果，合作设计也不等于规模化生产使用。", idea:"做一个引用核验 Agent：输入备忘录，只检查引用是否存在、是否支持对应主张、是否已被推翻，并输出原始证据与 NEEDS REVIEW。", url:"https://www.reuters.com/business/google-expands-gemini-ai-platform-law-firms-lawyers-2026-08-25/" },
+    { type:"生产工程复盘 / 开源仓库 / 交互 Demo", source:"Cloudflare OS", title:"共享 Agent 工作区开始记录“实际观察过的资源”", summary:"Cloudflare OS 在分享 Agent 工作区时，不只检查 Agent 有哪些工具权限，还记录它实际读取过哪些资源；分享给新用户时，再逐项验证接收者是否有权查看相关数据。", design:"浏览器工作区 → 企业共享技能与上下文 → 隔离代码运行时 → Gatekeeper 或 MCP 访问内部资源 → 记录 Agent 观察过的资源 → 分享时重新检查接收者权限。", evidence:"源码、部署说明和 Demo 均公开，安全模型具体；但项目仍是 Early Access，近期公开 Issue 仍包括外部调用失败和 Gatekeeper 资源占用，且内部使用规模与效率收益均为厂商自报。", idea:"实现一个 RAG Provenance Gate：答案保存引用和实际读取的文档 ID；分享或复用答案时，逐一验证新用户的权限、文档版本与有效性。", url:"https://blog.cloudflare.com/cloudflare-os/" },
+    { type:"规模化企业部署 / 行业采访", source:"Bank of America + Banking Dive", title:"18,000 人客服 Copilot 的产品边界是“建议下一步”", summary:"EricaAssist 作为客服桌面组件，在通话期间总结上下文、检索政策和流程，并在数秒内显示候选下一步。Agent 不直接与客户自主交涉，员工仍负责理解需求、判断建议和沟通最终方案。", design:"通话上下文与客户信息 → 实时摘要 → 检索政策、流程及下一步选项 → 三秒内显示建议 → 客服人员解释、选择或忽略。", evidence:"超过 18,000 名客服人员使用，新生成式能力已上线；银行称平均每次通话缩短接近一分钟，但未公开模型、检索来源、建议采纳率、错误率或对照实验。", idea:"客服 MVP 只处理一个窄场景，例如退款资格判断：展示适用条款和候选下一步，同时记录员工采纳、修改或拒绝建议的原因。", url:"https://newsroom.bankofamerica.com/content/newsroom/press-releases/2026/07/bank-of-america-enhances-ericaassist-with-generative-ai-to-help-.html" },
+    { type:"独立政府审计 / 交互式报告", source:"U.S. GAO", title:"AI 采购失败经验没有进入下一次采购", summary:"GAO 审查四个美国机构的 13 项 AI 采购和 44 份合同或协议，发现各机构都没有系统收集采购经验，导致数据权利、测试要求、成本和供应商表现等信息无法复用。", design:"定义业务需求与验收指标 → 评估数据、知识产权和供应商 → 签约 → 部署与持续监控 → 记录成本、失败和合同经验 → 纳入共享知识库。", evidence:"这是基于合同、政策文件和项目人员访谈的独立绩效审计；但 13 项采购是非代表性选择样本，主要覆盖传统机器学习和计算机视觉，不能代表生成式 Agent 的平均失败率。", idea:"为每个 AI Pilot 建立退出证据卡：记录验收集、数据权利、模型更换条件、人工介入率、完整成本、已知失败与停用标准。", url:"https://www.gao.gov/products/gao-26-107859" },
+    { type:"法规指南 / FAQ / 交互式速查页", source:"European Commission", title:"欧盟 AI 透明度义务开始适用：聊天 Agent 至少要披露身份", summary:"欧盟《AI 法案》第 50 条透明度义务覆盖交互式和生成式 AI：用户直接与 AI 交互时应被明确告知，生成或编辑内容的系统应支持机器可读的来源标记，特定高风险内容还需额外披露。", design:"判断企业是提供者还是部署者 → 识别交互与内容类型 → 显示 AI 身份或标签 → 保存机器可读标记 → 记录人工审阅状态 → 保留合规证据。", evidence:"这是现行官方指南，但不是针对每种企业 RAG 或内部 Copilot 的个别法律意见；纯内部、辅助编辑、公开发布和人工编辑控制等场景需结合具体用途判断。", idea:"为 Agent 输出加入统一 provenance 结构：是否由 AI 生成、使用哪些来源、是否经过人工审阅，以及审阅者与时间。", url:"https://digital-strategy.ec.europa.eu/en/policies/guidelines-ai-transparency-obligations" },
+  ],
+  projectIdeas: [
+    { title:"可验证引用与权限继承", description:"RAG 答案保存具体证据、版本与访问范围；答案被分享或复用时，重新验证权限和引用有效性。", tags:["RAG Provenance", "权限继承", "引用核验"] },
+    { title:"员工决策辅助器", description:"围绕一个高频政策问题，在几秒内给出带出处的下一步建议，由员工决定是否采用，并记录修改与拒绝原因。", tags:["Decision Support", "采纳率", "Human-in-the-loop"] },
+  ],
+}, {
   issue: "ISSUE 005", date: "2026.08.25",
   thesis: "企业 AI 的价值越来越依赖质量门与可审查边界，而不是更高的自治程度。",
   takeaways: ["确定性错误与模型怀疑应进入不同处理路径", "评估要覆盖审查负担、冲突与流程副作用", "用实际采用和任务完成衡量业务价值", "让 AI 先生成可验证的中间表示"],
