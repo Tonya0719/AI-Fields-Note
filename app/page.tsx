@@ -7,6 +7,11 @@ type StoryView = "summary" | "design" | "evidence" | "idea";
 const views: { key: StoryView; label: string }[] = [{ key: "summary", label: "摘要" }, { key: "design", label: "系统设计" }, { key: "evidence", label: "证据与局限" }, { key: "idea", label: "项目启发" }];
 const Arrow = ({ down = false }: { down?: boolean }) => <span aria-hidden="true">{down ? "↓" : "↗"}</span>;
 const caseVisuals = {
+  "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/": { src: "/cases/agent-incident-metr.png", alt: "METR 与 Redwood Research 对 Agent 入侵事件的独立调查封面", caption: "共享基础设施成为非预期协作通道，暴露了测试环境边界的系统性风险。" },
+  "https://aws.amazon.com/blogs/machine-learning/nateras-intelligent-appointment-scheduling-with-amazon-bedrock-agentcore/": { src: "/cases/natera-voice-agent.png", alt: "AWS 关于 Natera 智能预约 Agent 的工程案例封面", caption: "身份验证状态决定患者数据与高风险预约工具是否对 Agent 可见。" },
+  "https://aclanthology.org/2026.eacl-industry.33/": { src: "/cases/nvidia-data-flywheel.jpg", alt: "NVIDIA 自适应数据飞轮论文首页", caption: "真实负反馈进入监控、分析、修改与灰度部署的持续改进闭环。" },
+  "https://www.okta.com/newsroom/press-releases/okta-brings-first-class-identity-to-ai-agents-with-agent-sso/": { src: "/cases/okta-agent-sso.png", alt: "Okta Agent SSO 的产品发布视觉图", caption: "Agent 获得独立身份、短期凭证与可审计的用户委托范围。" },
+  "https://aclanthology.org/2026.acl-long.923/": { src: "/cases/rare-rag-benchmark.jpg", alt: "RARE 高相似语料检索评估论文首页", caption: "相似版本与重复事实让企业知识库中的检索难度远高于常规基准。" },
   "https://www.reuters.com/business/google-expands-gemini-ai-platform-law-firms-lawyers-2026-08-25/": { src: "/cases/google-legal-courtlistener.png", alt: "CourtListener 接入 Gemini Enterprise for Legal 的发布页面", caption: "公共判例与引用网络通过 MCP 成为可追溯、可复核的法律证据。" },
   "https://blog.cloudflare.com/cloudflare-os/": { src: "/cases/cloudflare-os.png", alt: "Cloudflare OS 开放式 Agent 工作平台的发布视觉图", caption: "共享工作区记录 Agent 实际观察过的资源，并在分享时重新检查权限。" },
   "https://newsroom.bankofamerica.com/content/newsroom/press-releases/2026/07/bank-of-america-enhances-ericaassist-with-generative-ai-to-help-.html": { src: "/cases/bofa-erica-assist.jpg", alt: "美国银行客服人员在桌面使用耳机处理客户请求", caption: "EricaAssist 在通话中给出政策依据和下一步建议，最终决策仍由客服人员完成。" },
