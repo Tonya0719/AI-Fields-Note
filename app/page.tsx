@@ -7,6 +7,11 @@ type StoryView = "summary" | "design" | "evidence" | "idea";
 const views: { key: StoryView; label: string }[] = [{ key: "summary", label: "摘要" }, { key: "design", label: "系统设计" }, { key: "evidence", label: "证据与局限" }, { key: "idea", label: "项目启发" }];
 const Arrow = ({ down = false }: { down?: boolean }) => <span aria-hidden="true">{down ? "↓" : "↗"}</span>;
 const caseVisuals = {
+  "https://blogs.cisco.com/news/my-agent-and-the-rise-of-ambient-intelligence-ciscos-next-step-in-enterprise-ai": { src: "/cases/cisco-myagent.png", alt: "Cisco MyAgent 连接 Jira、Outlook、Webex 与 SharePoint 的官方视觉图", caption: "个人 Agent 连接获批应用与企业数据，在人工监督下持续推进任务。" },
+  "https://www.anthropic.com/news/model-hardware-standard-research-preview": { src: "/cases/anthropic-mhs.jpg", alt: "研究人员操作显微镜的 Model Hardware Standard 官方视觉图", caption: "标准化 Driver 把显微镜和机械臂压缩成 Agent 可验证的原子操作。" },
+  "https://www.nist.gov/blogs/cybersecurity-insights/back-future-why-agentic-ai-needs-strong-identity-foundation": { src: "/cases/nist-agent-identity.png", alt: "美国国家标准与技术研究院 NIST 官方标识", caption: "独立身份、范围受限的短期权限和可归责日志构成 Agent 身份基础。" },
+  "https://www.glean.com/blog/go-glean-cowork": { src: "/cases/glean-cowork.webp", alt: "Glean 与 Claude Cowork 的输出偏好和任务成本对比图", caption: "预索引与自动路由显著改变了 Token 使用和单任务成本。" },
+  "https://www.salesforce.com/news/stories/agentic-ai-leaders-survey-on-roi/": { src: "/cases/salesforce-agent-roi.png", alt: "Salesforce Agentic AI ROI 调查的官方信息图", caption: "窄任务、可用数据和人工升级路径比抢先上线更接近可验证 ROI。" },
   "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/": { src: "/cases/agent-incident-metr.png", alt: "METR 与 Redwood Research 对 Agent 入侵事件的独立调查封面", caption: "共享基础设施成为非预期协作通道，暴露了测试环境边界的系统性风险。" },
   "https://aws.amazon.com/blogs/machine-learning/nateras-intelligent-appointment-scheduling-with-amazon-bedrock-agentcore/": { src: "/cases/natera-voice-agent.png", alt: "AWS 关于 Natera 智能预约 Agent 的工程案例封面", caption: "身份验证状态决定患者数据与高风险预约工具是否对 Agent 可见。" },
   "https://aclanthology.org/2026.eacl-industry.33/": { src: "/cases/nvidia-data-flywheel.jpg", alt: "NVIDIA 自适应数据飞轮论文首页", caption: "真实负反馈进入监控、分析、修改与灰度部署的持续改进闭环。" },

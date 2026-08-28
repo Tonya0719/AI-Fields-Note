@@ -1,4 +1,20 @@
 export const briefings = [{
+  issue: "ISSUE 008", date: "2026.08.28",
+  thesis: "企业正在把 Agent 当作需要独立身份、权限、预算和责任边界的新型工作主体，而不仅是一个聊天界面。",
+  takeaways: ["把 Agent 的委托人、权限范围和最终结果写入记录", "把复杂工具压缩成可验证、可撤销的原子操作", "人工确认要说明具体动作，避免同意疲劳", "同时衡量检索 Token、合格答案成本和人工修改率"],
+  contrarian: "企业覆盖面正在快速扩大，但公开验证仍落后：活跃使用率、任务成功率、错误行动、人工接管和真实 ROI 普遍缺失；“已经给员工配备 Agent”不等于它已经进入生产工作流。",
+  items: [
+    { type:"企业内部部署 / 高管访谈 / 嵌入式视频", source:"Cisco + Wall Street Journal", title:"Cisco 向 90,000 名员工开放个人 Agent，但尚未公布生产力结果", summary:"MyAgent 连接 Outlook、Webex、Jira、SharePoint 与企业数据，不是独立聊天机器人，而是可在后台推进任务的个人执行层；涉及外部行动时仍保留人工控制。", design:"员工定义目标、上下文与期望结果 → Agent 规划步骤 → 调用获批应用与数据 → 后台推进任务 → 外部行动保留人工控制。", evidence:"Cisco 官方与 WSJ 均确认 90,000 人范围的推出，并说明系统只访问获批模型和数据路径；但活跃使用率、任务成功率、接管率、错误行动与节约时间均未公开。", idea:"Issue 初筛项目除分类准确率外，还应记录 AI 建议是否被接受、是否修改、是否成功路由，以及后续是否被重新分类。", url:"https://blogs.cisco.com/news/my-agent-and-the-rise-of-ambient-intelligence-ciscos-next-step-in-enterprise-ai" },
+    { type:"研究预览 / 架构图 / 产业合作案例", source:"Anthropic + HHMI Janelia", title:"MHS 让 MCP 从软件工具延伸到显微镜和机械臂", summary:"Model Hardware Standard 尝试用统一 Driver 暴露显微镜、液体处理设备与机械臂的读写操作及物理属性，使 Agent 可以规划实验、调整参数和处理故障。", design:"设备专属 API → MHS Driver → 标准化 read/write 操作与设备属性 → MCP 或其他 Agent 协议 → 实验规划、参数调整与故障恢复。", evidence:"这是 Research Preview 而非成熟标准。厂商称集成时间可从数周缩短到数小时，但尚无独立计时、实验成功率或安全事故数据，代码暂未开源，物理安全评估也仍在建设。", idea:"把复杂工具压缩成少数受约束原子操作，例如 read_issue、classify_issue、write_sheet_row 与 flag_for_review；每个操作都能独立验证和撤销。", url:"https://www.anthropic.com/news/model-hardware-standard-research-preview" },
+    { type:"政府技术指南 / 标准链接", source:"NIST / NCCoE", title:"NIST：频繁人工确认，也可能制造新的安全风险", summary:"NIST 建议 Agent 不应共享用户账号或长期 API Key，而应拥有自己的标识、凭证和权限，并绑定到委托它的人或系统；同时警告频繁确认会造成同意疲劳，甚至诱导用户暴露敏感信息。", design:"人类身份 → 明确委托 → 独立 Agent 身份 → 短期且范围受限的权限 → 工具调用 → 可归责日志。", evidence:"这是权威技术方向，但不是已经完成的强制标准。OAuth 2.0 与 SPIFFE 可覆盖部分场景，WIMSE 等标准仍在发展，消费者场景如何区分人与受委托 Agent 也尚未解决。", idea:"确认界面要显示具体动作和数据范围，而不是笼统的 Allow；例如明确说明只把 Issue 标题和正文写入指定表格，不包含评论或邮箱。", url:"https://www.nist.gov/blogs/cybersecurity-insights/back-future-why-agentic-ai-needs-strong-identity-foundation" },
+    { type:"工程评估 / 音频文章 / 产品交互页", source:"Glean", title:"预索引企业上下文可减少 70% Token，但对照并不完全公平", summary:"Glean 在 180 多个合成企业任务上，用预索引、权限过滤和自动模型路由减少上下文加载；厂商报告 130 万 Token 对比固定模型方案的 440 万，平均任务成本为 0.58 美元对比 2.98 美元。", design:"企业资料预索引、排序与权限过滤 → 小型路由模型判断难度 → 从多个模型及推理等级中选择 → 工具结果保存到 Sandbox → 仅逐步加载必要上下文。", evidence:"技术说明详细但仍是厂商自测：任务未公开，使用自有生产数据天然有利于预索引架构，自动路由与固定单一模型也不是完全公平的比较，且没有真实业务结果。", idea:"RAG 项目同时报告检索 Token、最终输入 Token 和每个合格答案成本，并比较“全部塞入 Prompt”与“先检索筛选再调用模型”。", url:"https://www.glean.com/blog/go-glean-cowork" },
+    { type:"全球双盲调查 / 信息图", source:"Salesforce", title:"2,025 名决策者调查：先上线，不代表先获得 ROI", summary:"覆盖 20 个国家的调查中，30% 称已正式部署 Agentic AI，47% 仍在 Pilot。厂商报告正式部署者平均约八个月达到其定义的 meaningful ROI，而关键条件是可用数据、窄任务和预设人工升级路径。", design:"选择窄任务 → 接入行动时可用的数据 → 预先定义人工升级路径 → 正式部署 → 追踪采用与业务结果 → 逐步扩展范围。", evidence:"ROI、满意度与成本结果均为采购决策者自报，没有员工日志、财务审计或失败项目追踪；Salesforce 同时是 Agent 平台供应商，有强化积极采用叙事的商业激励。", idea:"Issue 分类先限定为 Bug、Feature Request 与 Needs Review，并预先定义升级条件，再考虑优先级、团队分派、回复生成或自动关闭。", url:"https://www.salesforce.com/news/stories/agentic-ai-leaders-survey-on-roi/" },
+  ],
+  projectIdeas: [
+    { title:"Bounded Delegation Record", description:"为每次自动化记录谁委托、允许哪些数据和动作、何时需要批准以及最终结果，适合 Issue 分流、PII 检查与文档处理。", tags:["Delegation", "Audit", "权限边界"] },
+    { title:"Cost-aware Retrieval Gate", description:"先用规则或小模型判断是否需要检索及所需资料，再调用更强模型，同时测量准确率、Token、成本与人工修改率。", tags:["RAG", "Routing", "Cost"] },
+  ],
+}, {
   issue: "ISSUE 007", date: "2026.08.27",
   thesis: "系统边界、独立身份和失败反馈，比让 Agent 变得更聪明，更决定生产可靠性。",
   takeaways: ["把共享缓存、日志和临时文件纳入 Agent 威胁模型", "按身份验证状态逐步开放敏感工具", "把真实负反馈转成冻结回归集", "为 Agent 建立独立身份、委托范围和短期凭证"],
