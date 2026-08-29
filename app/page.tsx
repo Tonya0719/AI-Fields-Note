@@ -7,6 +7,11 @@ type StoryView = "summary" | "design" | "evidence" | "idea";
 const views: { key: StoryView; label: string }[] = [{ key: "summary", label: "摘要" }, { key: "design", label: "系统设计" }, { key: "evidence", label: "证据与局限" }, { key: "idea", label: "项目启发" }];
 const Arrow = ({ down = false }: { down?: boolean }) => <span aria-hidden="true">{down ? "↓" : "↗"}</span>;
 const caseVisuals = {
+  "https://engineering.grab.com/jarvis-pro-route-firsr-answer-later": { src: "/cases/grab-jarvis.png", alt: "Grab Jarvis Pro 任务路由与指标分析的官方视觉图", caption: "路由先决定任务范围、数据权限和可用工具，再让模型形成诊断。" },
+  "https://engineering.grab.com/grab-bench-evaluating-ai": { src: "/cases/grab-bench.png", alt: "Grab Bench 任务评分、隐藏案例与失败分析的官方视觉图", caption: "合成案例保留真实生产任务的难点，并用隐藏测试抵御投机捷径。" },
+  "https://github.blog/ai-and-ml/llms/how-to-evaluate-llms-before-production/": { src: "/cases/github-llm-evals.png", alt: "GitHub 关于生产前 LLM 评估的官方视觉图", caption: "高风险召回门槛作为硬约束，其上才比较误报、延迟和成本。" },
+  "https://aws.amazon.com/blogs/machine-learning/how-godaddy-transformed-its-analytics-with-amazon-quick/": { src: "/cases/godaddy-analytics-agent.png", alt: "AWS 关于 GoDaddy 分析 Agent 部署案例的官方封面", caption: "七个团队专用 Agent 围绕明确数据域回答问题，并由业务人员审阅。" },
+  "https://engineering.gusto.com/it-takes-a-village-building-gustos-first-ai-risk-agent-2a6aee2e6297": { src: "/cases/gusto-risk-agent.jpg", alt: "Gusto AI 工作界面的官方产品视觉图", caption: "结构化业务数据、SOP 和安全回退路径支撑第一版风险 Agent。" },
   "https://blogs.cisco.com/news/my-agent-and-the-rise-of-ambient-intelligence-ciscos-next-step-in-enterprise-ai": { src: "/cases/cisco-myagent.png", alt: "Cisco MyAgent 连接 Jira、Outlook、Webex 与 SharePoint 的官方视觉图", caption: "个人 Agent 连接获批应用与企业数据，在人工监督下持续推进任务。" },
   "https://www.anthropic.com/news/model-hardware-standard-research-preview": { src: "/cases/anthropic-mhs.jpg", alt: "研究人员操作显微镜的 Model Hardware Standard 官方视觉图", caption: "标准化 Driver 把显微镜和机械臂压缩成 Agent 可验证的原子操作。" },
   "https://www.nist.gov/blogs/cybersecurity-insights/back-future-why-agentic-ai-needs-strong-identity-foundation": { src: "/cases/nist-agent-identity.png", alt: "美国国家标准与技术研究院 NIST 官方标识", caption: "独立身份、范围受限的短期权限和可归责日志构成 Agent 身份基础。" },

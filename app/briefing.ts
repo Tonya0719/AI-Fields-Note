@@ -1,4 +1,20 @@
 export const briefings = [{
+  issue: "ISSUE 009", date: "2026.08.29",
+  thesis: "窄任务、分层评估和安全失败路径，仍比扩大 Agent 自治范围更能形成可靠的生产价值。",
+  takeaways: ["先路由任务与权限，再开放有限动作", "评估集保留真实任务形状，但不复制敏感数据", "把高风险召回率设为不可突破的安全门", "低置信度时回到原人工流程，并先用 Shadow 模式验证"],
+  contrarian: "企业开始公布查询量和离线准确率，却仍极少同时披露生产采纳率、严重错误率、人工覆盖率和经过验证的业务结果；使用次数和离线高分都不能单独证明真实价值。",
+  items: [
+    { type:"生产工程复盘 / 架构图 / 音频文章", source:"Grab Engineering", title:"客户经理助手先确定业务路径，再允许模型回答", summary:"Jarvis Pro 先路由任务和范围，再加载该路径专用的指标、工具与拒答条件；后端行级权限是最终授权层，工具循环有次数上限，缺失数据统一返回 N/A。", design:"用户问题 → LLM 路由任务与范围 → 检查用户、商户及国家权限 → 加载路径专用指标与工具 → 对齐数据新鲜度 → 生成诊断与行动建议。", evidence:"Grab 报告 351 条现实化问题中的安全路由离线准确率为 99.4%，核心回答子集由 78.5 提升至 91.0；但这是固定 Rubric 下的上线准备测试，没有客户经理采纳率或商户业务结果。", idea:"Issue 分流采用 Route-then-Act：先确定 Bug、Feature 或 Needs Review 及证据，再决定是否写入表格、建议负责人或要求人工确认。", url:"https://engineering.grab.com/jarvis-pro-route-firsr-answer-later" },
+    { type:"评估框架设计 / 合成数据 / 图表与音频", source:"Grab Engineering", title:"企业评估集应保留真实任务的“形状”，而不是复制敏感数据", summary:"Grab Bench 用合成或脱敏案例保留生产难点，包括过期信息、干扰证据、指标定义、敏感推断和隐藏状态约束，并覆盖 SQL、工具调用、画像推理与 Coding Agent。", design:"YAML 配置模型与任务 → 插件运行案例 → 确定性规则优先评分 → 必要时使用 LLM 评委 → 保存逐题失败标签、Token、延迟与配置。", evidence:"生产团队实际使用的方法、失败分类和防投机机制较透明；但代码与隐藏认证集未公开，也没有不同模型的完整成绩，合成测试本身不能证明真实用户收益。", idea:"制作“仓库形状”的 Issue 合成测试：加入标签冲突、重复 Issue、缺失复现步骤与配置误判，并设置“全部 Needs Review”的弱基线检查区分力。", url:"https://engineering.grab.com/grab-bench-evaluating-ai" },
+    { type:"生产评估复盘 / 生命周期图 / 检查清单", source:"GitHub", title:"秘密扫描把召回率设为不可突破的安全门", summary:"GitHub 用 LLM 减少秘密扫描误报，但把真实凭证召回率设为硬约束，再在其之上优化精确率、延迟、成本和可靠性；Prompt、模型、上下文或业务逻辑改变后都会重跑离线评估。", design:"版本化数据集与系统配置 → 运行真实干扰输入 → 检查高风险召回门槛 → 比较误报、延迟与成本 → 未达安全门则禁止上线。", evidence:"文章来自真实秘密扫描项目，并说明了生产干扰项为何必须保留；但没有公布数据规模、具体门槛或误报下降幅度，外部无法验证最终收益。", idea:"SafePaste 的目标应是：在 PII 漏检率不超过固定上限的前提下，最大化无需人工修改即可接受的文本比例。", url:"https://github.blog/ai-and-ml/llms/how-to-evaluate-llms-before-production/" },
+    { type:"企业部署案例 / 架构图", source:"GoDaddy + AWS", title:"七个分析 Agent 的使用量来自团队专用问题，而非“问任何事”", summary:"GoDaddy 部署七个专用分析 Agent，分别处理仪表板导航、域名拍卖、高价值账户、客户体验与产品分析，并用 AI Flow 扫描多个仪表板生成每周业务回顾。", design:"Okta SSO → Redshift 统一数据入口 → 团队专用 Agent 或 Flow → 仪表板、趋势与异常分析 → 结构化摘要 → 业务人员审阅。", evidence:"可确认七个 Agent、30 个知识空间和单月 1,999 次查询；年节省约 6,000 小时是厂商与客户估算，未说明计算方法，也没有答案准确率、重复使用者比例或错误决策成本。", idea:"先做“找到正确仪表板并解释一个指标”的窄 Agent，测量查询成功率、转人工率、重复使用率和每次有效回答成本。", url:"https://aws.amazon.com/blogs/machine-learning/how-godaddy-transformed-its-analytics-with-amazon-quick/" },
+    { type:"真实风控部署 / 音频工程复盘", source:"Gusto Engineering", title:"RAG 和微调可以等，明确 SOP 与安全失败路径不能等", summary:"GROW 处理原本进入人工队列的企业开户风控。团队放弃第一版的复杂 RAG 与微调计划，改用结构化业务数据、明确阈值和运营专家编写的 SOP；模型无法批准时维持原人工流程。", design:"内外部风险信号 → 结构化上下文与阈值 → Agent 风险判断 → 自动批准或保留人工队列 → 下游记录 AI 批准标记 → 运营抽查与双向覆盖。", evidence:"Gusto 自报前三个月人工审核最多减少 70%、审批速度提升 6 倍；但样本、误批率和财务影响未公开，与人工一致也不等于真实风险结果。", idea:"为自动分类设计无害的默认失败状态：低置信度继续进入原人工队列；先以 Shadow 模式静默记录建议，证明安全约束后再开放写操作。", url:"https://engineering.gusto.com/it-takes-a-village-building-gustos-first-ai-risk-agent-2a6aee2e6297" },
+  ],
+  projectIdeas: [
+    { title:"Route-then-Act 分类门", description:"先确定任务类别、范围、数据权限和拒绝条件，再开放有限动作，适合 Issue 分流、客服政策判断与分析请求。", tags:["Routing", "权限", "有限动作"] },
+    { title:"Safety-Constrained Shadow Eval", description:"新版本先旁路运行，把召回率、越权率或严重漏检设为不可突破的安全门，再优化误报、时间与成本。", tags:["Shadow Mode", "Safety Gate", "Evaluation"] },
+  ],
+}, {
   issue: "ISSUE 008", date: "2026.08.28",
   thesis: "企业正在把 Agent 当作需要独立身份、权限、预算和责任边界的新型工作主体，而不仅是一个聊天界面。",
   takeaways: ["把 Agent 的委托人、权限范围和最终结果写入记录", "把复杂工具压缩成可验证、可撤销的原子操作", "人工确认要说明具体动作，避免同意疲劳", "同时衡量检索 Token、合格答案成本和人工修改率"],
