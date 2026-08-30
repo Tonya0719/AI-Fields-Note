@@ -1,4 +1,19 @@
 export const briefings = [{
+  issue: "ISSUE 010", date: "2026.08.30",
+  thesis: "业务定义、运行轨迹和数据边界，正在从 Prompt 说明变成可以检查、复用与追责的系统组件。",
+  takeaways: ["按业务域拆分 Agent 的指标、数据与权限", "风险登记要覆盖授权范围内的错误行动", "用完整轨迹定位分类、工具选择与执行失败", "跨账户数据访问使用临时最小权限，先判断是否真的需要 Agent"],
+  contrarian: "权限、遥测和架构代码越来越完整，但生产错误率仍很少公开；更多执行轨迹有助审计，也会保存更多敏感 Prompt 和工具结果，形成新的隐私与安全矛盾。",
+  items: [
+    { type:"企业案例 / 架构说明", source:"The Washington Post + OpenAI Academy", title:"《华盛顿邮报》把分析 Agent 拆成三套业务权限域", summary:"团队分别为内容、广告与订阅分析建设 Agent，每个业务域加载自己的指标定义、内部文档、汇总表和权限逻辑；另将简短 AI 摘要放入邮件、PDF 与仪表板。", design:"自然语言问题 → 识别业务域 → 加载该域定义、文档、汇总表与权限逻辑 → 查询批准的数据 → 返回简短解释 → 根据用户反馈调整。", evidence:"案例确认多个 Agent 与自动摘要正在开发或使用，但由厂商发布，未披露 SQL 正确率、活跃用户、节省时间或错误共享事件；订阅 Agent 仍处于验证阶段。", idea:"将 Issue 分类、项目归属与优先级拆成独立步骤，每一步只加载需要的字段和规则，避免一个 Prompt 同时决定所有事项。", url:"https://academy.openai.com/public/clubs/news-organizations-b9osl/resources/how-the-washington-posts-builds-ai-agents" },
+    { type:"独立行业调查 / 事故与保险分析", source:"Reuters", title:"Agent 引发的损失，可能不符合传统“网络攻击”定义", summary:"保险公司正重新检查保单措辞：企业可能主动授予 Agent 合法权限，但 Agent 随后暴露数据或中断业务，没有传统攻击者，也未必存在未经授权的登录。", design:"企业授予合法权限 → Agent 自主规划并执行 → 数据暴露或业务中断 → 区分授权错误与非法访问 → 检查责任归属和保险范围。", evidence:"报道基于八名企业高管与分析人士的采访，能说明风险定义正在变化；但缺少 Agent 损失历史理赔数据，保险范围与定价尚无统一标准，未来攻击占比仍只是预测。", idea:"风险登记分别记录授权范围内的错误行动、未授权访问、数据泄露、业务中断与人工批准后的错误，不能只检查是否越权。", url:"https://www.reuters.com/legal/litigation/ai-agents-go-rogue-cyber-insurers-are-adapting-their-policies-2026-08-27/" },
+    { type:"技术发布 / 开放遥测规范 / 开源仓库", source:"AWS + OpenTelemetry + OpenInference", title:"Agent 评估从最终答案扩展到完整执行轨迹", summary:"AgentCore Evaluations 读取标准化遥测，而不要求使用特定 Agent 框架。用户请求、模型调用、工具参数和结果被重建为完整会话，用于任务成功、正确性及自定义评估。", design:"Agent 运行 → OpenTelemetry 记录 Session 与 Trace → 提取请求、模型及工具 Span → 重建会话 → 计算目标成功率、正确性或自定义评委指标。", evidence:"开放规范与仓库使兼容架构可核查，但公开材料没有证明 LLM 评委与业务专家判断一致；敏感 Prompt 和工具结果写入遥测还会形成新的治理面。", idea:"记录 issue_id、model_version、predicted_type、confidence、action_selected、write_result 与 human_override，区分分类失败、动作选择失败和表格写入失败。", url:"https://aws.amazon.com/blogs/machine-learning/evaluate-any-agent-framework-with-amazon-bedrock-agentcore-evaluations/", relatedLinks:[{label:"OpenTelemetry GenAI 规范",url:"https://github.com/open-telemetry/semantic-conventions-genai"},{label:"OpenInference 开源仓库",url:"https://github.com/Arize-ai/openinference"}] },
+    { type:"工程指南 / 开源实现 / 可编辑架构图", source:"AWS Samples", title:"跨账户 RAG 的关键不是复制知识库，而是临时取得最小权限", summary:"样例让 Agent 与知识库保留各自云账户边界，通过范围受限的短期角色访问数据并返回答案与引用。只需原文时直接检索，只需一次生成时直接调用检索生成，必要时才引入 Agent。", design:"模型判断是否调用知识库工具 → MCP 或 Gateway 通过 STS 取得短期角色 → 跨账户访问知识库 → RetrieveAndGenerate → 返回答案和引用。", evidence:"代码、部署脚本、测试和 Draw.io 架构源文件公开，可实际复现；但这是 AWS 技术样例而非生产案例，未提供准确率、延迟、成本或攻击测试结果。", idea:"先判断是否需要 Agent：本地检测与替换可以使用确定性流水线；只有需要选择工具、补充信息或协调多个系统时，再引入 Agent 循环。", url:"https://aws.amazon.com/blogs/machine-learning/connect-amazon-bedrock-agentcore-to-cross-account-knowledge-bases/", relatedLinks:[{label:"代码、测试与架构图",url:"https://github.com/aws-samples/sample-for-strands-agentcore-connect-cross-account-kb"}] },
+  ],
+  projectIdeas: [
+    { title:"Domain-Scoped Analytics Agent", description:"只服务一种数据、固定指标定义和一个用户群，用回答时间、人工升级率和定义一致性验证价值。", tags:["业务域", "Analytics", "权限隔离"] },
+    { title:"Trajectory-Aware Action Logger", description:"把模型判断、工具参数、执行结果与人工覆盖连接成一条可复查轨迹，并控制敏感数据的记录与保留范围。", tags:["Trace", "审计", "数据最小化"] },
+  ],
+}, {
   issue: "ISSUE 009", date: "2026.08.29",
   thesis: "窄任务、分层评估和安全失败路径，仍比扩大 Agent 自治范围更能形成可靠的生产价值。",
   takeaways: ["先路由任务与权限，再开放有限动作", "评估集保留真实任务形状，但不复制敏感数据", "把高风险召回率设为不可突破的安全门", "低置信度时回到原人工流程，并先用 Shadow 模式验证"],
