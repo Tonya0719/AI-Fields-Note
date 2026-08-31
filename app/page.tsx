@@ -68,6 +68,14 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const briefing = briefings[issueIndex];
   const signalCopy = useMemo(() => briefing.takeaways[lens % briefing.takeaways.length], [briefing, lens]);
+  const archiveMonths = useMemo(() => {
+    const months = new Map<string, { issue: (typeof briefings)[number]; index: number }[]>();
+    briefings.forEach((issue, index) => {
+      const month = issue.date.slice(0, 7);
+      months.set(month, [...(months.get(month) ?? []), { issue, index }]);
+    });
+    return [...months.entries()].sort(([a], [b]) => b.localeCompare(a));
+  }, []);
 
   useEffect(() => {
     const updateProgress = () => { const height = document.documentElement.scrollHeight - window.innerHeight; setProgress(height > 0 ? Math.min(100, (window.scrollY / height) * 100) : 0); };
@@ -116,7 +124,28 @@ export default function Home() {
 
     <section className="projects" id="projects"><header className="section-title light reveal" data-reveal><span>03 / WHAT TO BUILD</span><h2>值得启动的小项目。</h2><p>每个方向都从一个窄问题开始，并用真实业务指标决定是否继续。</p></header><div className="project-grid">{briefing.projectIdeas.map((idea, index) => <article className="project-card" key={idea.title}><span>PROJECT / 0{index + 1}</span><h3>{idea.title}</h3><p>{idea.description}</p><div>{idea.tags.map((tag) => <small key={tag}>{tag}</small>)}</div></article>)}</div></section>
 
-    <section className="archive" id="archive"><header className="section-title reveal" data-reveal><span>04 / ARCHIVE</span><h2>往期判断。</h2><p>选择任一期，首页内容会即时切换。</p></header><div className="archive-grid">{briefings.map((issue, index) => <button type="button" className={`archive-item ${issueIndex === index ? "active" : ""}`} onClick={() => chooseIssue(index)} key={issue.issue}><span>{issue.issue}</span><strong>{issue.date}</strong><p>{issue.thesis}</p><i>↗</i></button>)}</div></section>
+    <section className="archive" id="archive" aria-labelledby="archive-title">
+      <header className="section-title reveal" data-reveal><span>04 / ARCHIVE</span><h2 id="archive-title">往期判断。</h2><p>按月收纳，每日一篇。<br />选择任一期，回到首页阅读。</p></header>
+      <div className="archive-directory">
+        {archiveMonths.map(([month, editions], monthIndex) => <details className="archive-month" open={monthIndex === 0} key={month}>
+          <summary className="archive-month-heading">
+            <span className="archive-month-date"><strong>{Number(month.slice(5))}月</strong><span>{month.slice(0, 4)}</span></span>
+            <span className="archive-month-count">{editions.length} 期简报</span>
+            <span className="archive-month-action" aria-hidden="true"><span className="when-closed">展开</span><span className="when-open">收起</span><i /></span>
+          </summary>
+          <ol className="archive-entries">
+            {editions.map(({ issue, index }) => <li key={issue.issue}>
+              <button type="button" className={`archive-entry ${issueIndex === index ? "is-current" : ""}`} aria-current={issueIndex === index ? "true" : undefined} onClick={() => chooseIssue(index)}>
+                <span className="archive-entry-date"><time dateTime={issue.date.replaceAll(".", "-")}>{issue.date.slice(5).replace(".", " / ")}</time><span>{issue.issue}</span></span>
+                <strong className="archive-entry-title">{issue.thesis}</strong>
+                <span className="archive-entry-meta"><span>{issue.items.length} 组资料</span>{issueIndex === index && <span className="archive-current-label">正在阅读</span>}</span>
+                <span className="archive-entry-arrow" aria-hidden="true">↗</span>
+              </button>
+            </li>)}
+          </ol>
+        </details>)}
+      </div>
+    </section>
     <footer><div className="footer-brand"><span className="brand-mark">AF</span><strong>AI FIELD NOTES</strong></div><p>从真实案例到可验证方案。<br />每日 09:30 更新。</p><a href="#top">回到顶部 ↑</a></footer>
   </main>;
 }
