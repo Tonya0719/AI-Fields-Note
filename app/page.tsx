@@ -66,6 +66,7 @@ export default function Home() {
   const [openStory, setOpenStory] = useState(0);
   const [storyView, setStoryView] = useState<StoryView>("summary");
   const [progress, setProgress] = useState(0);
+  const [activeSection, setActiveSection] = useState("signal");
   const briefing = briefings[issueIndex];
   const signalCopy = useMemo(() => briefing.takeaways[lens % briefing.takeaways.length], [briefing, lens]);
   const archiveMonths = useMemo(() => {
@@ -78,31 +79,41 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const updateProgress = () => { const height = document.documentElement.scrollHeight - window.innerHeight; setProgress(height > 0 ? Math.min(100, (window.scrollY / height) * 100) : 0); };
+    const updateProgress = () => {
+      const height = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(height > 0 ? Math.min(100, (window.scrollY / height) * 100) : 0);
+      const current = ["archive", "projects", "cases", "signal"].find((id) => (document.getElementById(id)?.getBoundingClientRect().top ?? Infinity) <= 180);
+      setActiveSection(current ?? "signal");
+    };
     const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")), { threshold: 0.12 });
     document.querySelectorAll("[data-reveal]").forEach((element) => observer.observe(element));
     window.addEventListener("scroll", updateProgress, { passive: true }); updateProgress();
     return () => { observer.disconnect(); window.removeEventListener("scroll", updateProgress); };
   }, [issueIndex]);
 
-  const chooseIssue = (index: number) => { setIssueIndex(index); setLens(0); setOpenStory(0); setStoryView("summary"); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const scrollBehavior = (): ScrollBehavior => window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+  const chooseIssue = (index: number) => {
+    setIssueIndex(index); setLens(0); setOpenStory(0); setStoryView("summary");
+    document.getElementById("page-title")?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: scrollBehavior() });
+  };
   const openCase = (index: number) => {
     setOpenStory(index);
     setStoryView("summary");
-    requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById(`case-${issueIndex}-${index}`)?.scrollIntoView({ behavior: "smooth", block: "start" })));
+    requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById(`case-${issueIndex}-${index}`)?.scrollIntoView({ behavior: scrollBehavior(), block: "start" })));
   };
 
   return <main className="site-shell" id="top">
     <div className="scroll-progress" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
     <nav className="nav" aria-label="主导航">
       <a className="brand" href="#top"><span className="brand-mark">AF</span><span>AI FIELD NOTES</span></a>
-      <div className="nav-links"><a className="active" href="#signal">今日判断</a><a href="#cases">案例</a><a href="#projects">项目</a><a href="#archive">归档</a></div>
+      <div className="nav-links">{[{ id: "signal", label: "今日判断" }, { id: "cases", label: "案例" }, { id: "projects", label: "项目" }, { id: "archive", label: "归档" }].map((section) => <a className={activeSection === section.id ? "active" : ""} aria-current={activeSection === section.id ? "location" : undefined} href={`#${section.id}`} key={section.id}>{section.label}</a>)}</div>
       <label className="issue-picker"><span className="sr-only">选择简报</span><select value={issueIndex} onChange={(event) => chooseIssue(Number(event.target.value))}>{briefings.map((issue, index) => <option key={issue.issue} value={index}>{issue.issue}</option>)}</select></label>
     </nav>
 
     <section className="hero">
       <aside className="hero-rail" aria-label="简报日期"><strong>{briefing.date.slice(-2)}</strong><span>{briefing.date.slice(5, 7)} / {briefing.date.slice(0, 4)}</span><i /><small>09:30 CST</small></aside>
-      <div className="hero-title"><div className="hero-meta"><span>DAILY IMPLEMENTATION BRIEF</span><span>{briefing.issue}</span></div><h1><span>从真实案例，</span><span>找到可执行方案。</span></h1><p>每天拆解真实部署、系统设计和证据局限，<br />把资讯转成可验证的项目方向。</p></div>
+      <div className="hero-title"><div className="hero-meta"><span>DAILY IMPLEMENTATION BRIEF</span><span>{briefing.issue}</span></div><h1 id="page-title" tabIndex={-1}><span>从真实案例，</span><span>找到可执行方案。</span></h1><p>每天拆解真实部署、系统设计和证据局限，<br />把资讯转成可验证的项目方向。</p></div>
       <div className="hero-judgement" id="signal">
         <div className="judgement-meta"><span>TODAY&apos;S JUDGEMENT</span><span>{String(lens + 1).padStart(2, "0")} / {String(briefing.takeaways.length).padStart(2, "0")}</span></div>
         <h2>{briefing.thesis}</h2><p key={`${issueIndex}-${lens}`} className="signal-copy">{signalCopy}</p>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_SC, Noto_Serif_SC, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import "./archive.css";
 
 const sans = Noto_Sans_SC({ variable: "--font-sans", subsets: ["latin"], weight: ["400", "500", "700", "900"] });
 const editorial = Noto_Serif_SC({ variable: "--font-editorial", subsets: ["latin"], weight: ["500", "600", "700", "900"] });
