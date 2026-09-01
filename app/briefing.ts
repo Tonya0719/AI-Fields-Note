@@ -1,4 +1,19 @@
 export const briefings = [{
+  issue: "ISSUE 011", date: "2026.09.01",
+  thesis: "企业 Agent 的可靠自治，不是一次性放权，而是把每一步动作、证据与退出条件分别设计。",
+  takeaways: ["按动作风险分别设置自治阈值", "先把模糊 SOP 整理成可执行规格", "把实时本地状态作为工具查询而非静态 Prompt", "用证据账本区分发布、使用、执行与业务改善"],
+  contrarian: "生产案例开始公布自动化比例和处理时间，但长期严重错误率、人工覆盖率与完整单位经济性仍然缺失；扩大部署范围不等于已经证明净业务价值。",
+  items: [
+    { type:"同行评审行业论文 / 生产 A/B 实验", source:"T-Tech + ACL Industry Track", title:"客服 Agent 通过逐动作放权实现 45% 会话自动化", summary:"系统从操作员 UI 轨迹和 Copilot 纠正中学习下一步动作，再由 Critic 只放行高置信步骤；导航、表单等可逆动作可以执行，不确定或高风险动作交还人工。", design:"操作员 UI 轨迹 → JSON 状态与动作对 → 训练下一动作 Policy → Copilot 收集接受和纠正 → 训练 Critic → 执行高置信动作 → 不确定时交还人工并从新状态继续。", evidence:"客户级随机 A/B 测试每组约 15,500 人；系统完成 45% 的会话，操作员活跃时间由 227 秒降至 139 秒，盲评质量无显著下降。数据来自单一企业生态，模型、数据和单位推理成本未公开。", idea:"核赔或转诊 Agent 不输出单一总置信度，而是分别判断执行检查、请求材料、调用工具或停止升级；只自动执行可逆且证据充分的步骤。", url:"https://aclanthology.org/2026.acl-industry.141/", relatedLinks:[{label:"完整 PDF 与架构图",url:"https://aclanthology.org/2026.acl-industry.141.pdf"}] },
+    { type:"同行评审生产案例 / 多 Agent 架构", source:"Amazon India + ACL Industry Track", title:"先修好模糊 SOP，可能比更换模型更有效", summary:"Agent-Ops 先把隐含假设、缺失条件和模糊条款整理成可执行规格，再由 WebAgent、文档核验和合规 Agent 协同处理商品下架申诉。", design:"原始 SOP → 拆分导航、验证与决策步骤 → RAG 生成澄清问题 → 从文档、截图和操作回放提取答案 → 专家 Diff 确认 → WebAgent 操作 → 文档与合规 Agent 核验。", evidence:"整理 SOP 后准确率由 74.9% 提升至 88.1%；论文报告端到端准确率 85%–97%，平均处理时间由 30 分钟降至 5 分钟。作者均来自 Amazon，系统和数据匿名，部署仅观察三个月，公开材料对用户规模也存在表述差异。", idea:"实现 Agent 前先做 SOP Grooming：标出可并行检查、缺失证据时的停止条件、解释空间，以及每一步的输入、输出和通过标准。", url:"https://aclanthology.org/2026.acl-industry.29/", relatedLinks:[{label:"完整 PDF 与系统图",url:"https://aclanthology.org/2026.acl-industry.29.pdf"}] },
+    { type:"全国部署公告 / 视频案例", source:"The Home Depot + Google Cloud", title:"多模态助手进入 2,000 多家门店，但业务收益仍待证明", summary:"Magic Apron 接受文字、语音或商品图片，并结合所选门店库存、货架位置与本地条件生成材料建议；它嵌入 Store Mode、扫码和店内地图，而不是独立聊天页面。", design:"文本、语音或图片 → 产品及项目知识 → 查询门店库存、位置和本地条件 → 生成材料建议或兼容性解释 → 显示货架位置 → 必要时由员工继续协助。", evidence:"覆盖范围和每月数百万次问答来自官方公告；更快找到商品和提高购买信心仅是公司描述的 Pilot 反馈，未公开错误建议率、转人工率、转化率或退货影响。", idea:"转诊协调 Agent 应实时查询专科规则、检查要求和可用时段，只输出下一步和候选选项，由协调员或患者确认。", url:"https://ir.homedepot.com/news-releases/2026/08-27-2026-130112388", relatedLinks:[{label:"Google Cloud 视频案例",url:"https://www.youtube.com/watch?v=c8t_KZeqfVw"}] },
+    { type:"开放数据集 / CSV 与 JSON / 交互图表", source:"Superpower Daily", title:"开放数据集开始把“Agent 发布”和“生产使用”分开记录", summary:"Agent Deployment Monitor v9 收录 2026 年 8 月 17–30 日的 31 条采用记录、49 个直接来源 URL 和 34 家发布者，并分别标记生产部署、Pilot、Agent 证据与其他采用信号。", design:"收集公开报道 → 保存原始来源 → 根据明确措辞分类 → 区分生产、试验与一般采用 → 冻结版本和变更记录 → 提供 CSV、JSON 与交互图表。", evidence:"方法、记录与来源公开，并明确合作公告不能自动视为生产采用；但它仍是编辑型便利样本，生产标签来自公开措辞而非任务日志或独立审计，不能据此计算市场采用率。", idea:"为每个 AI 项目建立证据账本：已构建 → Shadow 运行 → 人工使用 → 自动执行 → 改善业务指标；同时保存样本量、基线、人工覆盖率、单位成本与严重错误数。", url:"https://superpowerdaily.com/research/enterprise-adoption/versions/v9" },
+  ],
+  projectIdeas: [
+    { title:"Selective Next-Step Agent", description:"每次只选择下一项检查、工具调用或升级动作；自动执行可逆步骤，最终决定保留人工，并测量处理时间、轮数与工具成本。", tags:["逐动作自治", "Human-in-the-loop", "可逆执行"] },
+    { title:"SOP-to-Executable-Spec", description:"先发现流程中的模糊、缺失与冲突条件，由专家确认后再允许 Agent 运行，把流程质量变成可测试的系统输入。", tags:["SOP Grooming", "RAG", "执行规格"] },
+  ],
+}, {
   issue: "ISSUE 010", date: "2026.08.30",
   thesis: "业务定义、运行轨迹和数据边界，正在从 Prompt 说明变成可以检查、复用与追责的系统组件。",
   takeaways: ["按业务域拆分 Agent 的指标、数据与权限", "风险登记要覆盖授权范围内的错误行动", "用完整轨迹定位分类、工具选择与执行失败", "跨账户数据访问使用临时最小权限，先判断是否真的需要 Agent"],

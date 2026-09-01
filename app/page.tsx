@@ -58,6 +58,10 @@ const caseVisuals = {
   "https://arxiv.org/html/2605.05287v1": { src: "/cases/permission-aware-rag.webp", alt: "多租户权限感知 RAG 的参考架构图", caption: "租户身份和角色过滤进入检索层，降低跨租户证据泄漏风险。" },
   "https://arxiv.org/html/2602.15859v1": { src: "/cases/customer-service-rag.png", alt: "客户服务知识提取与自动处理结果图表", caption: "历史对话经过质检、知识提取和模拟评估后，只自动处理高置信度问题。" },
   "https://arxiv.org/html/2606.04037v2": { src: "/cases/agent-licensing-evals.png", alt: "Agent 上线测试的跨模型评估热力图", caption: "规则生成的正常、边缘与攻击场景共同形成上线前的证据矩阵。" },
+  "https://aclanthology.org/2026.acl-industry.141/": { src: "/cases/selective-autonomy.png", alt: "选择性自治客服 Agent 的 BPM 数据与动作轨迹管线", caption: "UI 状态、对话和操作轨迹被结构化为训练样本，为逐动作 Policy 与 Critic 提供监督。" },
+  "https://aclanthology.org/2026.acl-industry.29/": { src: "/cases/agent-ops.png", alt: "Agent-Ops 从 SOP 整理到多 Agent 执行的端到端架构", caption: "整理后的 SOP 由编排器分发给网页操作、文档核验与供应链合规 Agent。" },
+  "https://ir.homedepot.com/news-releases/2026/08-27-2026-130112388": { src: "/cases/home-depot-magic-apron.jpg", alt: "Home Depot 与 Google Cloud 介绍门店多模态助手的视频画面", caption: "Magic Apron 把图片问答与门店库存、位置和本地项目条件结合。" },
+  "https://superpowerdaily.com/research/enterprise-adoption/versions/v9": { src: "/cases/agent-deployment-monitor.png", alt: "Superpower Agent Deployment Monitor 研究页面主视觉", caption: "冻结版本分别记录生产、试验和一般采用信号，并开放原始来源与下载。" },
 } as const;
 
 export default function Home() {
