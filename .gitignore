@@ -36,6 +36,8 @@ yarn-error.log*
 
 /dist/
 /edgeone-dist/
+/edgeone/dist/
+/edgeone/src/
 /.wrangler/
 /outputs/
 /work/

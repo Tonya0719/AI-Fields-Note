@@ -3,11 +3,10 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  root: resolve(__dirname, "edgeone"),
-  publicDir: resolve(__dirname, "public"),
+  publicDir: resolve(__dirname, "../public"),
   plugins: [react()],
   build: {
-    outDir: resolve(__dirname, "edgeone-dist"),
+    outDir: "dist",
     emptyOutDir: true,
   },
 });
