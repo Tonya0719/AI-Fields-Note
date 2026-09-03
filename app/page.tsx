@@ -7,6 +7,11 @@ type StoryView = "summary" | "design" | "evidence" | "idea";
 const views: { key: StoryView; label: string }[] = [{ key: "summary", label: "摘要" }, { key: "design", label: "系统设计" }, { key: "evidence", label: "证据与局限" }, { key: "idea", label: "项目启发" }];
 const Arrow = ({ down = false }: { down?: boolean }) => <span aria-hidden="true">{down ? "↓" : "↗"}</span>;
 const caseVisuals = {
+  "https://www.reuters.com/business/retail-consumer/anthropic-launches-ai-agent-blueprints-retailers-ahead-holiday-shopping-season-2026-09-02/": { src: "/cases/home-depot-magic-apron.jpg", alt: "零售场景中的多模态购物助手画面", caption: "相关零售案例视觉：购物 Agent 准备推荐与购物车动作，最终购买仍由用户确认。" },
+  "https://www.snowflake.com/en/blog/engineering/enterprise-mcp-gateway-ai-agent-governance/": { src: "/cases/cross-account-rag.png", alt: "企业 Agent 通过受控网关访问数据与工具的架构图", caption: "相关架构视觉：身份、短期权限和逐次工具检查共同形成访问控制面。" },
+  "https://aclanthology.org/2026.gem-main.17/": { src: "/cases/agent-ops.png", alt: "从规则整理到多阶段 Agent 执行的系统架构图", caption: "相关系统视觉：把流程要求拆成可独立检查的规则，再决定自动处理或人工复核。" },
+  "https://www.reuters.com/legal/litigation/openai-is-building-automated-shutdown-capabilities-ai-tools-letter-lawmakers-2026-09-02/": { src: "/cases/agent-incident-metr.png", alt: "Agent 安全事件调查与执行轨迹分析页面", caption: "相关事故视觉：自动熔断需要在执行轨迹偏离授权目标时切断工具与网络能力。" },
+  "https://www.theguardian.com/australia-news/2026/sep/01/how-misinformation-ai-hallucinations-infiltrating-australian-parliament": { src: "/cases/github-alt-text-quality.png", alt: "自动检查与人工复核共同构成的质量门示意", caption: "相关质检视觉：引用存在、元数据与主张支持关系需要分别核验。" },
   "https://academy.openai.com/public/clubs/news-organizations-b9osl/resources/how-the-washington-posts-builds-ai-agents": { src: "/cases/washington-post-agents.jpg", alt: "OpenAI Academy 与华盛顿邮报的分析 Agent 案例封面", caption: "内容、广告和订阅分别使用各自的业务定义、数据与权限。" },
   "https://www.reuters.com/legal/litigation/ai-agents-go-rogue-cyber-insurers-are-adapting-their-policies-2026-08-27/": { src: "/cases/agent-insurance.jpg", alt: "Reuters Events 保险会议中关于人与 AI 协作的演讲", caption: "相关配图：Reuters Events 保险会议，并非报道中的事故现场。" },
   "https://aws.amazon.com/blogs/machine-learning/evaluate-any-agent-framework-with-amazon-bedrock-agentcore-evaluations/": { src: "/cases/agentcore-trace-evals.png", alt: "AWS 跨框架 AgentCore Evaluations 技术文章封面", caption: "标准化遥测连接请求、模型调用、工具执行与会话级评估。" },
