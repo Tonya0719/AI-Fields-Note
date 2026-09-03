@@ -7,6 +7,11 @@ type StoryView = "summary" | "design" | "evidence" | "idea";
 const views: { key: StoryView; label: string }[] = [{ key: "summary", label: "摘要" }, { key: "design", label: "系统设计" }, { key: "evidence", label: "证据与局限" }, { key: "idea", label: "项目启发" }];
 const Arrow = ({ down = false }: { down?: boolean }) => <span aria-hidden="true">{down ? "↓" : "↗"}</span>;
 const caseVisuals = {
+  "https://www.reuters.com/business/retail-consumer/uks-john-lewis-looks-harness-ai-agent-shopping-difficult-economy-2026-09-03/": { src: "/cases/john-lewis-agent-shopping.jpg", alt: "John Lewis 个性化购物助手概念与商品推荐界面", caption: "相关产品视觉：Agent 入口的价值取决于商品规格、库存和适用条件能否被准确读取。" },
+  "https://www.wired.com/story/meta-pushes-its-new-ai-agent-on-employees-but-eases-off-on-tokenmaxxing/": { src: "/cases/meta-hatch-agent.jpg", alt: "Meta 园区与公司标识", caption: "WIRED 报道视觉：内部 Agent 的采用应由任务结果衡量，而不是 Token 消耗。" },
+  "https://www.axios.com/2026/09/03/house-bill-ai-agents-security": { src: "/cases/stop-rogue-ai-act.jpg", alt: "美国国会议员 Josh Gottheimer 在国会公开活动中发言", caption: "相关国会视觉：拟议标准把 Agent 身份、Owner、工具权限与防篡改日志纳入治理。" },
+  "https://www.reuters.com/legal/government/california-lawmakers-pass-bill-governing-lawyers-use-ai-2026-09-01/": { src: "/cases/california-sb574-ai-law.png", alt: "加州生成式 AI 法律实践指引视觉图", caption: "相关法律视觉：AI 可以辅助检索和起草，但专业判断与提交责任不能转交给模型。" },
+  "https://aclanthology.org/2026.acl-industry.114/": { src: "/cases/policy-executable-decisions.jpg", alt: "自然语言政策到可执行决策论文首页", caption: "论文视觉：模型选择规则路径，金额由确定性引擎计算，歧义交由操作员处理。" },
   "https://www.reuters.com/business/retail-consumer/anthropic-launches-ai-agent-blueprints-retailers-ahead-holiday-shopping-season-2026-09-02/": { src: "/cases/home-depot-magic-apron.jpg", alt: "零售场景中的多模态购物助手画面", caption: "相关零售案例视觉：购物 Agent 准备推荐与购物车动作，最终购买仍由用户确认。" },
   "https://www.snowflake.com/en/blog/engineering/enterprise-mcp-gateway-ai-agent-governance/": { src: "/cases/cross-account-rag.png", alt: "企业 Agent 通过受控网关访问数据与工具的架构图", caption: "相关架构视觉：身份、短期权限和逐次工具检查共同形成访问控制面。" },
   "https://aclanthology.org/2026.gem-main.17/": { src: "/cases/agent-ops.png", alt: "从规则整理到多阶段 Agent 执行的系统架构图", caption: "相关系统视觉：把流程要求拆成可独立检查的规则，再决定自动处理或人工复核。" },
