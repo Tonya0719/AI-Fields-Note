@@ -1,0 +1,125 @@
+{
+  "issue": "ISSUE 005",
+  "date": "2026.08.25",
+  "thesis": "企业 AI 的价值越来越依赖质量门与可审查边界，而不是更高的自治程度。",
+  "takeaways": [
+    "确定性错误与模型怀疑应进入不同处理路径",
+    "评估要覆盖审查负担、冲突与流程副作用",
+    "用实际采用和任务完成衡量业务价值",
+    "让 AI 先生成可验证的中间表示"
+  ],
+  "contrarian": "现场实验能证明 AI 提高部分个体产出，但真实失败案例同时显示：如果审查能力、异常处理和旧流程没有同步升级，更多产出也可能只是把瓶颈推向下游。",
+  "items": [
+    {
+      "type": "工程复盘 / 开源插件",
+      "source": "GitHub",
+      "title": "把“确定错误”和“AI 怀疑”设计成两套质量门",
+      "summary": "GitHub 的无障碍扫描插件先用五项确定性规则识别缺失、文件名、占位符、模糊单词和重复文本，再由可选视觉模型结合图片与周边文字评估语义质量。模型建议默认关闭，避免把成本、延迟与图片外传风险混入基础检查。",
+      "design": "Playwright 提取可访问性树 → 确定性规则默认运行 → 可选视觉模型评估语义质量 → 生成建议 → 转为 GitHub Issue → 人工确认。",
+      "evidence": "代码、测试与配置均公开，但仍处于 Public Preview；尚未公布真实团队中的误报率、修复率或辅助技术用户验证结果。",
+      "idea": "把 SafePaste 的 Regex 明确命中标为“已确认 PII”，把模型判断但证据不足的结果标为“疑似 PII / NEEDS REVIEW”，采用不同默认动作和提示语言。",
+      "url": "https://github.blog/engineering/user-experience/your-alt-text-passes-automated-checks-that-doesnt-mean-its-any-good/",
+      "image": {
+        "src": "/cases/github-alt-text-quality.png",
+        "alt": "GitHub 无障碍扫描插件的文章视觉图",
+        "caption": "确定性规则与可选视觉模型被设计为两套不同的质量门。"
+      }
+    },
+    {
+      "type": "独立事故报道 / 历史演示",
+      "source": "Reuters",
+      "title": "Starbucks 停用 AI 库存盘点：识别准确率不是唯一问题",
+      "summary": "门店员工用平板、相机与 LiDAR 扫描牛奶和糖浆等库存。全国上线约九个月后，系统因混淆相似商品、漏识别和盘点方式不一致而被停用，问题同时涉及模型、环境与流程整合。",
+      "design": "员工扫描货架 → 相机与 LiDAR 建立空间信息 → 视觉模型识别 SKU 与数量 → 写入库存系统；无法识别的结果原本缺少清晰、低摩擦的人工确认队列。",
+      "evidence": "Reuters 核实内部通知并采访两名知情人士，比厂商案例更独立；但没有披露准确率、门店差异或财务损失，无法分离模型、环境、供应链数据与快速推广的影响。",
+      "idea": "为视觉盘点加入相似类别混淆矩阵和未识别队列；模型看不清时不猜数量，按门店光照、货架布局和 SKU 分层评估。",
+      "url": "https://www.reuters.com/business/starbucks-scraps-ai-inventory-tool-across-north-america-2026-05-21/",
+      "image": {
+        "src": "/cases/starbucks-ai-inventory.jpg",
+        "alt": "Starbucks 员工使用移动设备扫描货架库存",
+        "caption": "真实门店里的光照、货架和相似包装共同挑战视觉盘点系统。"
+      }
+    },
+    {
+      "type": "工程演示 / CLI 工具 / 实证论文",
+      "source": "GitHub + 独立研究团队",
+      "title": "Coding Agent 生成更多代码后，瓶颈转移到人能否审查",
+      "summary": "一次 1,721 行的 Agent 改动混合数据模型、API、RAG 与 UI。GitHub 将其拆成有依赖关系的多层 PR，每层独立运行 CI 并交给对应领域 Reviewer，让审查能力成为架构的一部分。",
+      "design": "数据层 PR → 搜索 API PR → Chat Grounding PR → 引用与状态 UI PR；各层独立 CI、领域审查，并由 gh-stack 同步依赖分支。",
+      "evidence": "独立论文分析 33,596 个 Agent PR，跨 Agent 并发 PR 的文本冲突率为 41.7%，同一 Agent 为 19.8%；但未测量逻辑错误、审查质量或生产事故。",
+      "idea": "固定同一 Coding Agent 与功能任务，对比一个巨型 PR 和 3–4 个依赖 PR 的审查耗时、缺陷发现数、合并冲突及返工次数。",
+      "url": "https://github.blog/engineering/turn-one-giant-ai-generated-pull-request-to-a-reviewable-stack/",
+      "image": {
+        "src": "/cases/github-stacked-prs.png",
+        "alt": "GitHub 关于可审查 PR 堆栈的文章视觉图",
+        "caption": "把巨型 Agent 改动拆成依赖清晰、可分别审查的 PR。"
+      }
+    },
+    {
+      "type": "生产工程系列 / 架构图 / 音频文章",
+      "source": "Netflix Technology Blog",
+      "title": "企业 RAG 不直接回答，而是生成可验证的查询",
+      "summary": "Netflix 把员工自然语言转换为 Graph Search DSL。系统只检索与问题相关的字段和合法值，再对模型生成的 DSL 做 AST、字段、类型和值域校验，最后映射成用户可编辑的筛选项。",
+      "design": "用户问题 → Field RAG 检索相关字段 → Controlled Vocabulary RAG 检索合法值 → LLM 生成 DSL → AST 与语义校验 → 映射为可编辑 UI 筛选项。",
+      "evidence": "生产团队公开了详细架构和关键失败模式，但这是系列第一篇，尚未给出准确率、延迟、用户规模或与普通检索方案的完整对照。",
+      "idea": "让 AI 生成可验证中间表示：自然语言 → 发票检查规则 JSON → Schema 验证 → 执行 → 用户查看并修改规则，而非直接判定是否合规。",
+      "url": "https://netflixtechblog.com/the-ai-evolution-of-graph-search-at-netflix-d416ec5b1151",
+      "image": {
+        "src": "/cases/netflix-graph-search.png",
+        "alt": "Netflix Graph Search 自然语言查询的端到端架构图",
+        "caption": "RAG 只构建相关上下文，生成的 DSL 还需经过语法和幻觉校验。"
+      }
+    },
+    {
+      "type": "同行评审论文 / 补充数据",
+      "source": "Management Science + MIT",
+      "title": "4,867 名开发者的现场实验：工具可用不代表员工会使用",
+      "summary": "Microsoft、Accenture 和一家财富 100 强制造企业随机向部分开发者开放 GitHub Copilot。实际采用者每周完成任务数提高 26.08%，提交与编译活动也增加，经验较少者采用率和收益更高。",
+      "design": "随机开放权限 → 记录实际使用 → 比较任务完成、提交与编译 → 将“可访问”与“真正采用”分开估计。",
+      "evidence": "随机开放、真实工作环境和多企业样本提供较强因果证据；但 26.08% 的标准误为 10.3%，且未完整衡量缺陷、维护成本与 Reviewer 负担。",
+      "idea": "项目必须分别记录获得权限、实际使用、结果被采用和最终任务完成，避免把“没人使用”和“工具无效”混为一谈。",
+      "url": "https://pubsonline.informs.org/doi/10.1287/mnsc.2025.00535",
+      "image": {
+        "src": "/cases/copilot-field-experiment.png",
+        "alt": "生成式 AI 对软件开发者影响的现场实验论文首页",
+        "caption": "三项随机现场实验将工具访问、真实采用与任务完成分开衡量。"
+      }
+    },
+    {
+      "type": "行业圆桌 / 现场投票",
+      "source": "Utility Analytics Institute",
+      "title": "公用事业仍主要停留在知识搜索和员工辅助",
+      "summary": "约 40 名参会者中有 11 人参与成熟度投票：9 家仍在 Pilot，1 家进入生产，1 家跨业务扩展。知识搜索、员工生产力和工作流自动化明显多于客户直接交互。",
+      "design": "窄业务需求 → 可信数据与治理 → AI 提出建议并显示来源 → 领域专家批准 → 随信任增长逐步自动化。",
+      "evidence": "资料来自 ERCOT、Duke Energy 和 Austin Energy 等真实从业者，但样本仅 11 人且为自愿参会者；详细案例、ROI 和准确率没有公开。",
+      "idea": "关键基础设施的合理起点是工程文档证据助手：围绕一个窄故障类型检索操作规程、显示引用与版本，再由工程师选择行动。",
+      "url": "https://utilityanalytics.com/how-utilities-are-operationalizing-gen-ai/",
+      "image": {
+        "src": "/cases/utilities-genai.jpg",
+        "alt": "公用事业行业生成式 AI 圆桌文章视觉图",
+        "caption": "公用事业从员工辅助与知识搜索起步，逐步建立治理和信任。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "双层质量门",
+      "description": "规则只处理可确定的错误，模型只标记需要语义判断的疑似问题；两类结果采用不同默认动作、提示语言与人工复核路径。",
+      "tags": [
+        "Quality Gate",
+        "风险分层",
+        "Human-in-the-loop"
+      ]
+    },
+    {
+      "title": "可验证中间表示",
+      "description": "让 AI 先生成 DSL、JSON 规则、依赖 PR 或候选盘点结果，再由 Schema、CI、解析器或人验证后执行。",
+      "tags": [
+        "Structured Output",
+        "验证",
+        "可审计"
+      ]
+    }
+  ],
+  "contentHash": "de3125023bce14cb"
+}

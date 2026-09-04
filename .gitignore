@@ -41,3 +41,6 @@ yarn-error.log*
 /.wrangler/
 /outputs/
 /work/
+
+# generated from the canonical per-issue JSON files
+/content/briefings.generated.json

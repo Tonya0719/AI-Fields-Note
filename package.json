@@ -6,12 +6,14 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
-    "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
+    "dev": "vinext dev",
+    "build": "npm run validate:content && vinext build",
     "build:edgeone": "npm --prefix edgeone run build",
-    "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
+    "start": "vinext start",
+    "content:build": "node scripts/build-content.mjs",
+    "validate:content": "npm run content:build && node scripts/validate-briefings.mjs",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern edgeone-dist --ignore-pattern .next",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern edgeone/dist --ignore-pattern edgeone-dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

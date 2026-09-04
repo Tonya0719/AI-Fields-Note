@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "content/issues/*.json",
+  "issues": [
+    {
+      "issue": "ISSUE 013",
+      "date": "2026.09.04",
+      "thesis": "企业 Agent 正在形成新的流量入口、员工工具和治理对象，但使用量不是价值；更可靠的边界是让模型负责信息提取与有限选择，把计算、授权、提交和专业责任留给确定性系统或人。",
+      "itemCount": 5,
+      "contentHash": "1b1f2b2c1d511f75",
+      "file": "issues/2026-09-04.json"
+    },
+    {
+      "issue": "ISSUE 012",
+      "date": "2026.09.03",
+      "thesis": "Agent 越接近交易、企业工具和正式决策，越需要把授权、逐规则验证与自动熔断做成独立系统层。",
+      "itemCount": 5,
+      "contentHash": "131e826a55cc831b",
+      "file": "issues/2026-09-03.json"
+    },
+    {
+      "issue": "ISSUE 011",
+      "date": "2026.09.01",
+      "thesis": "企业 Agent 的可靠自治，不是一次性放权，而是把每一步动作、证据与退出条件分别设计。",
+      "itemCount": 4,
+      "contentHash": "2546d3bc458e3a98",
+      "file": "issues/2026-09-01.json"
+    },
+    {
+      "issue": "ISSUE 010",
+      "date": "2026.08.30",
+      "thesis": "业务定义、运行轨迹和数据边界，正在从 Prompt 说明变成可以检查、复用与追责的系统组件。",
+      "itemCount": 4,
+      "contentHash": "81d9c6d174e993b9",
+      "file": "issues/2026-08-30.json"
+    },
+    {
+      "issue": "ISSUE 009",
+      "date": "2026.08.29",
+      "thesis": "窄任务、分层评估和安全失败路径，仍比扩大 Agent 自治范围更能形成可靠的生产价值。",
+      "itemCount": 5,
+      "contentHash": "5a275cab356e58cf",
+      "file": "issues/2026-08-29.json"
+    },
+    {
+      "issue": "ISSUE 008",
+      "date": "2026.08.28",
+      "thesis": "企业正在把 Agent 当作需要独立身份、权限、预算和责任边界的新型工作主体，而不仅是一个聊天界面。",
+      "itemCount": 5,
+      "contentHash": "537eb5d6495e7919",
+      "file": "issues/2026-08-28.json"
+    },
+    {
+      "issue": "ISSUE 007",
+      "date": "2026.08.27",
+      "thesis": "系统边界、独立身份和失败反馈，比让 Agent 变得更聪明，更决定生产可靠性。",
+      "itemCount": 5,
+      "contentHash": "fad618bc489d9097",
+      "file": "issues/2026-08-27.json"
+    },
+    {
+      "issue": "ISSUE 006",
+      "date": "2026.08.26",
+      "thesis": "企业 Agent 的新边界，不是能生成什么，而是能访问哪些证据、继承谁的权限，以及输出如何被验证。",
+      "itemCount": 5,
+      "contentHash": "783ad1736f6defa8",
+      "file": "issues/2026-08-26.json"
+    },
+    {
+      "issue": "ISSUE 005",
+      "date": "2026.08.25",
+      "thesis": "企业 AI 的价值越来越依赖质量门与可审查边界，而不是更高的自治程度。",
+      "itemCount": 6,
+      "contentHash": "de3125023bce14cb",
+      "file": "issues/2026-08-25.json"
+    },
+    {
+      "issue": "ISSUE 004",
+      "date": "2026.08.24",
+      "thesis": "可靠企业 AI 的差距，越来越少来自模型本身，越来越多来自工作流恢复、评估设计和证据治理。",
+      "itemCount": 6,
+      "contentHash": "e558502c2d1b6563",
+      "file": "issues/2026-08-24.json"
+    },
+    {
+      "issue": "ISSUE 003",
+      "date": "2026.08.23",
+      "thesis": "Agent 真正进入业务流程后，关键不只是完成任务，而是用更稳定的接口执行、持续评估失败，并优先处理可追溯的异常。",
+      "itemCount": 5,
+      "contentHash": "30c3e5674ca8e255",
+      "file": "issues/2026-08-23.json"
+    },
+    {
+      "issue": "ISSUE 002",
+      "date": "2026.08.22",
+      "thesis": "企业 AI 的下一步，不是让 Agent 更自由，而是让每一步更可控、可评估、可追踪。",
+      "itemCount": 5,
+      "contentHash": "affc3a677c214aaf",
+      "file": "issues/2026-08-22.json"
+    },
+    {
+      "issue": "ISSUE 001",
+      "date": "2026.08.21",
+      "thesis": "进入生产的 Agent，往往并不追求高度自主。",
+      "itemCount": 5,
+      "contentHash": "7e3c4ac68b84ba5c",
+      "file": "issues/2026-08-21.json"
+    }
+  ]
+}

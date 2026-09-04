@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://19tonya7.com/schemas/briefing.schema.json",
+  "title": "AI Field Notes issue",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["issue", "date", "thesis", "takeaways", "contrarian", "items", "projectIdeas", "contentHash"],
+  "properties": {
+    "issue": { "type": "string", "pattern": "^ISSUE [0-9]{3}$" },
+    "date": { "type": "string", "pattern": "^[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}$" },
+    "thesis": { "type": "string", "minLength": 20 },
+    "takeaways": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "type": "string", "minLength": 4 }
+    },
+    "contrarian": { "type": "string", "minLength": 20 },
+    "items": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/item" }
+    },
+    "projectIdeas": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/project" }
+    },
+    "contentHash": { "type": "string", "pattern": "^[a-f0-9]{16}$" }
+  },
+  "$defs": {
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "format": "uri", "pattern": "^https://" }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["src", "alt", "caption"],
+      "properties": {
+        "src": { "type": "string", "pattern": "^/cases/" },
+        "alt": { "type": "string", "minLength": 1 },
+        "caption": { "type": "string", "minLength": 1 }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "source", "title", "summary", "design", "evidence", "idea", "url", "image"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 20 },
+        "design": { "type": "string", "minLength": 20 },
+        "evidence": { "type": "string", "minLength": 20 },
+        "idea": { "type": "string", "minLength": 20 },
+        "url": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "relatedLinks": { "type": "array", "items": { "$ref": "#/$defs/link" } },
+        "image": { "$ref": "#/$defs/image" }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "description", "tags"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 20 },
+        "tags": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
