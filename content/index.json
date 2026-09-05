@@ -3,6 +3,14 @@
   "generatedFrom": "content/issues/*.json",
   "issues": [
     {
+      "issue": "ISSUE 014",
+      "date": "2026.09.05",
+      "thesis": "企业 Agent 最值得自动化的并非最终决策，而是证据收集、意图澄清和可逆的下一步；组件上线前审查与运行时权限控制必须同时存在。",
+      "itemCount": 5,
+      "contentHash": "3f1195c66240e9f6",
+      "file": "issues/2026-09-05.json"
+    },
+    {
       "issue": "ISSUE 013",
       "date": "2026.09.04",
       "thesis": "企业 Agent 正在形成新的流量入口、员工工具和治理对象，但使用量不是价值；更可靠的边界是让模型负责信息提取与有限选择，把计算、授权、提交和专业责任留给确定性系统或人。",
