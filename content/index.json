@@ -3,6 +3,14 @@
   "generatedFrom": "content/issues/*.json",
   "issues": [
     {
+      "issue": "ISSUE 015",
+      "date": "2026.09.06",
+      "thesis": "当前最可行的企业 Agent 并非扩大自由行动，而是缩小上下文、拆分专业步骤，并在工具调用前后设置独立检查层。",
+      "itemCount": 5,
+      "contentHash": "186e429b5c6ae34a",
+      "file": "issues/2026-09-06.json"
+    },
+    {
       "issue": "ISSUE 014",
       "date": "2026.09.05",
       "thesis": "企业 Agent 最值得自动化的并非最终决策，而是证据收集、意图澄清和可逆的下一步；组件上线前审查与运行时权限控制必须同时存在。",
