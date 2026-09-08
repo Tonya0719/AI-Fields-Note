@@ -3,6 +3,14 @@
   "generatedFrom": "content/issues/*.json",
   "issues": [
     {
+      "issue": "ISSUE 016",
+      "date": "2026.09.08",
+      "thesis": "Agent 项目应把业务状态、停止条件和可审计中间表示放在模型之外；模型适合解释、路由和准备动作，最终状态必须由测试、规则或人确认。",
+      "itemCount": 5,
+      "contentHash": "9c32ee2836e1f3dc",
+      "file": "issues/2026-09-08.json"
+    },
+    {
       "issue": "ISSUE 015",
       "date": "2026.09.06",
       "thesis": "当前最可行的企业 Agent 并非扩大自由行动，而是缩小上下文、拆分专业步骤，并在工具调用前后设置独立检查层。",
