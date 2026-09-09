@@ -3,6 +3,14 @@
   "generatedFrom": "content/issues/*.json",
   "issues": [
     {
+      "issue": "ISSUE 017",
+      "date": "2026.09.09",
+      "thesis": "Agent 一旦能够付款、写入系统或更新高风险模型，就不能只用“任务成功率”验收；应把授权范围、确定性约束、精确证据和人工签字设计成业务状态，而非依赖模型自行克制。",
+      "itemCount": 5,
+      "contentHash": "0fa3d5cb5dada49e",
+      "file": "issues/2026-09-09.json"
+    },
+    {
       "issue": "ISSUE 016",
       "date": "2026.09.08",
       "thesis": "Agent 项目应把业务状态、停止条件和可审计中间表示放在模型之外；模型适合解释、路由和准备动作，最终状态必须由测试、规则或人确认。",
