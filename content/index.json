@@ -3,6 +3,14 @@
   "generatedFrom": "content/issues/*.json",
   "issues": [
     {
+      "issue": "ISSUE 018",
+      "date": "2026.09.11",
+      "thesis": "Agent 治理不能只判断“是否为可信 Agent”，还要分别验证委托意图、动作范围、运行轨迹和人工接管质量；尤其在支付、客服和开发工具中，错误被发现得太晚，即使有人接手也未必能恢复结果。",
+      "itemCount": 4,
+      "contentHash": "7b049c37598154fa",
+      "file": "issues/2026-09-11.json"
+    },
+    {
       "issue": "ISSUE 017",
       "date": "2026.09.09",
       "thesis": "Agent 一旦能够付款、写入系统或更新高风险模型，就不能只用“任务成功率”验收；应把授权范围、确定性约束、精确证据和人工签字设计成业务状态，而非依赖模型自行克制。",
