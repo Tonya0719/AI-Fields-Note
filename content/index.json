@@ -3,6 +3,22 @@
   "generatedFrom": "content/issues/*.json",
   "issues": [
     {
+      "issue": "ISSUE 020",
+      "date": "2026.09.14",
+      "thesis": "模型能力提升不能代替状态管理与边界控制；生产系统需要在模型之外过滤可见数据、保存业务状态、校验确定性字段，并用真实人工接受率或业务对照决定何时自动执行。",
+      "itemCount": 4,
+      "contentHash": "fc99bc373230ad2b",
+      "file": "issues/2026-09-14.json"
+    },
+    {
+      "issue": "ISSUE 019",
+      "date": "2026.09.13",
+      "thesis": "企业 Agent 不能只验收格式、局部动作或组件说明，必须分别验证语义目标、组件增量、跨角色交接和最终业务状态。",
+      "itemCount": 5,
+      "contentHash": "f695c7b5e4ef5d32",
+      "file": "issues/2026-09-13.json"
+    },
+    {
       "issue": "ISSUE 018",
       "date": "2026.09.11",
       "thesis": "Agent 治理不能只判断“是否为可信 Agent”，还要分别验证委托意图、动作范围、运行轨迹和人工接管质量；尤其在支付、客服和开发工具中，错误被发现得太晚，即使有人接手也未必能恢复结果。",
