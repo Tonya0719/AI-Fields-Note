@@ -1,0 +1,135 @@
+{
+  "issue": "ISSUE 021",
+  "date": "2026.09.17",
+  "thesis": "过去24小时没有出现证据充分的新生产部署，本期因此选取一项此前未覆盖的工程产品更新，以及三项带公开实验或评审的研究。它们共同反对“把更多决策交给Agent即可提升系统”的直觉：持续执行需要权限和待办边界，复杂文档需要显式解析，RAG编排应按组件收益选择，工具凭证则应随任务临时缩小，而不是永久授予角色的全部能力。",
+  "takeaways": [
+    "Atlassian让Jira持续扫描待办并生成PR，但核心控制仍未公开验证",
+    "摩根大通多模态RAG显示：报告要解析结构，幻灯片才适合整页处理",
+    "Agentic RAG并非总更好：输入Token平均多3.3倍，重检索反而落后",
+    "动态权限数据集把“角色可做什么”缩小为“本次任务需要什么”"
+  ],
+  "contrarian": "四组材料共同指出，Agent系统应在“需要变化的部分”与“必须稳定的部分”之间划线。Atlassian让Agent持续发现任务，但任务资格、仓库可见范围和合并权仍应固定；MM‑BizRAG根据文档结构改变摄取方式，却保持引用Artifact可追踪；RAG对照显示模型适合自适应改写，但确定性重排在筛选证据上更可靠；动态权限则把角色长期能力改成按任务临时发放。证据层级仍不均衡：Atlassian只有产品范围和上线阶段，没有效果分母；两项RAG研究有细致对照，但主要是离线基准，且企业私有数据无法复现；权限研究开放方法，却尚未执行真实授权。跨来源最稳健的结论不是“固定流程优于Agent”或相反，而是每个自适应决策都应证明相对固定组件的增量，并受权限、成本、终止条件和人工恢复约束。",
+  "items": [
+    {
+      "type": "独立产品报道＋企业开发工作流集成＋权限与度量设计",
+      "source": "ITPro、Atlassian",
+      "title": "Atlassian让Jira持续扫描待办并生成PR，但核心控制仍未公开验证",
+      "summary": "Atlassian把Coding Agent从单次对话扩展为Jira中的持续循环：系统扫描定义清楚且尚未分配的Backlog，委派Agent编写和测试代码，再创建待审PR。Code Context通过Teamwork Graph提供跨仓库信息，Standards集中维护编码规则，AI Review按规则检查变更；DX则尝试把Agent会话关联到交付吞吐、质量、采用率和成本。价值在于将任务、上下文、产物与度量放入同一工作记录，而非只统计生成代码量。",
+      "design": "Jira中的合格待办触发循环，Code Context从获准仓库及团队知识中组装上下文，Coding Agent修改代码、执行测试并创建可审阅PR；Standards把组织规则映射到仓库，独立Review Agent标记不符合项。Agent Context Controls限定哪些Agent可进入某个空间及可见内容，Usage Dashboard把会话关联到Jira任务，DX汇总工程指标。公开资料没有说明合格待办判定、凭证范围、失败重试、并发冲突、测试沙箱、超时或回滚方式；目前产物应停在PR，由工程师决定合并。",
+      "evidence": "确认事实：Code Context正向付费客户开放测试；Agentic Loops、Standards和AI Review处于私有早期访问，Context Controls与Usage Dashboard计划后续正式提供。厂商主张：统一上下文、审计和DX指标可让Agent开发工作进入可治理规模。独立证据：ITPro核实了功能范围和上线阶段，但未提供客户实测。尚未证明：没有披露仓库数、任务量、PR接受率、缺陷逃逸率、交付周期、成本、越权事件或与人工开发的对照；功能仍分处Beta与私测，端到端控制链尚不能外部审计，也不能据此证明开发效率或代码质量提升。",
+      "idea": "为一个维护仓库做“Jira到PR”窄试点：只接受带文件范围、验收测试和负责人标签的低风险任务，Agent只能开分支和PR，不能合并；失败两次即转人员。以合格任务识别率、测试通过率、PR接受率、审阅分钟数、越界文件数、缺陷回退率和每个合并PR成本验收。",
+      "url": "https://www.itpro.com/software/development/atlassian-introduces-always-on-capabilities-for-agentic-development-workflows",
+      "relatedLinks": [
+        {
+          "label": "Jira产品页",
+          "url": "https://www.atlassian.com/software/jira"
+        },
+        {
+          "label": "Atlassian DX平台",
+          "url": "https://www.atlassian.com/software/compass/enterprise/dx"
+        }
+      ],
+      "image": {
+        "src": "/cases/atlassian-agentic-loops.jpg",
+        "alt": "Atlassian持续Agent开发工作流相关报道视觉",
+        "caption": "资料视觉：持续开发循环把Jira待办、代码上下文、PR审阅与工程度量连成一条工作记录。"
+      }
+    },
+    {
+      "type": "ACL同行评审行业论文＋企业私有数据＋公开多模态基准",
+      "source": "JPMorgan Chase、Georgia Tech；ACL 2026 Industry Track",
+      "title": "摩根大通多模态RAG显示：报告要解析结构，幻灯片才适合整页处理",
+      "summary": "MM‑BizRAG没有把所有PDF、Word和PPT统一渲染成页面图片，而是先区分纵向报告与横向幻灯片。报告经过版面解析，表格、图片和正文保持原始位置；幻灯片则保留整页视觉语义。检索索引可以使用紧凑文字表示，生成阶段再装配原始表格和图像。该设计在金融报告基准上较纯视觉方案最高提高约32个百分点，并说明复杂文档RAG的主要杠杆可能是摄取结构，而非更大的视觉模型。",
+      "design": "文件先由元数据或LLM分类为报告型或幻灯片型。报告通过Docling提取正文、表格和图片，以占位符维持阅读顺序；表格转Markdown并生成逐行描述，图片由VLM描述和过滤。幻灯片保留页面图像及整页说明。在线查询先改写，经稀疏与稠密混合检索、RRF和LLM重排，再把命中的文字与对应原始Artifact装配给GPT‑4.1生成答案。系统未披露用户级文档权限、无答案门、人工升级、索引删除传播或超时恢复，属于评测架构而非完整生产工作流。",
+      "evidence": "同行评审证据：私有集含1,048份文档、20,429页和1,908题，横跨30个业务领域；另测试SlideVQA及FinRAGBench‑V。最佳配置在FinRAGBench‑V的FastRAGEval召回为82.4%，ColPali为49.3%；推荐TCTE在垂直文档上仅落后最佳1–3点，却约快一倍。200例双人盲标中，新评委与人工的Pearson相关为0.808，RAGChecker为0.748。局限：金融基准只处理213份英文PDF而非完整1,100余份语料；私有集和答案不能公开，内部对照也仅为文字RAG，生产流量、用户采纳、权限错误和单位成本均未报告。",
+      "idea": "为财务团队选50份年报和20套路演PPT：报告按正文、表格和图像解析，PPT按整页处理；答案必须返回页码及原始Artifact，证据不完整即拒答。比较统一整页方案与结构路由方案的Recall@K、表格数值准确率、引用正确率、P95时延、人工复核分钟数和每题成本。",
+      "url": "https://aclanthology.org/2026.acl-industry.134/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.134.pdf"
+        },
+        {
+          "label": "HTML全文与实验表",
+          "url": "https://arxiv.org/html/2606.04231"
+        }
+      ],
+      "image": {
+        "src": "/cases/mm-bizrag.jpg",
+        "alt": "MM-BizRAG多模态企业文档研究论文首页",
+        "caption": "论文视觉：报告按结构解析，幻灯片保留整页视觉语义，再向生成阶段装配原始Artifact。"
+      }
+    },
+    {
+      "type": "ACL同行评审对照研究＋公开数据集＋成本与时延评估",
+      "source": "FBK、University of Padova、Cargill等；ACL 2026 Industry Track",
+      "title": "Agentic RAG并非总更好：输入Token平均多3.3倍，重检索反而落后",
+      "summary": "研究在四个公开数据集上对比固定的Enhanced RAG与由LLM自行决定检索、改写和重试的Agentic RAG。Agent在窄领域意图路由和自适应查询改写上占优，但面对边界宽泛的事实核查任务时容易错误调用检索；重复检索也没有替代显式重排器。总体上Agent方案平均消耗3.3倍输入Token、1.9倍输出Token和1.5倍时间。结论不是拒绝Agent，而是只在确有自适应收益的环节使用它。",
+      "design": "Enhanced流程由语义路由器、固定HyDE改写、向量检索、ELECTRA重排和生成器串联；Agentic流程以同一生成模型为Orchestrator，最多运行三轮，自行决定是否调用唯一RAG工具、是否改写或再次检索。实验保持Embedding、知识库和生成条件尽量一致，并分别测意图路由、改写、文档精炼和模型规模。研究没有部署身份、资料权限、人工接管或业务写入；实际企业系统仍需在模型外限定语料范围，并把拒答、低置信度及超时送交人员。",
+      "evidence": "同行评审证据：四个数据集共覆盖12,336个查询；意图实验每个领域使用500条有效与500条无效查询。Agent在FIQA和CQA‑EN的F1为98.8%和99.8%，但在FEVER仅64.6%，固定路由器为87.9%。Agent改写平均NDCG@10高2.8点；显式改写加重排则达49.5，Agent仅43.9。Agent只在约10%的案例重检索，其中53%的文档仍相同。局限：无效问题由GPT‑4o合成，Agent只有一个工具且最多三轮；答案质量部分依赖LLM评委，没有真实用户、生产故障或ROI。成本比例会随模型、缓存和工具数变化，不能外推为固定费率。",
+      "idea": "为内部政策问答建立组件级对照：固定路由、Agent路由，固定改写、Agent改写，以及显式重排分别组合测试；Agent最多两轮，只能检索和拒答。用严格答案正确率、错误检索率、NDCG@10、无效重试、Token、P95时延及每个正确答案成本选择最小架构。",
+      "url": "https://aclanthology.org/2026.acl-industry.5/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.5.pdf"
+        },
+        {
+          "label": "HTML全文与成本表",
+          "url": "https://arxiv.org/html/2601.07711v2"
+        }
+      ],
+      "image": {
+        "src": "/cases/agentic-rag-comparison.jpg",
+        "alt": "Agentic RAG与固定RAG对照研究论文首页",
+        "caption": "论文视觉：逐组件比较路由、改写与重排的质量、Token成本和时延。"
+      }
+    },
+    {
+      "type": "ICML安全Workshop论文＋开放合成数据集＋权限策略架构",
+      "source": "AIWILD at ICML 2026",
+      "title": "动态权限数据集把“角色可做什么”缩小为“本次任务需要什么”",
+      "summary": "该研究针对企业Agent常见的静态过度授权：一个HR或财务Agent持有角色可能用到的全部工具，即使当前任务只需读取一项记录。作者提出三源权限决策，把角色上限、当前任务分类和危险能力组合禁令求交集，仅为这次任务签发最小能力；同时发布600条跨部门任务、15类工具权限的标注集。它把“最小权限”从岗位配置推进到逐任务授权，但目前验证的是政策设计过程，并非运行中安全收益。",
+      "design": "请求首先受到角色权限天花板约束；任务分类器再预测完成当前目标需要的工具集合；策略层最后禁止危险组合，例如同时具备敏感数据读取和外发能力。三层交集决定临时凭证，可采用强制模式直接拒绝，或观察模式仅记录超出任务语境的权限请求。数据生成与权限标注分两轮完成，避免由同一提示自证。论文未实现真实IAM、凭证签发、身份委托、撤权、缓存、超时或人工审批；分类冲突和高风险请求在生产中应默认拒绝并转权限所有者。",
+      "evidence": "开放研究证据：数据集包含600条企业任务和15类权限；60条样本产生688项人工复核决定，审阅前后Cohen’s κ分别为0.917和0.967。用合成任务反复检查政策后，角色上限冲突由46项降至3项，减少93%。能够证明：结构化任务样本能发现权限政策内部矛盾，并形成可测的最小权限标签。不能证明：论文没有运行Agent、攻击实验、误拒率、任务成功率或真实事故数据；数据、组织政策和全部标签均为单一作者构造，人工样本仅占10%。高一致性不等于分类器能在含糊、恶意或多阶段真实请求中正确授权。",
+      "idea": "为采购Agent建立逐任务权限原型：从读供应商、读报价、建草稿、外发和审批五项能力中临时签发最小集合；读敏感报价与外发不能同时出现，异常请求转采购主管。以权限精确率、过度授权率、正确拒绝、人工升级率、撤权时延和任务完成率验收。",
+      "url": "https://arxiv.org/abs/2607.22445",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://arxiv.org/pdf/2607.22445"
+        },
+        {
+          "label": "OpenReview版本",
+          "url": "https://openreview.net/attachment?id=fTdw60ITBv&name=pdf"
+        }
+      ],
+      "image": {
+        "src": "/cases/task-scoped-permissions.jpg",
+        "alt": "逐任务最小权限策略研究论文首页",
+        "caption": "论文视觉：角色上限、任务需求与危险能力禁令求交集，形成临时最小权限。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "Component-by-Component RAG Gate",
+      "description": "面向一个窄知识库，分别对路由、查询改写、重排和生成做固定组件与Agent组件的成对实验；只保留具有显著质量增益且单位成本可接受的自治环节，并记录每次检索、拒答和人工升级。",
+      "tags": [
+        "组件对照",
+        "RAG评估",
+        "成本门"
+      ]
+    },
+    {
+      "title": "Task-Scoped Coding Loop",
+      "description": "从Jira中只接收带文件范围、测试和审批人的低风险维护任务，为每次运行签发短期仓库权限；Agent只能创建PR，不能合并或读取无关仓库。以越权拦截、测试成功、PR接受率、审阅时间、凭证撤销和回退率形成发布门。",
+      "tags": [
+        "任务权限",
+        "Coding Agent",
+        "PR门"
+      ]
+    }
+  ],
+  "contentHash": "55c2cd3cceea5090"
+}
