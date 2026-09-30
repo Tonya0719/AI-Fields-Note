@@ -1,0 +1,151 @@
+{
+  "issue": "ISSUE 033",
+  "date": "2026.09.30",
+  "thesis": "本期包含两项9月28日至29日发布的Agent产品与安全基础设施，以及两项此前未覆盖、带生产对照的同行评审案例。共同信号是：长期运行Agent必须把权限、凭证、网络和批准条件固化在模型之外；面向客户的窄流程则可通过受限动作、证据引用与明确拒答取得可测收益。产品发布证明控制面正在形成，但只有真实任务的解决率、越权漏检、误阻断和人工接管数据，才能判断这些控制是否有效。",
+  "takeaways": [
+    "OpenAI让Dots持续处理跨应用任务，但目前没有可靠性或业务收益分母",
+    "NVIDIA把Agent边界下沉到内核与独立DPU，但阻断效果尚无公开实验",
+    "FinRAG‑12B把银行查询解决率从77.4%提高到84.5%，满意度增幅却不显著",
+    "百度语音Agent达到83.9%任务成功率，但“每日40万通”主要是容量而非A/B流量"
+  ],
+  "contrarian": "四项材料对应持续Agent落地的四道不同门。Dots在产品层规定何时只读、何时请求用户批准；OpenShell与Sentry把文件、网络、凭证和停机能力下沉到模型无法自行修改的执行层；FinRAG用引用与拒答决定是否应回答；DuIVRS‑2则把语音Agent限制在状态机允许的下一动作。它们共同说明，“人在环中”只有绑定具体权限、业务状态和失败恢复才有意义，泛化的人工监督不能替代确定性边界。 证据强度也不可混用。Dots与NVIDIA代表最新产品方向，但前者没有业务效果，后者没有公开攻击对照；FinRAG和DuIVRS‑2提供真实流量及成本数字，却分别存在非同期对照和容量表述放大的问题。最稳健的工程原则是同时记录三类分母：Agent尝试了多少动作、执行层阻止或升级了多少、最终有多少业务任务正确完成。若只公布连接器数量、合作伙伴数量或理论吞吐，无法判断自治系统产生的是净价值还是新的验证负担。",
+  "items": [
+    {
+      "type": "新产品发布＋持续运行Agent＋独立现场报道",
+      "source": "2026年9月29日｜OpenAI、Reuters、Axios",
+      "title": "OpenAI让Dots持续处理跨应用任务，但目前没有可靠性或业务收益分母",
+      "summary": "Dots是运行在独立云电脑上的常驻Agent，可同时推进多个项目，通过四千余个应用、浏览器、Codex及ChatGPT Work调查问题、生成文档、测试代码或准备PR，并在Slack、Teams和ChatGPT间延续上下文。后台“主动研究”默认只能读取已连接应用，写入和敏感动作受独立批准规则约束。产品已向部分Pro与Business Premium用户推出，Enterprise仍需管理员开启测试，尚不能视为成熟企业部署。",
+      "design": "GPT‑6 Astra负责规划与执行，Dot在隔离云电脑中使用浏览器及获准应用；保存的密码可由系统注入目标请求而不暴露给模型。后台主动研究工具被限制为只读，Custom Rules可按动作设置允许、阻止或请求批准，auto-review再依据用户指令与安全要求检查外发和账户变更；改密码等动作必须由用户亲自完成。Activity View供人员检查和中途纠正，监控发现风险可暂停任务。公开资料未说明并发冲突、重试上限、写入幂等、模型更新回归或部分完成后的补偿恢复。",
+      "evidence": "确认事实： 产品支持独立云电脑、跨应用连接、只读后台研究、动作批准及企业默认关闭；OpenAI称首个Dot已包含在指定方案中。厂商案例： 一名早期测试者的Dot发现漏开发票并在批准后发送，但没有任务基线或对照。独立证据： Reuters在发布现场观察到语音演示多次未能返回更新，说明公开演示仍有执行故障。尚未证明： 公布的3,500万周活用户属于Codex与ChatGPT Work合计，不能代表Dots采用；没有任务数、完成率、越权率、批准负担、成本、P95时延或生产事故。四千个连接也不等于四千条权限路径均经过同等验证。",
+      "idea": "为销售方案更新做单一常驻Agent：只读CRM、产品文档与指定Slack频道，可生成方案Diff和测试清单，但外发、改CRM和创建承诺必须批准；连续失败两次即暂停。以任务完成率、陈旧引用、越权尝试、批准修改率、恢复时间、人工分钟数和每份合格方案成本验收。",
+      "url": "https://openai.com/index/introducing-dots/",
+      "relatedLinks": [
+        {
+          "label": "DevDay完整发布清单",
+          "url": "https://openai.com/index/devday-2026-recap/"
+        },
+        {
+          "label": "Reuters现场报道",
+          "url": "https://www.reuters.com/business/openai-takes-meta-with-always-on-dots-agent-enterprise-ai-push-2026-09-29/"
+        },
+        {
+          "label": "Axios功能梳理",
+          "url": "https://www.axios.com/2026/09/29/openai-dev-day-2026-dots-space-sol"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep30-dots.svg",
+        "alt": "OpenAI Dots官方标记",
+        "caption": "OpenAI官方Dots产品页中的品牌标记。"
+      }
+    },
+    {
+      "type": "开源运行时＋硬件隔离参考设计＋独立安全报道",
+      "source": "2026年9月28日｜NVIDIA、Associated Press、Reuters",
+      "title": "NVIDIA把Agent边界下沉到内核与独立DPU，但阻断效果尚无公开实验",
+      "summary": "NVIDIA发布Open Agent Safety Platform，把长时Agent的控制拆成OpenShell和Sentry两层。OpenShell以开源沙箱限制文件、系统调用、网络及凭证目的地；Sentry则在BlueField‑4 DPU的独立信任域监控行为，越界时可隔离Agent。它比Prompt内的安全规则更接近可强制执行边界，也适用于Coding Agent与多Agent集群；但“能够阻止Hugging Face事故”目前只是基于已知轨迹的厂商判断。",
+      "design": "每个Agent进入独立沙箱，YAML策略声明可读写路径、系统调用、模型提供方和网络端点；内核层以Landlock、seccomp及出口检查强制执行。真实凭证不进入Agent上下文，只在请求发往批准目标时由网关注入。策略扩权前通过形式化验证识别新增主机、凭证或API方法，并等待人工复核。Sentry从Agent及主机外部检查请求、身份和遥测，可在毫秒级隔离越界进程。策略误配、网关故障、DPU离线、已完成写入的补偿及隔离后的恢复审批仍由部署方设计。",
+      "evidence": "确认事实： OpenShell源码、Apache 2.0许可证和0.1系列文档已公开；NVIDIA列出文件、网络和进程三类强制策略。超过100家机构正参与集成或协作，但这不等于全部已生产部署。厂商主张： Sentry可在毫秒级停止越界Agent，平台按已知信息本可阻止此前攻击。独立判断： AP指出系统只能约束动作，不能自动消除欺骗、推理错误或错误业务目标，安全与任务可用性的平衡仍需案例验证。缺失证据： 没有攻击样本数、拦截召回、误阻断、绕过率、性能开销、停机覆盖率或独立红队结果；Sentry还依赖特定硬件，OpenShell在其他CPU上的控制等价性尚未量化。",
+      "idea": "在一个代码Agent仓库试运行OpenShell：只允许目标仓库、包镜像和测试服务，密钥仅注入指定Git端点；新增域名或写路径须人工批准。使用20个正常任务和20个注入任务，验收任务成功率、越权拦截、误阻断、策略审批分钟数、P95开销、凭证暴露及隔离恢复时间。",
+      "url": "https://nvidianews.nvidia.com/news/open-agent-safety-platform",
+      "relatedLinks": [
+        {
+          "label": "OpenShell代码仓库",
+          "url": "https://github.com/NVIDIA/openshell"
+        },
+        {
+          "label": "OpenShell技术文档",
+          "url": "https://docs.nvidia.com/openshell/about/overview"
+        },
+        {
+          "label": "AP独立解析",
+          "url": "https://apnews.com/article/nvidia-ai-security-openshell-sentry-a4cfc84ed00353ff8f2dad4bed7b429e"
+        },
+        {
+          "label": "Reuters报道",
+          "url": "https://www.reuters.com/legal/litigation/nvidia-releases-ai-safety-software-it-says-could-have-stopped-hugging-face-hack-2026-09-28/"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep30-openshell.png",
+        "alt": "NVIDIA OpenShell与Sentry发布图",
+        "caption": "NVIDIA官方发布配图：Open Agent Safety Platform。"
+      }
+    },
+    {
+      "type": "ACL同行评审论文＋七个月生产流量＋引用与拒答校准",
+      "source": "2026年7月21日修订｜Kasisto、ACL 2026 Industry Track",
+      "title": "FinRAG‑12B把银行查询解决率从77.4%提高到84.5%，满意度增幅却不显著",
+      "summary": "FinRAG‑12B针对银行RAG中两种相反错误：证据不足仍回答，以及为规避风险而过度拒答。团队先用开放数据训练选择性引用，再用银行内部样本校准拒答，并以22%不可回答问题控制“我不知道”的频率。模型已进入四十余家金融机构；一家美国信用合作社的3,297条查询中，无需人工升级的解决率由77.4%升至84.5%，但总体满意度由59.5%升至62.9%，未达到统计显著。",
+      "design": "检索层从机构知识库返回证据，12B模型只据相关片段生成答案并标注引用；证据不足时拒答，未解决问题进入原有人工升级路径。训练先以外部数据建立回答和引用格式，再以匿名内部数据学习拒答；把两类数据直接混训反而造成46.5%的过度拒答。模型经量化后在单张RTX 6000 Ada上服务，论文报告每题约0.001美元。机构级文档权限、检索过滤、用户身份、人工队列SLA、超时回退和错误答案撤回方式均未披露，不能从模型训练推定合规链完整。",
+      "evidence": "同行评审与生产证据： 七个月随机抽取3,297条真实查询，旧模型1,044条、新模型2,253条，使用相同RAG管线和知识库；解决率提高7.1个百分点，`p<0.001`，未解决率下降7.0点。258题离线集上，答案质量6.21，高于GPT‑4.1的5.72；拒答率12.0%，介于基础模型4.3%与GPT‑4.1的20.2%之间。成本主张： 响应快3–5倍、低20–50倍。局限： 流量不是同期随机A/B，时间变化可能混入效果；满意度差异`p=0.26`，未证明体验提升。私有训练数据、人工升级质量、错误严重度和机构间差异未公开，常见零售银行问题也不能外推到投资建议。",
+      "idea": "为信用卡费用问答做100题窄试点：检索只覆盖已生效条款，答案必须逐句引用版本与日期；证据缺失、条款冲突或涉及个案裁量时拒答转客服。以解决率、正确拒答、引用支持率、严重错误、转人工分钟数、满意度和每个解决问题成本验收。",
+      "url": "https://aclanthology.org/2026.acl-industry.92/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.92.pdf"
+        },
+        {
+          "label": "HTML全文与生产统计",
+          "url": "https://arxiv.org/html/2605.05482v2"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep30-finrag.jpg",
+        "alt": "FinRAG-12B银行问答论文首页",
+        "caption": "ACL论文首页：FinRAG-12B的银行RAG引用与拒答校准研究。"
+      }
+    },
+    {
+      "type": "ACL同行评审行业论文＋两个月生产A/B＋受限动作语音Agent",
+      "source": "2026年7月｜百度地图；ACL 2026 Industry Track",
+      "title": "百度语音Agent达到83.9%任务成功率，但“每日40万通”主要是容量而非A/B流量",
+      "summary": "DuIVRS‑2通过外呼商户确认营业状态等地图POI属性，以小于20亿参数的模型替换容易累积错误的模块化对话管理。系统不是自由生成整段话术，而是在有限状态机允许的候选问题中选择，并用推理过程处理反问和长尾回答。两个月随机A/B中，任务成功率由旧系统79.9%升至83.9%，仍低于人工89.6%；每通成本低于0.2元，人工约1.5元，平均反应时间130毫秒。",
+      "design": "既有ASR把商户语音转成文本，小模型根据对话状态与FSM候选动作判断下一问，再由既有TTS播放；模型采用INT8量化、FastDeploy及八张A10部署。历史日志先经FSM引导生成均衡长尾样本，两个模型评委对新轨迹投票，分歧和疑难样本交人工判断后进入下一轮训练。输出若不在FSM候选集，系统最多重复上一个有效问题三次，仍异常则重新提出原始问题。论文未说明商户身份确认、拒接与退出、隐私保留、人工实时接管或错误属性写入后的撤销流程。",
+      "evidence": "生产证据： 来电被随机分配给人工、DuIVRS‑1和DuIVRS‑2；新系统在每天固定一小时获得约3,000通配额。成功率分别为89.6%、79.9%和83.9%，成本分别约为1.5元、低于0.2元和低于0.2元。人工抽样下，新系统定义内幻觉率为0%，直接微调为1.30%。重要澄清： 摘要称系统每日处理40万通，但实验章节把40万表述为可承载容量，实际新系统A/B流量约3,000通／日，不能混为真实日调用量。局限： 指标由百度团队自报，未给总样本、置信区间、接通率、用户投诉、ASR错误分解或错误地图更新数；外呼调度也避开了不可预测的入站峰值。",
+      "idea": "为连锁门店营业时间更新做受限外呼原型：只允许确认地址、营业状态和时间三项，回答必须映射到FSM状态；三次无效、拒绝回答或身份不明即停止，属性写入前由运营抽审。以整通成功率、错误写入、退出率、抽审推翻率、反应时延、每通成本和投诉数验收。",
+      "url": "https://aclanthology.org/2026.acl-industry.44/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.44.pdf"
+        },
+        {
+          "label": "HTML架构与线上实验",
+          "url": "https://arxiv.org/html/2605.17900v1"
+        },
+        {
+          "label": "会议演示视频",
+          "url": "https://underline.io/events/524/posters/23040/poster/151078-duivrs-2-an-llm-based-interactive-voice-response-system-for-large-scale-poi-attribute-acquisition?tab=video"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep30-duivrs.jpg",
+        "alt": "DuIVRS-2语音Agent论文首页",
+        "caption": "ACL论文首页：百度地图受限动作语音Agent及其生产A/B评估。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "Persistent Agent Boundary Test",
+      "description": "让一个常驻Agent只处理单一仓库或销售方案，后台检索固定为只读，文件、网络和凭证由沙箱策略强制限制；写入需结构化预览与人工批准。用正常任务和注入任务共同测任务成功、越权召回、误阻断、审批时长和恢复能力。",
+      "tags": [
+        "持续Agent",
+        "执行边界",
+        "审批控制"
+      ]
+    },
+    {
+      "title": "Grounded Narrow-Workflow Pilot",
+      "description": "选择银行费用问答或门店属性确认，把答案引用、拒答条件及允许动作预先编码；模型只处理语义匹配，证据缺失和状态异常转人。以端到端解决率、正确拒答、错误业务写入、人工接管、用户满意度和单位成功成本决定是否扩容。",
+      "tags": [
+        "窄流程",
+        "证据引用",
+        "拒答策略"
+      ]
+    }
+  ],
+  "contentHash": "2ebd8bd8c7960cc9"
+}
