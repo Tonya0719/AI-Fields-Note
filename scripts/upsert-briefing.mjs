@@ -7,7 +7,6 @@ if (!inputPath) throw new Error("用法：node scripts/upsert-briefing.mjs <new-
 
 const incoming = JSON.parse(readFileSync(inputPath, "utf8"));
 incoming.contentHash = hashIssue(incoming);
-validateIssue(incoming);
 
 const outputPath = `content/issues/${incoming.date.replaceAll(".", "-")}.json`;
 let existing;
@@ -16,6 +15,7 @@ try {
 } catch (error) {
   if (error.code !== "ENOENT") throw error;
 }
+validateIssue(incoming, { requireTranslation: existing === undefined });
 if (existing?.contentHash === incoming.contentHash) {
   console.log(`${incoming.date} 内容未变化，无需更新`);
   process.exit(0);

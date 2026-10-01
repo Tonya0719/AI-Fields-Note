@@ -21,7 +21,7 @@ function assertUrl(value, label) {
   if (url.protocol !== "https:") throw new Error(`${label} 必须使用 https`);
 }
 
-export function validateIssue(issue, { checkHash = true } = {}) {
+export function validateIssue(issue, { checkHash = true, requireTranslation = false } = {}) {
   for (const field of requiredIssueFields) if (!(field in issue)) throw new Error(`${issue.date ?? "未知日期"} 缺少 ${field}`);
   assertString(issue.issue, `${issue.date}.issue`);
   if (!/^\d{4}\.\d{2}\.\d{2}$/.test(issue.date)) throw new Error(`${issue.date} 日期必须为 YYYY.MM.DD`);
@@ -51,6 +51,7 @@ export function validateIssue(issue, { checkHash = true } = {}) {
     assertString(project.description, `${issue.date}.projectIdeas[${index}].description`);
     if (!Array.isArray(project.tags) || project.tags.length < 2) throw new Error(`${issue.date}.projectIdeas[${index}] 至少需要 2 个标签`);
   });
+  if (requireTranslation && issue.translations === undefined) throw new Error(`${issue.date}.translations.en 新增期必填`);
   if (issue.translations !== undefined) {
     const en = issue.translations?.en;
     if (!en || typeof en !== "object") throw new Error(`${issue.date}.translations.en 缺失`);
