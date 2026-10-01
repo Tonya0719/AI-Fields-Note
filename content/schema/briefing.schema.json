@@ -28,9 +28,49 @@
       "maxItems": 2,
       "items": { "$ref": "#/$defs/project" }
     },
-    "contentHash": { "type": "string", "pattern": "^[a-f0-9]{16}$" }
+    "contentHash": { "type": "string", "pattern": "^[a-f0-9]{16}$" },
+    "translations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en"],
+      "properties": { "en": { "$ref": "#/$defs/englishIssue" } }
+    }
   },
   "$defs": {
+    "englishIssue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["thesis", "takeaways", "contrarian", "items", "projectIdeas"],
+      "properties": {
+        "thesis": { "type": "string", "minLength": 20 },
+        "takeaways": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "string", "minLength": 4 } },
+        "contrarian": { "type": "string", "minLength": 20 },
+        "items": { "type": "array", "minItems": 4, "maxItems": 6, "items": { "$ref": "#/$defs/englishItem" } },
+        "projectIdeas": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "$ref": "#/$defs/englishProject" } }
+      }
+    },
+    "englishItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "source", "title", "summary", "design", "evidence", "idea", "image"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 20 },
+        "design": { "type": "string", "minLength": 20 },
+        "evidence": { "type": "string", "minLength": 20 },
+        "idea": { "type": "string", "minLength": 20 },
+        "relatedLinks": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["label"], "properties": { "label": { "type": "string", "minLength": 1 } } } },
+        "image": { "type": "object", "additionalProperties": false, "required": ["alt", "caption"], "properties": { "alt": { "type": "string", "minLength": 1 }, "caption": { "type": "string", "minLength": 1 } } }
+      }
+    },
+    "englishProject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "description", "tags"],
+      "properties": { "title": { "type": "string", "minLength": 1 }, "description": { "type": "string", "minLength": 20 }, "tags": { "type": "array", "minItems": 2, "items": { "type": "string", "minLength": 1 } } }
+    },
     "link": {
       "type": "object",
       "additionalProperties": false,

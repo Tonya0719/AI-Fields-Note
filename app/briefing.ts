@@ -13,6 +13,26 @@ export type BriefingItem = {
   image: { src: string; alt: string; caption: string };
 };
 
+export type BriefingItemTranslation = {
+  type: string;
+  source: string;
+  title: string;
+  summary: string;
+  design: string;
+  evidence: string;
+  idea: string;
+  relatedLinks?: { label: string }[];
+  image: { alt: string; caption: string };
+};
+
+export type EnglishTranslation = {
+  thesis: string;
+  takeaways: string[];
+  contrarian: string;
+  items: BriefingItemTranslation[];
+  projectIdeas: { title: string; description: string; tags: string[] }[];
+};
+
 export type Briefing = {
   issue: string;
   date: string;
@@ -21,6 +41,7 @@ export type Briefing = {
   contrarian: string;
   items: BriefingItem[];
   projectIdeas: { title: string; description: string; tags: string[] }[];
+  translations?: { en: EnglishTranslation };
   contentHash: string;
 };
 

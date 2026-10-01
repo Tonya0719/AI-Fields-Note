@@ -51,6 +51,30 @@ export function validateIssue(issue, { checkHash = true } = {}) {
     assertString(project.description, `${issue.date}.projectIdeas[${index}].description`);
     if (!Array.isArray(project.tags) || project.tags.length < 2) throw new Error(`${issue.date}.projectIdeas[${index}] 至少需要 2 个标签`);
   });
+  if (issue.translations !== undefined) {
+    const en = issue.translations?.en;
+    if (!en || typeof en !== "object") throw new Error(`${issue.date}.translations.en 缺失`);
+    for (const field of ["thesis", "contrarian"]) assertString(en[field], `${issue.date}.translations.en.${field}`);
+    if (!Array.isArray(en.takeaways) || en.takeaways.length !== 4) throw new Error(`${issue.date}.translations.en.takeaways 必须有 4 条`);
+    en.takeaways.forEach((value, index) => assertString(value, `${issue.date}.translations.en.takeaways[${index}]`));
+    if (!Array.isArray(en.items) || en.items.length !== issue.items.length) throw new Error(`${issue.date}.translations.en.items 必须与中文资料逐条对应`);
+    en.items.forEach((item, index) => {
+      for (const field of ["type", "source", "title", "summary", "design", "evidence", "idea"]) assertString(item?.[field], `${issue.date}.translations.en.items[${index}].${field}`);
+      if (!item.image || typeof item.image !== "object") throw new Error(`${issue.date}.translations.en.items[${index}].image 缺失`);
+      for (const field of ["alt", "caption"]) assertString(item.image[field], `${issue.date}.translations.en.items[${index}].image.${field}`);
+      const links = issue.items[index].relatedLinks ?? [];
+      const translatedLinks = item.relatedLinks ?? [];
+      if (translatedLinks.length !== links.length) throw new Error(`${issue.date}.translations.en.items[${index}].relatedLinks 数量必须与原文一致`);
+      translatedLinks.forEach((link, linkIndex) => assertString(link?.label, `${issue.date}.translations.en.items[${index}].relatedLinks[${linkIndex}].label`));
+    });
+    if (!Array.isArray(en.projectIdeas) || en.projectIdeas.length !== issue.projectIdeas.length) throw new Error(`${issue.date}.translations.en.projectIdeas 必须与中文项目方向逐条对应`);
+    en.projectIdeas.forEach((project, index) => {
+      assertString(project?.title, `${issue.date}.translations.en.projectIdeas[${index}].title`);
+      assertString(project?.description, `${issue.date}.translations.en.projectIdeas[${index}].description`);
+      if (!Array.isArray(project.tags) || project.tags.length !== issue.projectIdeas[index].tags.length) throw new Error(`${issue.date}.translations.en.projectIdeas[${index}].tags 必须与中文标签逐条对应`);
+      project.tags.forEach((tag, tagIndex) => assertString(tag, `${issue.date}.translations.en.projectIdeas[${index}].tags[${tagIndex}]`));
+    });
+  }
   const expectedHash = hashIssue(issue);
   if (checkHash && issue.contentHash !== expectedHash) throw new Error(`${issue.date} contentHash 不匹配，应为 ${expectedHash}`);
   return expectedHash;
