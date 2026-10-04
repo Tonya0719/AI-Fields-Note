@@ -1,0 +1,239 @@
+{
+  "issue": "ISSUE 036",
+  "date": "2026.10.03",
+  "thesis": "本期补录两项10月1日发布的企业产品，以及两项具有工程参考价值的检索研究。主题是：**减少模型的工作量之前，先确认哪些信息、规则和审核责任不能被省略。**云优化需要业务目标和实际成本，代码审核需要跨仓库关系，动态检索需要质量底线，字段裁剪则需要保住长尾召回。以下明确区分产品能力声明、论文实验和编辑建议；历史研究按真实发布日期标注。",
+  "takeaways": [
+    "云优化需要业务目标和实际成本。",
+    "代码审核需要跨仓库关系。",
+    "动态检索需要质量底线。",
+    "字段裁剪需要保住长尾召回。"
+  ],
+  "contrarian": "本期四项材料都在缩小人工或模型的处理范围，但省略内容的风险不同。AWS依赖用户补充业务目标；Qodo依赖正确关联跨仓库变更；SAGE选择较少证据；SchemaRAG选择较少字段。**编辑判断：每一种缩减都应有对应的遗漏指标。**只记录建议数量、PR数量、段落数量或Token数量，无法说明是否保住了业务完整性。\n\n证据强度也有区别：两项产品材料证明能力已发布或进入预览，尚未证明净收益；SAGE本期只能核到摘要；SchemaRAG全文则提供了直接反例——同一方案在不同数据集上可能降本，也可能增本。企业试点应同时报告处理分母、质量底线、人工负担和端到端成本。",
+  "items": [
+    {
+      "type": "产品公开预览＋官方操作文档＋IAM权限设计",
+      "source": "2026年10月1日｜AWS",
+      "title": "AWS推出云架构审查Agent：建议可附修复脚本，但节省效果尚未公开",
+      "summary": "AWS Well-Architected Agent进入公开预览，面向成本、安全、性能与可靠性分析云环境，并依据企业目标排序建议。系统关联运行指标、应用拓扑和架构最佳实践，也可检查Terraform、CDK和CloudFormation模板，生成适用的修复方案。其产品方向是把通用最佳实践变成具体应用的变更候选，并在执行前展示成本与性能取舍。公告尚未提供客户节省金额、建议正确率或故障减少数据。",
+      "design": "用户先创建Profile，指定账户、区域、优化目标和应用上下文；执行角色再通过客户管理的IAM角色访问工作负载账户。建议可附SSM Runbook、CLI脚本或控制台操作步骤。接入Cost Explorer后使用实际成本数据，否则依据公开价格估算。管理员负责范围和权限，普通用户查看建议、反馈或更新处理状态。这些机制使目标、数据和访问范围可配置，但不能据此推断所有建议都可安全自动执行。",
+      "evidence": "**确认事实：** 产品处于预览阶段，官方文档给出了接入流程和角色链。具体入门要求为Business+或更高支持计划，较公告中的“拥有支持计划”更严格。**厂商主张：** 能生成贴合业务目标的建议和可执行修复材料。**尚未证明：** 未公开生产对照、错误建议率、采纳率、实际净节省或变更失败率。编辑判断是，附带脚本只降低执行准备成本；是否值得执行，仍需结合维护窗口、依赖关系、测试和回滚方案评估。",
+      "idea": "为一个测试环境做只读云优化试点：Agent提出三类建议——闲置资源、容量配置和可靠性缺口；每条附资源证据、成本依据、变更Diff及回滚步骤。人员批准后才执行。用建议采纳率、误建议率、执行失败、实际月度净节省、审核分钟数和恢复时间验收，避免把理论节省当成已实现收益。",
+      "url": "https://aws.amazon.com/about-aws/whats-new/2026/10/aws-well-architected-agent/",
+      "relatedLinks": [
+        {
+          "label": "配置与接入文档",
+          "url": "https://docs.aws.amazon.com/wellarchitected/latest/userguide/agent-getting-started.html"
+        },
+        {
+          "label": "权限模型",
+          "url": "https://docs.aws.amazon.com/wellarchitected/latest/userguide/security-iam-agent.html"
+        }
+      ],
+      "image": {
+        "src": "/cases/amazon-agent-evals.png",
+        "alt": "AWS 云架构评估与修复建议界面示意",
+        "caption": "展示云架构建议与修复路径的相关示意图。"
+      }
+    },
+    {
+      "type": "产品发布＋研究预览＋官方演示视频＋企业部署声明",
+      "source": "2026年10月1日｜Qodo",
+      "title": "Qodo 3.0把跨仓库PR组成工作包：审核单位开始从代码片段转向完整变更",
+      "summary": "Qodo 3.0针对Agent生成代码后的人类审核瓶颈，增加PR Triage、Software Map和组织规则接入。处于Research Preview的PR Triage会把不同仓库、不同Git平台的相关PR组成工作包，展示影响范围、审核难度、等待时间和审核顺序。产品试图让审核者理解“这一组改动共同实现什么”，并建立明确负责人。现有发布材料尚未证明这种组织方式能降低线上缺陷或总体审核工时。",
+      "design": "Agentic Toolbox在编码过程中提供相关规则和代码库上下文，并支持提交PR前审查本地改动；PR Triage在提交后聚合工作，审核者可认领整个工作包。Software Map提供仓库与服务关系，辅助判断下游影响。厂商还声明支持Gerrit、内网或隔离部署及内部托管的开源模型。组织历史和规范由此进入生成与审核两端，但这些辅助信息仍需由团队维护和纠正。",
+      "evidence": "**确认事实：** 官方说明明确区分已发布能力与研究预览，视频展示了工作包审核交互。**厂商声明：** 跨仓库映射、组织知识和前置审核能够帮助治理Agent输出。**未验证：** 没有公开工作包归并准确率、依赖漏检、审核误报、缺陷逃逸或对照实验。发布稿和厂商博客属于同一证据来源，不能算独立效果核验。编辑判断是，归并错误可能让无关PR相互阻塞，也可能把真正相关的变更拆开；评测应同时检查错误合并和错误拆分。",
+      "idea": "在双仓库项目中建立轻量审核工作包：每项任务绑定需求编号，自动列出前后端PR、接口变更、依赖和测试证据，由一名审核者认领。先保留人工归并真值，再评估自动匹配。以关联召回、错误合并、重复审核、审核分钟数、遗漏接口变化和发布后缺陷验收；PR数量只作为流量分母。",
+      "url": "https://www.qodo.ai/blog/introducing-qodo-3-0/",
+      "relatedLinks": [
+        {
+          "label": "正式发布",
+          "url": "https://www.globenewswire.com/news-release/2026/10/01/3372954/0/en/qodo-3-0-brings-enterprise-grade-quality-control-to-agentic-software-development.html"
+        },
+        {
+          "label": "PR Triage演示视频",
+          "url": "https://www.qodo.ai/wp-content/uploads/2026/10/pr-triage-loop-full-ui.mp4"
+        }
+      ],
+      "image": {
+        "src": "/cases/github-stacked-prs.png",
+        "alt": "跨仓库代码审核工作包示意",
+        "caption": "展示将关联代码变更组合审核的工作流示意图。"
+      }
+    },
+    {
+      "type": "研究论文＋公开问答基准＋动态检索预算",
+      "source": "2026年8月｜SAGE研究团队",
+      "title": "SAGE按问题调整检索数量：摘要报告成本下降51%，但伴随答案质量取舍",
+      "summary": "SAGE研究固定检索数量带来的浪费：简单问题可能读取过多段落，困难问题又可能证据不足。它利用初次检索的轻量信号，决定每个查询应保留多少段落。在Natural Questions实验中，作者摘要报告P95时延下降36%、检索成本下降51%，同时Exact Match下降2个百分点。这里的价值是显式展示服务速度、成本和答案质量的取舍，而非宣称三者同时无损改善。",
+      "design": "策略输入包括检索分数分布、排名间距和词汇信号，离线通过模仿学习近似质量与时延的最佳折中，在线选择段落数量，不额外调用LLM。**编辑建议：** 企业实现时应加入证据充分性底线；涉及跨条款、版本冲突或完整列举的问题，不能只因检索分数高就缩小上下文。低成本策略也应保留扩大检索、拒答和转人工路径，避免把速度目标变成静默漏证据。",
+      "evidence": "**作者报告：** 在5秒P95时延目标下，摘要称SLO合规指标由静态基线的30%升至95%，并报告跨数据集和模型测试。**核验限制：** 本次获取到论文检索摘要，全文未成功读取，因此无法核对该合规指标的完整定义、成本口径、硬件配置和实验分母；以上数字应作为待复核结果。论文标题中的“Production”也不能单独证明真实企业部署。编辑判断是，公共问答上的2点EM损失，在高风险政策问题中可能不可接受。",
+      "idea": "为内部FAQ建立200题检索预算实验，比较固定Top-5、Top-20和动态策略；单独标注多跳、冲突和无答案题。冻结策略后测试证据召回、答案正确率、正确拒答、P95时延、Token成本与严重遗漏。只允许在预先声明的质量底线内节省成本，并报告哪些题型承担了损失。",
+      "url": "https://arxiv.org/abs/2608.08237",
+      "relatedLinks": [
+        {
+          "label": "PDF",
+          "url": "https://arxiv.org/pdf/2608.08237"
+        }
+      ],
+      "image": {
+        "src": "/cases/graph-rag.png",
+        "alt": "按问题调整检索预算的流程示意",
+        "caption": "展示动态检索与证据筛选的相关示意图。"
+      }
+    },
+    {
+      "type": "ACL同行评审论文＋微软研究＋结构化抽取消融",
+      "source": "2026年7月｜Microsoft；ACL 2026 Industry Track",
+      "title": "SchemaRAG裁剪输出字段：护理数据更快更便宜，电商数据却增加Token",
+      "summary": "SchemaRAG针对大型表单抽取：完整Schema包含大量字段、层级和枚举值，直接放入提示会增加成本并干扰抽取。它先检索与输入相关的字段，再让模型填写缩小后的Schema。摘要报告最高8.8%的micro-F1提升、47%的时延下降和48%的Token成本下降，但正文显示这些效率收益并不跨数据集成立：护理任务获得明显改善，电商任务的Token使用反而上升。",
+      "design": "系统把字段名称、类别和可选值等元数据编码成向量，也可利用已标注示例；输入文本与这些向量匹配后形成候选字段集合，再执行结构化抽取。论文实现还包含文本分段和并行抽取。**编辑判断：** 字段选择本身已成为关键预测步骤，漏选字段后，后续模型无法补填。因此必须分开测候选字段召回与最终值准确率，并为必填、罕见或高风险字段设置保留机制。",
+      "evidence": "**同行评审实验：** Nursing平均时延由11.3秒降至6.0秒，总Token由77,594降至39,128；Amazon则由16.4秒变为17.7秒，总Token从122,243增至173,714。作者解释，较长电商输入触发更多分段调用，各调用重复携带完整文本，使成本增加。**局限：** 不能把摘要的最佳降本幅度当作所有场景的预期效果；真实业务还需核对新增字段、Schema版本漂移和人工纠错成本。编辑判断是，裁剪字段的收益可能被重复上下文开销抵消。",
+      "idea": "为商品上架做分层抽取：先确定品类，再检索候选属性，同时强制保留必填字段。用200条商品描述比较完整Schema与裁剪Schema，按文本长度分层报告字段召回、值准确率、漏填、人工修正、总Token和时延。新增属性上线前加入回归样例；不要仅用平均F1判断降本方案是否值得采用。",
+      "url": "https://aclanthology.org/2026.acl-industry.78/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.78.pdf"
+        }
+      ],
+      "image": {
+        "src": "/cases/enterprise-rag-pipeline.png",
+        "alt": "结构化字段检索与抽取流程示意",
+        "caption": "展示结构化字段检索和抽取的相关示意图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "有遗漏审计的上下文裁剪",
+      "description": "选择内部FAQ或商品属性抽取，先定义不得漏掉的证据和字段，再比较固定与动态预算。用长尾召回、严重遗漏、人工补充、P95时延和单位合格结果成本决定是否上线。",
+      "tags": [
+        "business-ai",
+        "evaluation",
+        "automation"
+      ]
+    },
+    {
+      "title": "以完整变更为单位的人工审批",
+      "description": "选择云配置或跨仓库代码任务，把目标、依赖、Diff、验证及回滚组成一个可审核包。记录审核时长、关联遗漏、执行失败和实际净收益，避免只优化生成速度。",
+      "tags": [
+        "business-ai",
+        "human-review",
+        "evaluation"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue adds two enterprise products released on October 1 and two retrieval studies with engineering relevance. Before reducing a model’s workload, identify the information, rules, and review responsibilities that must not be omitted. Cloud optimization needs business goals and actual costs; code review needs cross-repository relationships; dynamic retrieval needs a quality floor; schema trimming must preserve long-tail recall. Product claims, paper experiments, and editorial recommendations are distinguished below; earlier research is dated by its actual publication date.",
+      "takeaways": [
+        "Cloud optimization needs business goals and actual costs.",
+        "Code review needs cross-repository relationships.",
+        "Dynamic retrieval needs a quality floor.",
+        "Schema trimming must preserve long-tail recall."
+      ],
+      "contrarian": "All four sources reduce the scope handled by people or models, but the risks of omission differ. AWS depends on users supplying business goals; Qodo depends on correctly linking cross-repository changes; SAGE selects less evidence; SchemaRAG selects fewer fields. Editorial judgment: every reduction needs a corresponding omission metric. Counts of recommendations, PRs, passages, or tokens alone cannot show whether business completeness was preserved.\n\nThe evidence also varies in strength: the two product materials show capabilities released or in preview, not net benefits; this issue could verify only the SAGE abstract; the full SchemaRAG paper provides a direct counterexample—one approach may reduce cost on one dataset and increase it on another. Enterprise pilots should report denominators, quality floors, human workload, and end-to-end cost together.",
+      "items": [
+        {
+          "type": "Public product preview + official operating documentation + IAM permission design",
+          "source": "October 1, 2026 | AWS",
+          "title": "AWS launches a cloud-architecture review Agent: recommendations may include remediation scripts, but savings have not been disclosed",
+          "summary": "AWS Well-Architected Agent entered public preview to analyze cloud environments for cost, security, performance, and reliability, ranking recommendations against business goals. It relates operational metrics, application topology, and architectural best practices, and can inspect Terraform, CDK, and CloudFormation templates to generate remediation proposals. The product aims to turn general best practices into change candidates for a specific application and show cost/performance tradeoffs before execution. The announcement provides no customer savings, recommendation accuracy, or reduction in failures.",
+          "design": "Users first create a Profile specifying accounts, regions, optimization goals, and application context. An execution role accesses workload accounts through a customer-managed IAM role. Recommendations may include an SSM Runbook, CLI script, or console steps. With Cost Explorer connected, the Agent uses actual cost data; otherwise it estimates from public prices. Administrators define scope and permissions; regular users review recommendations, give feedback, or update status. These mechanisms make goals, data, and access configurable, but do not imply every recommendation is safe to execute automatically.",
+          "evidence": "Confirmed: the product is in preview, and official documentation describes onboarding and the role chain. The specific getting-started requirement is a Business+ or higher support plan, stricter than the announcement’s statement that a support plan is needed. Vendor claim: it can generate recommendations and remediation materials tailored to business goals. Not demonstrated: no production comparison, bad-recommendation rate, adoption rate, actual net savings, or change-failure rate has been published. Editorial judgment: an attached script reduces preparation effort only; whether to run it still depends on maintenance windows, dependencies, testing, and rollback plans.",
+          "idea": "Run a read-only cloud-optimization pilot in a test environment. Have the Agent propose idle resources, capacity configuration, and reliability gaps, attaching resource evidence, cost rationale, a change diff, and rollback steps to each recommendation. Execute only after human approval. Evaluate adoption, false recommendations, execution failures, actual monthly net savings, review minutes, and recovery time; do not treat theoretical savings as realized gains.",
+          "relatedLinks": [
+            {
+              "label": "Setup and onboarding documentation"
+            },
+            {
+              "label": "Permission model"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of AWS cloud-architecture assessment and remediation recommendations",
+            "caption": "Related illustration of cloud-architecture recommendations and remediation paths."
+          }
+        },
+        {
+          "type": "Product launch + research preview + official demo video + enterprise deployment statement",
+          "source": "October 1, 2026 | Qodo",
+          "title": "Qodo 3.0 groups cross-repository PRs into work packages, shifting review from code snippets to complete changes",
+          "summary": "Qodo 3.0 targets the human-review bottleneck after agents generate code, adding PR Triage, Software Map, and organizational-rule integration. PR Triage, currently in Research Preview, groups related PRs across repositories and Git platforms into work packages, showing impact, review difficulty, wait time, and review order. It aims to help reviewers understand what a set of changes accomplishes together and assign clear ownership. Launch materials do not show that this organization reduces production defects or total review hours.",
+          "design": "Agentic Toolbox provides relevant rules and codebase context while coding and supports reviewing local changes before a PR is submitted. After submission, PR Triage aggregates work so a reviewer can claim an entire package. Software Map exposes repository and service relationships to help assess downstream impact. The vendor also says it supports Gerrit, on-premises or isolated deployments, and internally hosted open-weight models. Organizational history and conventions inform both generation and review, but teams still need to maintain and correct this context.",
+          "evidence": "Confirmed: official materials distinguish released features from research preview, and a video demonstrates the work-package review interaction. Vendor statement: cross-repository mapping, organizational knowledge, and earlier review can help govern agent output. Not verified: no public figures for grouping accuracy, missed dependencies, review false positives, escaped defects, or controlled comparisons. The press release and vendor blog are the same evidence source, not independent outcome verification. Editorial judgment: bad grouping can block unrelated PRs or split changes that belong together; evaluation must measure false merges and false splits.",
+          "idea": "Create lightweight review packages for a two-repository project. Bind each task to a requirement ID and list frontend and backend PRs, API changes, dependencies, and test evidence, with one reviewer owning the package. Keep human-confirmed groupings as ground truth before evaluating automatic matching. Measure relationship recall, false merges, duplicate reviews, review minutes, missed interface changes, and post-release defects; use PR count only as the traffic denominator.",
+          "relatedLinks": [
+            {
+              "label": "Formal launch announcement"
+            },
+            {
+              "label": "PR Triage demo video"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of cross-repository code-review work packages",
+            "caption": "Illustration of a workflow that groups related code changes for review."
+          }
+        },
+        {
+          "type": "Research paper + public QA benchmark + dynamic retrieval budget",
+          "source": "August 2026 | SAGE research team",
+          "title": "SAGE varies retrieval depth by query: the abstract reports 51% lower cost alongside an answer-quality tradeoff",
+          "summary": "SAGE studies waste from fixed retrieval counts: simple questions may retrieve too many passages, while difficult ones may lack evidence. It uses lightweight signals from initial retrieval to decide how many passages to retain per query. On Natural Questions, the authors’ abstract reports 36% lower P95 latency and 51% lower retrieval cost, alongside a two-percentage-point drop in Exact Match. Its value is to make the tradeoff among serving speed, cost, and answer quality explicit—not to claim all three improve without loss.",
+          "design": "Policy inputs include retrieval-score distributions, ranking gaps, and lexical signals. Offline imitation learning approximates the best quality/latency tradeoff, and the policy selects passage count online without another LLM call. Editorial recommendation: enterprise implementations should impose an evidence-sufficiency floor. High-risk questions involving multiple clauses, version conflicts, or exhaustive lists should not receive less context merely because retrieval scores are high. Retain paths to expand retrieval, abstain, or hand off to a person so speed targets do not silently omit evidence.",
+          "evidence": "Authors report that under a five-second P95 latency target, the abstract says SLO compliance rose from 30% for a static baseline to 95%, and reports tests across datasets and models. Verification limit: only the paper’s search abstract was accessible, not the full text, so the compliance definition, cost basis, hardware, and experimental denominator could not be checked; treat these figures as requiring verification. “Production” in the title alone does not establish real enterprise deployment. Editorial judgment: a two-point EM loss on public QA may be unacceptable for high-risk policy questions.",
+          "idea": "Build a 200-question internal FAQ retrieval-budget experiment comparing fixed Top-5, fixed Top-20, and a dynamic policy; separately label multi-hop, conflicting, and unanswerable questions. After freezing the policy, test evidence recall, answer correctness, correct abstention, P95 latency, token cost, and severe omissions. Save cost only within a predeclared quality floor, and report which question types bear the loss.",
+          "relatedLinks": [
+            {
+              "label": "PDF"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of query-adaptive retrieval budgeting",
+            "caption": "Related illustration of dynamic retrieval and evidence selection."
+          }
+        },
+        {
+          "type": "ACL peer-reviewed paper + Microsoft research + structured-extraction ablation",
+          "source": "July 2026 | Microsoft; ACL 2026 Industry Track",
+          "title": "SchemaRAG trims output fields: nursing data becomes faster and cheaper, while e-commerce uses more tokens",
+          "summary": "SchemaRAG addresses extraction from large forms: a complete schema has many fields, hierarchies, and enum values, increasing prompt cost and interfering with extraction. It retrieves fields relevant to the input first, then asks the model to fill a reduced schema. The abstract reports up to an 8.8% micro-F1 gain, 47% lower latency, and 48% lower token cost, but the paper shows these efficiency gains do not generalize: nursing improves substantially, while e-commerce token use rises.",
+          "design": "The system embeds metadata such as field names, categories, and allowed values, and can also use labeled examples. It matches input text to these vectors to produce candidate fields, then performs structured extraction. The implementation also includes text chunking and parallel extraction. Editorial judgment: field selection becomes a critical prediction step; if a field is omitted, the downstream model cannot fill it. Measure candidate-field recall separately from final-value accuracy, and preserve required, rare, or high-risk fields.",
+          "evidence": "Peer-reviewed experiment: in Nursing, mean latency fell from 11.3 to 6.0 seconds and total tokens from 77,594 to 39,128; on Amazon, latency rose from 16.4 to 17.7 seconds and tokens from 122,243 to 173,714. The authors explain that longer e-commerce inputs trigger more chunks and repeated calls, each carrying the full text. Limitation: the best cost reduction in the abstract is not an expected result for every setting; real operations must also check new fields, schema-version drift, and human correction cost. Editorial judgment: repeated context overhead can erase the benefit of field trimming.",
+          "idea": "For product listing, use tiered extraction: classify the category first, retrieve candidate attributes, and always retain required fields. Compare complete and trimmed schemas on 200 product descriptions, stratified by text length; report field recall, value accuracy, omissions, human corrections, total tokens, and latency. Add regression examples before new attributes go live. Do not decide whether the optimization is worthwhile using average F1 alone.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of structured-field retrieval and extraction",
+            "caption": "Related illustration of structured-field retrieval and extraction."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Context trimming with omission audits",
+          "description": "Choose internal FAQ or product-attribute extraction, define evidence and fields that must not be omitted, and compare fixed and dynamic budgets. Decide whether to launch using long-tail recall, severe omissions, human additions, P95 latency, and cost per qualified result.",
+          "tags": [
+            "context",
+            "evaluation",
+            "retrieval"
+          ]
+        },
+        {
+          "title": "Human approval at the complete-change level",
+          "description": "For cloud configuration or cross-repository code tasks, package the goal, dependencies, diff, validation, and rollback into one reviewable unit. Track review time, missed relationships, execution failures, and actual net benefit rather than optimizing generation speed alone.",
+          "tags": [
+            "human-review",
+            "change-management",
+            "evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "da1dad9596cd9684"
+}
