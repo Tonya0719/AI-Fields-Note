@@ -1,0 +1,239 @@
+{
+  "issue": "ISSUE 039",
+  "date": "2026.10.06",
+  "thesis": "本期截至北京时间15:04，包含ServiceNow当天正式发布、一项近期再获报道的数据调查，以及企业知识图谱与API查询研究。共同主题是：**业务上下文必须进入执行机制，并接受独立验证。**流程自动构建、数据可信度、图遍历约束和查询执行分别解决不同问题；产品上市、问卷自评与离线准确率仍须分层判断。",
+  "takeaways": [
+    "流程自动构建仍须独立业务断言验证。",
+    "自评数据准备度调查不能证明部署系统的失效率。",
+    "图遍历准确率提升需同时衡量调用成本和绝对正确率。",
+    "专门训练的查询模型仍须权限、预算及结果约束。"
+  ],
+  "contrarian": "四项材料都强调业务上下文，但其作用位置不同：ServiceNow让上下文进入构建与审批，数据调查指出上下文基础尚未普遍成熟，SCAIR将结构规则加入图遍历，OmniOData用执行结果训练查询能力。**编辑判断：上下文必须变成可检查约束，才能减少业务错误。**仅增加知识库或更长提示，无法证明约束得到执行。\n\n证据也提醒我们保留反向信息：ServiceNow目前缺少公开效果对照；数据调查是8月的自评中期样本；SCAIR提高准确率同时增加调用；OmniOData接近大模型却仍有较高失败比例。扩容应以全量成功、严重错误、人工修正和端到端成本为依据，保留停止与恢复路径。",
+  "items": [
+    {
+      "type": "当天正式发布＋早期访问产品＋官方操作说明与演示",
+      "source": "2026年10月6日｜ServiceNow",
+      "title": "ServiceNow发布AI Workflow Factory：计划审批后后台构建，最终产物仍需人员验证",
+      "summary": "ServiceNow在孟买发布AI Workflow Factory，将流程挖掘、Agent构建、应用运行和AI Control Tower连接为持续改进循环。配套Autonomous Engineer根据需求生成计划，获批准后在后台构建、测试并处理失败项。公告明确：Workflow Factory全球可用，Autonomous Engineer Early Access需申请。其方向是把业务指标转为可交付流程改动；“几天而非几个月”属于厂商提效主张，尚无公开对照数据。",
+      "design": "Autonomous Engineer先澄清需求并读取实例已有表、角色及字段，生成带验收条件和依赖关系的工作项。计划获批后，为工作项启动隔离后台Agent；生成并运行ATF测试，失败则诊断重试，无法解决时请求人员介入。通过项进入needs-validation状态，经人员审核后形成可导出的更新集。文档还支持工作项编辑、重试和回滚。该流程将计划批准与产物验证分成两个明确人工节点。",
+      "evidence": "**确认事实：** 官方公布产品可用状态及具体审批、测试和交接路径。**未验证：** 没有公开生产任务分母、构建成功率、人工推翻、缺陷逃逸、跨系统补偿或净成本。Agent生成的代码和测试可能共享同一错误理解；文档也提醒模糊验收标准可能产生不足以检查需求的测试。因此测试通过不能独立证明业务正确。编辑判断是，验收应包含人员预先编写的业务断言，并验证部分失败、并行依赖冲突及更新集回滚，而非只看所有工作项变绿。",
+      "idea": "为内部申请流程建立构建试点：人员先写必需审批、禁止越权及重复提交三个独立断言，再批准Agent计划。全部产物进入测试环境，验证后才上线。以业务断言通过、人工修改、缺陷逃逸、交付分钟数、运行费用和回滚成功率验收。",
+      "url": "https://newsroom.servicenow.com/press-releases/details/2026/ServiceNow-launches-AI-Workflow-Factory-to-turn-workflow-improvement-into-a-continuous-agentic-AI-powered-loop/default.aspx",
+      "relatedLinks": [
+        {
+          "label": "Autonomous Engineer工作流程",
+          "url": "https://www.servicenow.com/community/servicenow-otto-for-creator/introducing-autonomous-engineer-turn-requirements-into-tested/ta-p/3602140"
+        },
+        {
+          "label": "官方演示入口",
+          "url": "https://www.servicenow.com/demos/ai-workflow-factory-turn-ai-opportunity-into-governed-action.html"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep29-servicenow-prefix.jpg",
+        "alt": "ServiceNow 工作流 Agent 与业务流程构建示意",
+        "caption": "相关 ServiceNow 工作流治理示意图，不代表 AI Workflow Factory 的产品截图。"
+      }
+    },
+    {
+      "type": "厂商支持的社区调查＋公开报告＋近期新闻再传播",
+      "source": "原报告2026年8月19日；近期报道10月5—6日｜The Modern Data Company、Modern Data 101",
+      "title": "“57.3%采用Agent、8.4%信任生产数据”来自8月中期调查，不能算10月新数据",
+      "summary": "近期报道引用调查称，57.3%的受访组织正在试点或生产使用Agent，只有8.4%认为支持AI的数据足够可信，可用于生产。核对原报告后发现，它发表于8月19日，主要反映7—8月收集的回答。57.3%还应拆成33.8%试点和23.5%生产使用，不能整体称为生产采用率。这组材料提供数据基础与采用速度不一致的调查信号，但不是10月新增测量，也不是系统失效率。",
+      "design": "调查从数据从业者的采用、信任、上下文和治理问题观察企业准备度，未提供一个经过验证的部署架构。**编辑建议：** 把“可信数据”转成机器可检查条件：每份数据绑定权威来源、业务定义、更新时间、负责人和允许用途；Agent读取前检查版本、缺失与冲突，关键字段不合格即停止自动执行。上下文层不仅保存文档，还应承载指标口径、实体关系和决策限制。",
+      "evidence": "**原始调查：** 中期报告包含逾540份合格回答，覆盖65多个国家，问卷仍在收集中；并非每位受访者回答每个问题。**关键限制：** 社区样本存在选择偏差，可信度是自评，未经逐系统审计；不同百分比也不能直接相减得到“带不可信数据上线的企业比例”。原报告说明历次问卷问题变化，跨年比较只用于方向判断。厂商拥有数据平台商业利益，应保留其立场。编辑判断是，这些数字适合发现风险和设计访谈，不能证明购买某类平台能解决问题。",
+      "idea": "为订单履约做数据就绪检查：抽取100单，核对库存、承诺日期和物流状态的来源、更新时效及冲突。Agent先输出缺口和人工确认项，不自动改承诺。以关键字段合格率、冲突发现、过期数据、错误决策、人工修复和净处理时间验收。",
+      "url": "https://www.themoderndatacompany.com/resources/5-emerging-trends-in-enterprise-data-ai",
+      "relatedLinks": [
+        {
+          "label": "完整报告PDF",
+          "url": "https://9492706.fs1.hubspotusercontent-na1.net/hubfs/9492706/Resources/Webflow%20Website%20Resources/5%20Emerging%20Trends%20in%20Enterprise%20Data%20%26%20AI.pdf"
+        },
+        {
+          "label": "10月5日报道",
+          "url": "https://cxotoday.com/ai/the-ai-agent-data-bottleneck-57-of-firms-pilot-agents-but-only-8-have-production-ready-data/"
+        }
+      ],
+      "image": {
+        "src": "/cases/production-agent-survey.png",
+        "alt": "企业数据可信度与 Agent 采用调查示意",
+        "caption": "企业数据与 AI 采用调查相关示意图。"
+      }
+    },
+    {
+      "type": "ACL同行评审论文＋制造业CMDB衍生基准＋结构约束消融",
+      "source": "2026年7月｜Bosch等研究机构；ACL 2026 Industry Track",
+      "title": "SCAIR约束企业图谱遍历：准确率升至35.14%，每题仍需约42次模型调用",
+      "summary": "SCAIR研究通用图谱Agent在企业密集关系和业务约束下的失效。系统用Schema约束规划和遍历，减少语义相关但业务无效的路径。在制造业CMDB衍生基准上，准确率35.14%，高于G-Retriever的25.27%及ToG的16.04%。但绝对正确率仍低，平均每题42.36次LLM调用也显著增加推理负担。因此结果支持结构控制的研究价值，不能视为资产处置或维护决策已经适合自治。",
+      "design": "基准图谱包含116,369条三元组，连接产线、机器、组件、厂家和运行属性。SCAIR在推理时注入结构先验，限制关系选择与实体传播，再开展多跳探索，无需任务专门训练。**编辑判断：** 图中“相似组件”不等于当前可替换组件；在线决策还需库存、兼容性、状态与授权检查。Schema约束解决搜索合法路径的问题，并不能替代数据新鲜度或业务执行权限。",
+      "evidence": "**同行评审实验：** 去除关系过滤和实体约束后表现下降，支持这些组件对该基准有效。**成本反证：** SCAIR每题约22,461输入Token、5,931输出Token和42.36次调用；PoG约5.60次调用。相对提升不能掩盖较低绝对准确率，也不能假定缓存即可消除全部成本。研究基于CMDB衍生问答，不是实际维修行动实验；未证明减少停机、降低错误替换或节省工程师工时。编辑判断是，必须同时测正确路径、完整答案和查询预算，超预算或证据冲突应转人工。",
+      "idea": "为设备影响分析做只读图谱助手：仅回答故障组件影响哪些设备，以及哪些替代件需要进一步核验。固定Schema、时间戳、最大跳数与调用预算。以影响集合召回、无效路径、过期状态、查询成本、复核分钟数和正确拒答验收，保留运维最终判断。",
+      "url": "https://aclanthology.org/2026.acl-industry.76/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.76.pdf"
+        }
+      ],
+      "image": {
+        "src": "/cases/graph-rag.png",
+        "alt": "制造业 CMDB 图谱上的受约束多跳遍历示意",
+        "caption": "知识图谱结构约束和多跳遍历的相关示意图。"
+      }
+    },
+    {
+      "type": "ACL同行评审论文＋SAP研究＋执行验证的合成数据与强化学习",
+      "source": "2026年7月｜SAP；ACL 2026 Industry Track",
+      "title": "OmniOData用执行验证训练3B模型：困难集33.84%，略高于GPT-4o的33.33%",
+      "summary": "OmniOData将自然语言转换为企业OData查询，通过执行验证的合成样本训练1.5B和3B模型。OData用于以API方式查询结构化业务数据，涉及过滤、关系展开和聚合。困难工业基准上，3B模型执行准确率33.84%，GPT-4o为33.33%。小模型接近所比较大模型是有意义的任务专门化结果，但领先幅度仅0.51个百分点、绝对准确率约三分之一，不能据此支持直接查询生产系统。",
+      "design": "系统构建含执行验证查询的SynOData，再进行监督微调和GRPO训练；奖励结合格式、可执行性与结果一致性。评估将生成查询返回的JSON规范化后与真值比较，比仅检查语法更接近任务结果。**编辑建议：** 生产接入仍需只读账户、资源白名单、行级权限、分页和查询成本限制。查询能返回正确形状的数据，并不能证明访问范围符合用户权限；空结果也不能自动解释为业务对象不存在。",
+      "evidence": "**同行评审结果：** 3B方案在合成集为50.55%、REALODATA-Lite为36.04%、Hard为33.84%。**限制：** 专门训练模型与零样本通用模型的比较，不能证明所有模型经过同等任务适配后仍有优势；未覆盖多轮澄清、跨服务组合和后续工具执行，工业基准的规模与领域也有限。摘要中的“低时延”不足以代替明确的端到端服务指标。编辑判断是，应按权限、日期、聚合和关系展开分别统计错误，不能只看一个平均执行分数。",
+      "idea": "为采购查询建立只读接口试点：覆盖供应商、订单状态、交期和金额聚合，模型先生成可审阅查询，由网关验证字段、权限及预算再执行。用结果准确、越权尝试、错误空结果、日期口径、P95时延和单位成功成本验收；条件模糊时必须澄清。",
+      "url": "https://aclanthology.org/2026.acl-industry.119/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.119.pdf"
+        }
+      ],
+      "image": {
+        "src": "/cases/enterprise-rag-pipeline.png",
+        "alt": "OData 只读查询与结构化 API 数据示意",
+        "caption": "企业结构化 API 查询与结果验证的相关示意图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "业务断言驱动的流程构建",
+      "description": "先由人员声明审批、权限与重复提交规则，再让Agent构建和测试。以独立业务断言、人工推翻、缺陷逃逸及回滚效果验收。",
+      "tags": [
+        "enterprise-ai",
+        "evaluation",
+        "workflow"
+      ]
+    },
+    {
+      "title": "结构约束的只读企业查询",
+      "description": "将权威数据、Schema、用户权限及预算检查放在模型执行之外。比较普通检索、图谱和专门查询方案，以结果正确、证据完整及单位成功成本选择架构。",
+      "tags": [
+        "enterprise-ai",
+        "governance",
+        "evaluation"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "As of 15:04 Beijing time, this issue includes ServiceNow’s official launch today, a data survey recently reported again, and research on enterprise knowledge graphs and API queries. The common theme is that business context must enter the execution mechanism and be independently verified. Workflow construction, data trustworthiness, graph-traversal constraints, and query execution solve different problems; product launches, survey self-reports, and offline accuracy still need to be assessed separately.",
+      "takeaways": [
+        "Automated workflow construction still needs independent business assertions.",
+        "A self-reported data-readiness survey cannot establish deployed-system failure rates.",
+        "Higher graph-traversal accuracy must be weighed against call cost and absolute accuracy.",
+        "Specialized query models still require permission, budget, and result constraints."
+      ],
+      "contrarian": "All four sources emphasize business context, but put it in different places: ServiceNow adds context to construction and approval; the data survey points to an immature context foundation; SCAIR incorporates structural rules into graph traversal; OmniOData trains query capability using execution results. Editorial judgment: context must become an inspectable constraint to reduce business errors. A larger knowledge base or longer prompt alone cannot prove that a constraint is enforced.\n\nThe evidence also calls for retaining counter-signals: ServiceNow has no public outcome comparison yet; the data survey is an August self-reported interim sample; SCAIR raises accuracy while increasing calls; and OmniOData approaches a larger model but still has a high failure rate. Scale-up should depend on total-task success, severe errors, human correction, and end-to-end cost, with stop and recovery paths retained.",
+      "items": [
+        {
+          "type": "Official launch today + early-access product + official instructions and demo",
+          "source": "October 6, 2026 | ServiceNow",
+          "title": "ServiceNow launches AI Workflow Factory: plans are approved before background construction, but people still validate the final output",
+          "summary": "ServiceNow launched AI Workflow Factory in Mumbai, linking process mining, Agent construction, application operation, and AI Control Tower in a continuous-improvement loop. Its Autonomous Engineer companion generates a plan from requirements and, after approval, builds and tests in the background while handling failed items. The announcement says Workflow Factory is globally available, while Autonomous Engineer requires an Early Access application. Its direction is to turn business metrics into deliverable workflow changes; “days instead of months” is a vendor efficiency claim without a published comparison.",
+          "design": "Autonomous Engineer clarifies requirements and reads existing tables, roles, and fields in an instance, then produces work items with acceptance criteria and dependencies. After approval, it starts isolated background Agents for the work items, generates and runs ATF tests, diagnoses and retries failures, and requests human intervention when it cannot resolve them. Passing items enter a needs-validation state and require human review before becoming an exportable update set. Documentation also supports editing and retrying work items and rolling them back. Plan approval and output validation are two distinct human checkpoints.",
+          "evidence": "Confirmed: official materials state availability and describe the approval, testing, and handoff path. Not verified: there are no public production task denominators, build success rates, human overrides, escaped defects, cross-system compensation, or net costs. Agent-generated code and tests may share the same mistaken interpretation; the documentation also warns that vague acceptance criteria can produce tests too weak to check the requirement. A passing test therefore does not independently prove business correctness. Editorial judgment: acceptance should include business assertions written in advance by people, and test partial failures, conflicts among parallel dependencies, and update-set rollback—not just whether all work items turn green.",
+          "idea": "Pilot construction for an internal application workflow. Have people state three independent assertions first: required approvals, prohibited privilege escalation, and duplicate-submission prevention. Approve the Agent plan only after that. Build everything in a test environment and release only after validation. Evaluate business-assertion pass rate, human edits, escaped defects, delivery time, operating cost, and rollback success.",
+          "relatedLinks": [
+            {
+              "label": "Autonomous Engineer workflow"
+            },
+            {
+              "label": "Official demo"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of ServiceNow workflow Agents and business-process construction",
+            "caption": "Related ServiceNow workflow-governance illustration; not a screenshot of AI Workflow Factory."
+          }
+        },
+        {
+          "type": "Vendor-supported community survey + public report + recent news recirculation",
+          "source": "Original report: August 19, 2026; recent coverage: October 5–6 | The Modern Data Company; Modern Data 101",
+          "title": "“57.3% use Agents, 8.4% trust production data” comes from an August interim survey, not new October data",
+          "summary": "Recent coverage cites a survey saying 57.3% of responding organizations are piloting or using Agents in production, while only 8.4% believe their AI-supporting data is trustworthy enough for production. Checking the original report shows it was published August 19 and mainly reflects responses collected in July and August. The 57.3% should also be split into 33.8% piloting and 23.5% production use; it should not be described collectively as production adoption. This provides a survey signal of a gap between data readiness and adoption speed, but it is neither a new October measurement nor a system failure rate.",
+          "design": "The survey observes enterprise readiness through data practitioners’ views of adoption, trust, context, and governance; it does not present a validated deployment architecture. Editorial recommendation: make “trusted data” machine-checkable. Bind each data asset to an authoritative source, business definition, freshness, owner, and permitted use; before an Agent reads it, check version, missing values, and conflicts, and stop automated execution if critical fields do not pass. The context layer should carry metric definitions, entity relationships, and decision constraints, not merely documents.",
+          "evidence": "Original survey: the interim report contains more than 540 qualified responses across over 65 countries, while collection was still ongoing; not every respondent answered every question. Key limits: the community sample may have selection bias, trust is self-reported rather than audited system by system, and the percentages cannot be subtracted to calculate the proportion of companies deploying with untrusted data. The report notes that questionnaire changes limit year-to-year comparisons to directional signals. The vendor has a commercial interest in data platforms, which should be kept in view. Editorial judgment: these figures can identify risks and inform interviews, but cannot prove that buying a particular platform will solve them.",
+          "idea": "Assess data readiness for order fulfillment by checking the sources, freshness, and conflicts for inventory, promised dates, and logistics status across 100 orders. Have the Agent first report gaps and items requiring human confirmation; do not let it change commitments. Evaluate critical-field readiness, detected conflicts, stale data, wrong decisions, human repair, and net handling time.",
+          "relatedLinks": [
+            {
+              "label": "Full report PDF"
+            },
+            {
+              "label": "October 5 coverage"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of enterprise data trust and Agent adoption survey",
+            "caption": "Related illustration of enterprise data and AI adoption research."
+          }
+        },
+        {
+          "type": "ACL peer-reviewed paper + manufacturing CMDB-derived benchmark + structural-constraint ablation",
+          "source": "July 2026 | Bosch and other research institutions; ACL 2026 Industry Track",
+          "title": "SCAIR constrains enterprise graph traversal: accuracy reaches 35.14%, but still takes about 42 model calls per question",
+          "summary": "SCAIR studies failures of general-purpose graph Agents under dense enterprise relationships and business constraints. The system uses schema constraints in planning and traversal to reduce semantically related but business-invalid paths. On a benchmark derived from a manufacturing CMDB, it reaches 35.14% accuracy, above 25.27% for G-Retriever and 16.04% for ToG. Absolute correctness remains low, however, and an average of 42.36 LLM calls per question adds substantial inference burden. The result supports research into structural controls; it does not show that asset disposition or maintenance decisions are ready for autonomy.",
+          "design": "The benchmark graph contains 116,369 triples connecting production lines, machines, components, manufacturers, and operating attributes. At inference time, SCAIR injects structural priors, restricts relation selection and entity propagation, then conducts multi-hop exploration without task-specific training. Editorial judgment: a “similar component” is not necessarily a valid replacement for the current asset; online decisions also require checks for inventory, compatibility, condition, and authorization. Schema constraints help find legal paths but do not replace data-freshness controls or business execution permissions.",
+          "evidence": "Peer-reviewed experiment: performance drops when relation filtering and entity constraints are removed, supporting the effectiveness of these components on this benchmark. Cost counter-signal: SCAIR uses about 22,461 input tokens, 5,931 output tokens, and 42.36 calls per question; PoG uses about 5.60 calls. Relative gains do not erase low absolute accuracy, and caching cannot be assumed to remove all cost. The study uses CMDB-derived QA, not real maintenance actions; it does not show reduced downtime, fewer incorrect replacements, or engineering hours saved. Editorial judgment: measure correct paths, answer completeness, and query budget together, and hand off when the budget is exceeded or evidence conflicts.",
+          "idea": "Build a read-only graph assistant for equipment-impact analysis. It should answer which assets a failed component affects and which alternatives require further verification. Fix the schema, timestamps, maximum hop count, and call budget. Evaluate impact-set recall, invalid paths, stale state, query cost, review minutes, and correct abstention, leaving the final decision to operations staff.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of constrained multi-hop traversal in a manufacturing CMDB graph",
+            "caption": "Related illustration of knowledge-graph constraints and multi-hop traversal."
+          }
+        },
+        {
+          "type": "ACL peer-reviewed paper + SAP research + synthetic data and reinforcement learning with execution verification",
+          "source": "July 2026 | SAP; ACL 2026 Industry Track",
+          "title": "OmniOData trains a 3B model with execution verification: 33.84% on the hard set, slightly above GPT-4o’s 33.33%",
+          "summary": "OmniOData converts natural language into enterprise OData queries, training 1.5B and 3B models on synthetic examples verified by execution. OData is an API-oriented way to query structured business data, including filters, relationship expansion, and aggregation. On the difficult industrial benchmark, the 3B model reaches 33.84% execution accuracy versus 33.33% for GPT-4o. A small model approaching the compared large model is a meaningful task-specialization result, but the lead is only 0.51 percentage points and absolute accuracy is about one-third; this does not support direct queries against production systems.",
+          "design": "The system creates SynOData examples with execution-verified queries, then applies supervised fine-tuning and GRPO training. Its reward combines format, executability, and result consistency. Evaluation normalizes the JSON returned by the query and compares it with ground truth, which is closer to task outcome than checking syntax alone. Editorial recommendation: production access still needs read-only accounts, resource allowlists, row-level permissions, pagination controls, and query-cost limits. A query returning correctly shaped data does not prove that access matched the user’s authorization; an empty result does not automatically mean the business object does not exist.",
+          "evidence": "Peer-reviewed results: the 3B approach scores 50.55% on the synthetic set, 36.04% on REALODATA-Lite, and 33.84% on Hard. Limits: comparing a task-specialized model with a zero-shot general model does not show the advantage would persist if all models received equivalent task adaptation; multi-turn clarification, cross-service composition, and downstream tool execution were not covered, and the industrial benchmark is limited in scale and domain. The abstract’s “low latency” does not substitute for clear end-to-end service metrics. Editorial judgment: report errors separately for permissions, dates, aggregation, and relationship expansion rather than relying on one average execution score.",
+          "idea": "Pilot a read-only procurement query interface covering suppliers, order status, delivery dates, and amount aggregation. Have the model generate a reviewable query; a gateway checks fields, permissions, and budget before execution. Evaluate result accuracy, unauthorized attempts, incorrect empty results, date definitions, P95 latency, and cost per successful task. Require clarification when conditions are ambiguous.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of OData read-only querying and structured API data",
+            "caption": "Related illustration of structured enterprise API queries and result validation."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Workflow construction driven by business assertions",
+          "description": "Have people declare approval, permission, and duplicate-submission rules before an Agent builds and tests a workflow. Evaluate with independent business assertions, human overrides, escaped defects, and rollback performance.",
+          "tags": [
+            "workflow",
+            "business-rules",
+            "evaluation"
+          ]
+        },
+        {
+          "title": "Read-only enterprise querying with structural constraints",
+          "description": "Keep authoritative data, schema, user permissions, and budget checks outside model execution. Compare standard retrieval, graph-based, and specialized query approaches using correctness, evidence completeness, and cost per successful task.",
+          "tags": [
+            "read-only",
+            "data-governance",
+            "querying"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "8a977d023168406d"
+}

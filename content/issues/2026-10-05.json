@@ -1,0 +1,239 @@
+{
+  "issue": "ISSUE 038",
+  "date": "2026.10.05",
+  "thesis": "本期纳入印度本地推理的最新报道、一项企业AI价值调查，以及技能评测和IT诊断研究。共同问题是：**企业如何证明AI能力在指定环境中有效，而不是仅证明模型能够完成演示。**数据所在地、治理成熟度、技能增益和诊断成功率分别提供不同证据，不能互相替代。历史材料均标明真实发布日期。",
+  "takeaways": [
+    "数据所在地提供推理地理边界证据。",
+    "治理成熟度调查与当前自治能力不可混为一谈。",
+    "技能增益要用有／无技能的成对运行测量。",
+    "IT诊断成功率须区分模拟与真人部署。"
+  ],
+  "contrarian": "四项材料分别提供地理边界、采用趋势、技能边际价值和诊断过程证据。**编辑判断：企业需要同时验证环境合适、能力有效、结果正确及代价可接受。**任何一项成立，都不能自动推出系统可以获得更大自治权。\n\n本期最应避免的口径错误是：把境内推理扩大为全链路合规，把总体AI价值解释为Agent收益，把综合技能分数当成功率，以及把模拟诊断当真人部署。可迁移的工程做法是固定环境和任务，保留全过程分母，再用真实用户和业务指标补足证据。",
+  "items": [
+    {
+      "type": "最新产品报道＋AWS技术文档＋地理范围推理路由",
+      "source": "AWS文档2026年9月29日；新闻报道10月5日｜AWS、Anthropic、印度媒体",
+      "title": "Claude印度本地推理获最新报道确认，但境内推理不等于整条工作流境内运行",
+      "summary": "10月5日多家媒体报道Claude通过Amazon Bedrock提供印度境内推理，覆盖Opus 5、Sonnet 5和Haiku 4.5。AWS技术文章已于9月29日说明该能力：请求通过印度地理推理配置，在孟买和海得拉巴区域之间路由，使模型推理保持在印度境内。因此本条属于最新报道与技术核验，不能将10月5日写成首次技术公开日期。其价值是提供明确的推理地理边界，尚无公开业务效果数据。",
+      "design": "应用通过印度地理推理Profile调用模型，来源区域的请求由平台分配到配置内的目标区域；开发者可使用Messages、InvokeModel或Converse接口。该机制以境内跨区域路由兼顾容量和地理约束。**编辑建议：** 企业接入时还需检查向量库、OCR、外部工具、日志与备份的位置，并阻止应用在限流或故障时自动回退到全球端点；否则模型推理满足边界，外围处理仍可能越界。",
+      "evidence": "**确认事实：** AWS文档说明印度Profile及其路由范围，10月5日报道进一步确认本地推理产品信息。**厂商能力：** 在指定地理范围处理推理请求。**尚未证明：** 未见客户端到端数据流审计、峰值容量、P95时延、故障恢复或业务净收益。境内推理也不能单独证明满足某行业全部合规要求。编辑判断是，验收对象应是完整请求链及其失败路径；正常调用的位置与异常回退的位置必须分别验证，不能只检查一个API配置。",
+      "idea": "为客服知识库做地理边界测试：记录模型、检索、OCR、工具及日志的处理位置，并注入限流、超时和区域不可用故障。禁止未经批准的跨境回退。以越界调用数、地理策略覆盖、故障恢复、P95时延和每个合格答案成本验收，将边界落实到整条工作流。",
+      "url": "https://aws.amazon.com/blogs/machine-learning/amazon-bedrock-expands-claude-model-availability-to-india-cross-region-inference/",
+      "relatedLinks": [
+        {
+          "label": "10月5日报道",
+          "url": "https://www.moneycontrol.com/artificial-intelligence/anthropic-rolls-out-local-claude-inference-in-india-through-amazon-bedrock-article-14044471.html"
+        }
+      ],
+      "image": {
+        "src": "/cases/anthropic-agent-platform.jpg",
+        "alt": "Amazon Bedrock 上的 Claude 推理服务示意",
+        "caption": "相关示意图；具体区域路由以 AWS 配置文档为准。"
+      }
+    },
+    {
+      "type": "企业高管调查＋咨询机构分析＋自治治理差距",
+      "source": "2026年9月30日｜BCG",
+      "title": "BCG调查称近半企业已获得AI价值，但仅5%具备完整Agent控制",
+      "summary": "BCG的2026 Applied AI Index调查逾1,300名高管，覆盖20多个行业，将7.5%的企业归为最高成熟度、41%归为正在规模化，并据此称近半企业已获得AI价值。同时，42%的企业预计到2030年给予Agent真正自治权，只有5%已具备完整相关控制。两组数字揭示的不是Agent已经普遍创造收益，而是总体AI采用与未来自治规划之间存在治理缺口；预计采用和当前实现必须分开。",
+      "design": "报告提出以战略重点选择高价值流程，再结合技术能力、人员转型和治理推进端到端改造。控制范围包括监督、回滚、安全、审计及成本约束。**编辑建议：** 在具体系统中，将这些要求转成可检查状态：读取、建议、写入和高影响决策分别设权限；每项自治任务绑定责任人、预算与停止条件。只有对应业务指标通过验收，才扩大执行范围，而非按模型升级直接增加权限。",
+      "evidence": "**调查证据：** 原文提供样本规模和成熟度分组，适合观察受访企业的采用趋势。**重要限制：** 高管调查与成熟度分类不能替代独立财务审计，也不能证明某项Agent产品的因果效果；2030年的自治权与价值占比属于预期。机构发布稿和报告来自同一研究，不构成独立复现。编辑判断是，企业应核对“价值”是否包含人工复核、集成维护、失败处理与培训费用，并区分节省出的时间和实际释放的预算。",
+      "idea": "为一个订单或售后流程建立价值台账：记录总任务数、合格完成、人工分钟数、返工、实际业务损失和全部运行费用。先运行只读建议，再逐步批准低风险写入。用单位合格结果净成本及严重错误决定扩容，同时记录人员是否真正使用和信任系统。",
+      "url": "https://www.bcg.com/publications/2026/the-formula-for-agentic-ai-value",
+      "relatedLinks": [
+        {
+          "label": "机构发布稿",
+          "url": "https://www.prnewswire.com/news-releases/ai-is-starting-to-pay-off-almost-50-of-companies-now-generate-value-with-it-302893639.html"
+        }
+      ],
+      "image": {
+        "src": "/cases/production-agent-survey.png",
+        "alt": "企业 AI 采用与治理成熟度调查示意",
+        "caption": "企业 AI 采用情况调查相关示意图。"
+      }
+    },
+    {
+      "type": "研究预印本＋开源实现＋有／无技能成对运行评测",
+      "source": "2026年8月20日｜ACES研究团队、NVIDIA SkillEvaluator",
+      "title": "ACES直接测试技能是否帮助Agent：72.8%的成对案例获得正向综合增益",
+      "summary": "ACES把技能文件视为需要实际运行验证的能力包：同一任务分别在有技能和无技能条件下执行，比较结果与过程增益。作者在145项技能上进行文档检查，并对58项技能取得947组成对案例；72.8%的案例综合增益为正。这里的关键贡献是测量技能在固定模型、环境和评分条件下增加多少价值，而不是仅判断说明书是否完整。该比例也不能解释为72.8%的技能适合生产部署。",
+      "design": "成对试验保持任务、模型、工作区与其他技能条件一致，只改变目标技能是否可用；轨迹统一为ATIF格式，再评估结果和运行行为。SkillEvaluator实现三层检查：结构与安全、重复或重叠内容、沙箱内实际运行。仓库明确提醒，自动创建的初始案例覆盖有限，需要人工审阅和扩充。**编辑建议：** 每次模型、技能或工具版本变化后，重跑固定任务，检查发现、路由、执行和结果解释是否退化。",
+      "evidence": "**作者实验：** 文档结构评分与LLM评审评分相关性仅为Spearman ρ=0.14；综合Skill Lift均值0.2134，95%区间为[0.1967, 0.2301]。**口径提醒：** 综合增益是框架分数差，不能写成业务成功率提升21.34个百分点。案例来自不同技能与运行框架，不能直接外推到新业务；LLM评委和作者任务集也需要独立检查。开源实现提供复现入口，但本期未执行复现。编辑判断是，应优先看业务结果及严重错误，再解释过程分数的改善。",
+      "idea": "为一个退款审查或报表技能编写正常、缺字段、冲突和不应触发四类任务，成对运行有／无技能条件。结果用确定性规则与人工抽审核验。以真实完成率、错误触发、越权、工具调用、人工分钟数和单位成功成本验收，保留模型与技能版本供回归比较。",
+      "url": "https://arxiv.org/abs/2608.20614",
+      "relatedLinks": [
+        {
+          "label": "开源实现",
+          "url": "https://github.com/NVIDIA/SkillEvaluator"
+        },
+        {
+          "label": "官方文档",
+          "url": "https://docs.nvidia.com/skills/skillevaluator"
+        }
+      ],
+      "image": {
+        "src": "/cases/nvidia-aces.jpg",
+        "alt": "NVIDIA SkillEvaluator 的技能运行评测示意",
+        "caption": "技能在相同任务下进行有无对照运行评测的相关示意图。"
+      }
+    },
+    {
+      "type": "ACL同行评审论文＋真实工单衍生场景＋状态化诊断评测",
+      "source": "2026年7月｜ACL 2026 Industry Track",
+      "title": "DQA把IT诊断成功率从41.3%提高至78.7%，但评估用户由模型模拟",
+      "summary": "DQA将企业IT支持视为逐步收集证据的诊断过程。系统保留症状、候选根因与解决步骤，并把检索到的历史工单按根因聚合，减少多轮问答中的方向漂移。150个匿名企业场景、三次独立运行中，成功率由多轮RAG基线的41.3%升至78.7%；成功案例平均轮数由8.4降至3.9。但这些是回放式模拟评估结果，不能写成真实客服上线后的解决率或工时节省。",
+      "design": "已解决工单被提取为症状、根因和处理步骤，再形成根因簇。每轮输入结合对话与当前状态改写查询，重新检索、聚合证据并更新诊断状态，而非永久沿用早期判断。生成端依据新状态追问、调查或提出解决方案。**编辑建议：** 实际产品应让用户看见已尝试步骤和当前缺失证据，并允许否定假设；权限修改、凭证重置等操作仍需独立授权，诊断置信度不等于执行权限。",
+      "evidence": "**同行评审实验：** 场景逐一源自真实对话，用户语言由LLM模拟，排查动作的结果由固定状态转换控制，避免模拟用户无条件宣布成功。**限制：** 尚非真人生产实验；模拟不能完整覆盖焦虑、误操作与不可预测反馈。评分使用LLM评委，历史工单中的错误或不完整根因也可能污染聚合。作者明确将真人在环评估列为后续工作。编辑判断是，3.9轮仅针对成功案例，应同时报告失败轨迹和所有任务的人工负担，避免成功子集掩盖成本。",
+      "idea": "为“登录失败”做窄诊断原型：维护已尝试步骤、证据和待排除根因，禁止重复要求用户执行无效步骤。先用固定状态机测试，再邀请真人试用。以全量解决率、重复步骤、错误权限建议、转人工质量、总轮数和人工处理时间验收。",
+      "url": "https://aclanthology.org/2026.acl-industry.79/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.79.pdf"
+        },
+        {
+          "label": "Amazon Science入口",
+          "url": "https://www.amazon.science/publications/dqa-diagnostic-question-answering-for-it-support"
+        }
+      ],
+      "image": {
+        "src": "/cases/dqa-it-support.jpg",
+        "alt": "IT 支持场景的状态化诊断流程示意",
+        "caption": "IT 支持逐步收集证据并排查的相关示意图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "部署环境与能力联合验收",
+      "description": "为一个技能同时测试数据地理边界、有／无技能增益及异常回退。以越界、严重错误、人工负担和单位合格结果成本决定上线。",
+      "tags": [
+        "enterprise-ai",
+        "evaluation",
+        "workflow"
+      ]
+    },
+    {
+      "title": "可检查状态的IT诊断助手",
+      "description": "把症状、已试步骤和待验证假设展示给用户，低证据时追问或转人工。用全量解决、重复排查和接管质量评估，随后开展真人试点。",
+      "tags": [
+        "enterprise-ai",
+        "governance",
+        "evaluation"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue includes the latest reporting on local inference in India, an enterprise AI value survey, and research on skill evaluation and IT diagnosis. The common question is how enterprises can demonstrate that AI works in a specified environment, rather than merely showing that a model can complete a demo. Data location, governance maturity, skill lift, and diagnostic success provide different kinds of evidence and cannot substitute for one another. Historical materials are dated by their actual publication dates.",
+      "takeaways": [
+        "Data location provides evidence about the geographic boundary of inference.",
+        "Governance-maturity surveys are not the same as current autonomous capability.",
+        "Skill lift should be measured with paired runs with and without the skill.",
+        "IT diagnostic success must distinguish simulation from deployment with real users."
+      ],
+      "contrarian": "The four sources offer different evidence about geographic boundaries, adoption trends, marginal skill value, and diagnostic processes. Editorial judgment: enterprises need to validate that the environment is appropriate, the capability is effective, the result is correct, and the cost is acceptable. Evidence for any one of these does not automatically justify granting a system more autonomy.\n\nThe main metric errors to avoid are treating inference inside a country as proof of end-to-end compliance, interpreting overall AI value as Agent value, treating a composite skill score as a success rate, and equating simulated diagnosis with deployment involving real users. A transferable engineering practice is to hold the environment and tasks fixed, retain the full-process denominator, and supplement the evidence with real users and business metrics.",
+      "items": [
+        {
+          "type": "Latest product reporting + AWS technical documentation + geographically scoped inference routing",
+          "source": "AWS documentation: September 29, 2026; news reports: October 5 | AWS, Anthropic, Indian media",
+          "title": "Latest reports confirm local Claude inference in India, but in-country inference does not mean the entire workflow stays in-country",
+          "summary": "On October 5, multiple outlets reported that Claude inference is available within India through Amazon Bedrock, covering Opus 5, Sonnet 5, and Haiku 4.5. AWS’s technical article had already described the capability on September 29: requests use an India geographic inference profile and are routed between the Mumbai and Hyderabad Regions, keeping model inference in India. This item therefore combines recent reporting with technical confirmation; October 5 should not be described as the first technical announcement. It provides a clear geographic boundary for inference, but public business-outcome data is not available.",
+          "design": "An application calls the model through an India geographic inference Profile; the platform routes a request from its source Region to a target Region within the configured profile. Developers can use the Messages, InvokeModel, or Converse APIs. This mechanism combines capacity with a geographic restriction through intra-country cross-Region routing. Editorial recommendation: enterprises should also check where vector stores, OCR, external tools, logs, and backups are located, and prevent automatic fallback to a global endpoint during throttling or outages. Otherwise model inference may meet the boundary while surrounding processing does not.",
+          "evidence": "Confirmed: AWS documentation describes the India Profile and its routing scope; October 5 reporting further confirms local-inference product information. Vendor capability: process inference requests within a specified geographic scope. Not demonstrated: no end-to-end client data-flow audit, peak capacity, P95 latency, failure recovery, or net business benefit has been published. In-country inference alone does not prove compliance with every requirement in a given industry. Editorial judgment: acceptance testing should cover the full request chain and its failure paths; validate normal processing location and fallback location separately, rather than checking only one API setting.",
+          "idea": "Run a geographic-boundary test for a customer-service knowledge base. Record the processing location of the model, retrieval, OCR, tools, and logs, then inject throttling, timeouts, and regional unavailability. Prohibit unapproved cross-border fallback. Evaluate out-of-bound calls, geographic-policy coverage, failure recovery, P95 latency, and cost per qualified answer, applying the boundary to the whole workflow.",
+          "relatedLinks": [
+            {
+              "label": "October 5 report"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of Claude inference through Amazon Bedrock",
+            "caption": "Related illustration; the exact regional routing is specified in AWS configuration documentation."
+          }
+        },
+        {
+          "type": "Enterprise executive survey + consulting-firm analysis + gap in autonomy governance",
+          "source": "September 30, 2026 | BCG",
+          "title": "BCG survey says nearly half of companies have gained AI value, but only 5% have complete Agent controls",
+          "summary": "BCG’s 2026 Applied AI Index surveyed more than 1,300 executives across over 20 industries. It classifies 7.5% of companies as having the highest maturity and 41% as scaling, and uses this to say nearly half have gained AI value. At the same time, 42% expect to give Agents genuine autonomy by 2030, while only 5% already have the complete set of related controls. These figures point not to widespread value creation by Agents, but to a governance gap between overall AI adoption and plans for future autonomy. Expected adoption must be separated from what is currently implemented.",
+          "design": "The report recommends selecting high-value workflows through strategic priorities, then combining technology, workforce transformation, and governance to change processes end to end. Controls include oversight, rollback, security, audit, and cost constraints. Editorial recommendation: turn these requirements into inspectable system states—assign separate permissions for reading, recommending, writing, and high-impact decisions; bind each autonomous task to an owner, budget, and stop condition. Expand execution only after the corresponding business metric passes acceptance, not simply because the model has been upgraded.",
+          "evidence": "Survey evidence: the report provides sample size and maturity categories, making it useful for observing adoption trends among respondents. Important limitation: an executive survey and maturity classification do not replace an independent financial audit or prove the causal effect of a specific Agent product; projections for autonomy and value through 2030 are expectations. The press release and report come from the same study and are not independent replications. Editorial judgment: enterprises should check whether “value” accounts for human review, integration and maintenance, failure handling, and training, and distinguish time saved from budget actually released.",
+          "idea": "Create a value ledger for an order or after-sales workflow: record total tasks, qualified completions, human minutes, rework, actual business losses, and all operating costs. Start with read-only recommendations, then approve low-risk writes incrementally. Use net cost per qualified result and severe errors to decide whether to scale, while tracking whether staff actually use and trust the system.",
+          "relatedLinks": [
+            {
+              "label": "Institutional press release"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of an enterprise AI adoption and governance-maturity survey",
+            "caption": "Related illustration of a survey on enterprise AI adoption and governance."
+          }
+        },
+        {
+          "type": "Research preprint + open-source implementation + paired evaluation runs with and without skills",
+          "source": "August 20, 2026 | ACES research team; NVIDIA SkillEvaluator",
+          "title": "ACES tests whether skills help Agents: 72.8% of paired cases show positive composite lift",
+          "summary": "ACES treats a skill file as a capability package that must be tested in actual runs. The same task is executed with and without the skill, and outcome and process lift are compared. The authors reviewed the documentation of 145 skills and ran 947 paired cases for 58 skills; 72.8% of cases had positive composite lift. The key contribution is measuring the value added by a skill under a fixed model, environment, and scoring setup, rather than judging only whether its documentation is complete. This percentage does not mean that 72.8% of skills are suitable for production.",
+          "design": "Paired trials hold the task, model, workspace, and other skill conditions constant, changing only whether the target skill is available. Traces are normalized to ATIF format, then outcomes and runtime behavior are evaluated. SkillEvaluator implements three layers of checks: structure and safety, repeated or overlapping content, and actual execution in a sandbox. The repository explicitly notes that automatically created initial cases have limited coverage and need human review and expansion. Editorial recommendation: rerun a fixed task set whenever model, skill, or tool versions change, checking whether discovery, routing, execution, and explanation regress.",
+          "evidence": "Author experiment: documentation-structure scores and LLM-judge scores have a Spearman correlation of only ρ=0.14; mean composite Skill Lift is 0.2134, with a 95% interval of [0.1967, 0.2301]. Metric caveat: composite lift is a framework score difference, not a 21.34-percentage-point increase in business success. Cases span different skills and runtime frameworks and cannot be directly generalized to a new business; the LLM judge and author task set also need independent review. The open-source implementation provides a replication path, but no replication was run for this issue. Editorial judgment: prioritize business outcomes and severe errors before interpreting improvements in process scores.",
+          "idea": "Write four task types for a refund-review or reporting skill: normal, missing-field, conflicting-evidence, and should-not-trigger. Run each pair with and without the skill. Verify outcomes with deterministic rules and human sampling. Evaluate real completion, false triggers, unauthorized actions, tool calls, human minutes, and cost per successful task; preserve model and skill versions for regression comparisons.",
+          "relatedLinks": [
+            {
+              "label": "Open-source implementation"
+            },
+            {
+              "label": "Official documentation"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of skill evaluation runs with NVIDIA SkillEvaluator",
+            "caption": "Related illustration of paired evaluations with and without a skill."
+          }
+        },
+        {
+          "type": "ACL peer-reviewed paper + scenarios derived from real tickets + stateful diagnostic evaluation",
+          "source": "July 2026 | ACL 2026 Industry Track",
+          "title": "DQA raises IT diagnostic success from 41.3% to 78.7%, but users in the evaluation were simulated by a model",
+          "summary": "DQA frames enterprise IT support as a diagnostic process that gathers evidence step by step. It retains symptoms, candidate root causes, and resolution steps, and groups retrieved historical tickets by root cause to reduce drift across multiple rounds. Across 150 anonymized enterprise scenarios and three independent runs, success rose from 41.3% for a multi-turn RAG baseline to 78.7%; successful cases used an average of 3.9 rounds instead of 8.4. These are replay-style simulation results, not a resolution rate or labor saving observed after deployment with real customer-service users.",
+          "design": "Resolved tickets are extracted into symptoms, root causes, and handling steps, then grouped into root-cause clusters. Each round rewrites the query using the conversation and current state, retrieves and aggregates evidence again, and updates diagnostic state rather than permanently following an early hypothesis. Generation uses the new state to ask follow-up questions, investigate, or propose a resolution. Editorial recommendation: a real product should show users steps already tried and evidence still missing, and let them reject hypotheses. Permission changes and credential resets need separate authorization; diagnostic confidence is not execution permission.",
+          "evidence": "Peer-reviewed experiment: each scenario originated from a real conversation, user language was simulated by an LLM, and troubleshooting outcomes were controlled by fixed state transitions to prevent a simulated user from declaring success unconditionally. Limitation: this is not yet a human-user production experiment; simulation cannot fully capture anxiety, mistakes, or unpredictable feedback. The evaluation uses an LLM judge, and incorrect or incomplete root causes in historical tickets may contaminate aggregation. The authors identify evaluation with humans in the loop as future work. Editorial judgment: 3.9 rounds applies only to successful cases; report failure traces and total human burden too, so the successful subset does not hide the cost.",
+          "idea": "Build a narrow diagnostic prototype for “login failure.” Track steps already tried, evidence, and root causes still to rule out, and do not ask users to repeat ineffective steps. Test first with a fixed state machine, then invite real users. Evaluate overall resolution, repeated steps, incorrect permission recommendations, handoff quality, total rounds, and human handling time.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            },
+            {
+              "label": "Amazon Science entry"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of stateful diagnosis in IT support",
+            "caption": "Related illustration of stepwise evidence gathering and troubleshooting in IT support."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Joint validation of deployment environment and capability",
+          "description": "For one skill, test data-geography boundaries, lift with and without the skill, and failure fallback. Decide on launch using boundary violations, severe errors, human workload, and cost per qualified result.",
+          "tags": [
+            "deployment",
+            "evaluation",
+            "governance"
+          ]
+        },
+        {
+          "title": "IT diagnosis assistant with inspectable state",
+          "description": "Show users symptoms, steps already tried, and hypotheses still to verify; ask follow-up questions or hand off when evidence is weak. Evaluate overall resolution, repeated troubleshooting, and handoff quality before a human-user pilot.",
+          "tags": [
+            "IT-support",
+            "stateful-agent",
+            "human-handoff"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "147551be60eb11cf"
+}
