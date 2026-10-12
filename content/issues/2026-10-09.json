@@ -1,0 +1,194 @@
+{
+  "issue": "ISSUE 042",
+  "date": "2026.10.09",
+  "thesis": "本期补充10月8日公开的四项组织实践：金融研究、金融产品开发、电信内部Agent及高校共享基础设施。分别对应检索规模、协作重构、分散建设和共同治理。资料主要为客户与供应商披露；“已部署”“正在建设”“覆盖机构”不是同一种成果。",
+  "takeaways": [
+    "BAM把Gemini接入80多项金融数据与工具，规模不能证明研究准确或投资收益",
+    "Zip建设AI产品工厂：并行协作的计划尚未转化为公开交付结果",
+    "Orange Spain披露1,000多个Agent：许可证活跃不等于任务稳定完成",
+    "SUNY共享AI平台覆盖九所研究校园，基础设施建设尚不能证明科研产出提升"
+  ],
+  "contrarian": "四项实践涉及不同组织边界：BAM已有研究平台接入，Zip描述新运作模式的建设，Orange披露推广规模，SUNY建设共同资源。编辑判断：工具、许可和数据库数量只是容量与采用分母。真正的结果还需任务真值、人工贡献与持续成本，并避免把客户公告累加成独立效果验证。",
+  "items": [
+    {
+      "type": "客户部署公告＋多模型金融研究平台",
+      "source": "2026年10月8日｜Balyasny Asset Management、Google Cloud",
+      "title": "BAM把Gemini接入80多项金融数据与工具，规模不能证明研究准确或投资收益",
+      "summary": "Balyasny Asset Management宣布在内部金融研究平台部署Gemini，服务200多个投资团队，并在多模型架构中连接80多个内部数据库与企业工具。任务包括大量财报、会议记录、图表及市场数据研究。公告强调吞吐、检索和多模态处理，未披露投资绩效。编辑判断是，这类系统的最小价值单位应是一项被分析师验证的研究结论；数据库连接数与团队数量只能表示工作面，不能证明模型理解了时间、单位或口径，也不能将研究提速外推为更高投资回报。研究助手的价值应是减少可核实的准备工作，让分析师把时间投入解释，而非制造更多看似完整的报告待核对。",
+      "design": "来源描述BAMAgent等内部应用协调专门模型与Agent，按任务使用Gemini分析文字、图表和表格；声明利用VPC Service Controls隔离数据。未披露各工具权限、引用校验、数据版本、交易执行边界及失败恢复。编辑建议是，研究任务只读，结果逐条附来源日期与数值单位；跨数据库结论先检查实体与会计口径一致，冲突时转分析师。权限和市场数据授权由网关验证；工具失败后报告缺失覆盖，不允许模型用记忆补齐最新数据，也不直接触发交易。关键数值从原始材料复核，计算交给确定性代码；无法对应原文的图表信息标记待审。",
+      "evidence": "客户联合公告支持平台部署方向和连接范围，但吞吐、准确、成本效率等主张没有公开任务集、基线、严重错误、人工修改或总费用。安全控制是声明，不能由此推断所有访问路径经过独立审计。编辑判断是，公开报告与内部交易数据的权限必须分开，图表识读还应检验轴、单位、期末与期间值。研究正确不等于决策有效，决策有效更不等于投资收益具有因果归因。验收应冻结历史时点可得材料，避免未来信息泄漏，并比较分析师完整任务的时间、遗漏和复核负担。在不同市场与材料格式上应分层测量，避免仅挑最清晰文档展示。还要记录所需原始数据和许可成本。人工补齐证据后才正确的结论须单独统计，分析师的额外验证时间不能省略；若摘要更快但审核更久，端到端结果并未改善。",
+      "idea": "为一家公司做历史财报研究助手：限定已公开PDF，生成带页码、日期和单位的指标对照，分析师确认。用数值准确、引用支持、时点泄漏、冲突识别、复核分钟数和单位合格结论成本验收；不作自动投资建议或交易。加入财年变化和同名指标样例，检验跨报告口径不一致时是否正确暂停比较。",
+      "url": "https://www.googlecloudpresscorner.com/2026-10-08-Balyasny-Asset-Management-Deploys-Gemini-Models-for-Agentic-Financial-Research",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct09-1.webp",
+        "alt": "BAM把Gemini接入80多项金融数据与工具，规模不能证明研究准确或投资收益相关资料配图",
+        "caption": "来源机构的官方标识；用于识别资料出处。"
+      }
+    },
+    {
+      "type": "战略建设公告＋金融产品研发流程",
+      "source": "2026年10月8日｜Zip US、Google Cloud",
+      "title": "Zip建设AI产品工厂：并行协作的计划尚未转化为公开交付结果",
+      "summary": "Zip US宣布选择Google Cloud建设AI-Native Product Factory，把研究、设计、工程、风险、法律和合规连接到共享Agent环境。目标是减少串行交接并复用企业知识，缩短从洞察到产品的路径。公告使用“建设”和“设计目标”的语言，不能写成已实现上线提速。编辑判断是，并行产生更多产物只有在依赖、责任与验收统一时才有价值；若需求、设计和合规各自依据不同版本，自动化可能把返工提前放大，而不是消除协作成本。产品团队不能只改变产物生成方式，还需重新确认风险与合规如何参与，才能保持并行流程的责任可追踪。",
+      "design": "来源说明Gemini Enterprise将支撑Agent与人员共同工作的企业基础，纳入数据、知识、模型选择、安全、追踪及人工监督。未公开具体任务图、批准节点、测试覆盖、发布门或回滚流程。编辑建议是，把一项产品变更分成共享需求版本下的任务，明确输入、输出和依赖；研究与草稿可并行，风险条款和发布必须独立审查。修改上游需求时标记下游产物失效，重新验证，不能保留旧版本审批。人员批准应绑定具体Diff与验收证据，而非笼统批准整个项目。批准记录要绑定需求和规则版本，安全审核人员可查看全部受影响工作项，不只看摘要。",
+      "evidence": "确认事实是合作与建设计划，速度、复用和累计收益均属未来主张。没有公开交付项目数、上线周期、返工、合规发现、客户损害或投入费用。联合公告不能算效果对照，金融业务规模也不能证明新研发体系有效。编辑判断是，Agent生成代码和测试可能共享误解，仍需要业务方预先定义独立验收条件。评估应从需求确认到上线后观察，纳入审查、排队、修复与运维，而不能只量生成时长。还应检查谁承担最终责任、多人协作是否降低或增加沟通轮次，以及复用知识是否随着政策变化及时失效。若将流程拆得更细，局部通过可能隐藏整体不一致。评测需要端到端客户路径和风险场景，而非每个Agent自测。人员改变条件后，应观察旧产物是否全部更新；未被更新却继续发布的错误会比单次生成失误更难追踪，必须成为重点回归案例。",
+      "idea": "选一个内部申请表变更，把需求、界面、代码和风险检查做成四项可审阅产物，共享版本号；人员批准需求与最终上线。测端到端交付时间、返工、版本冲突、测试遗漏、审核工时和部署后错误，先证明流程净收益再扩大范围。另外保留相同范围人工基线，区分产生更多草稿与真正减少上线所需工作。",
+      "url": "https://www.googlecloudpresscorner.com/2026-10-08-Zip-US-Collaborates-with-Google-Cloud-to-Build-AI-Native-Product-Factory-with-Gemini-Enterprise",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct09-2.webp",
+        "alt": "Zip建设AI产品工厂：并行协作的计划尚未转化为公开交付结果相关资料配图",
+        "caption": "来源机构的官方标识；用于识别资料出处。"
+      }
+    },
+    {
+      "type": "客户规模部署自报＋内部低代码建设＋RAG",
+      "source": "2026年10月8日｜Orange Spain、Google Cloud",
+      "title": "Orange Spain披露1,000多个Agent：许可证活跃不等于任务稳定完成",
+      "summary": "Orange Spain宣布部署超过1,000个定制Agent，覆盖HR、IT、销售和客服，场景包括事件分类、根因分析、知识获取和内部请求。公告称主要业务部门许可证在30天内接近100%活跃，并描述低代码建设与统一控制。编辑判断是，这展示组织推广方向，却不能证明每个Agent长期有效；许可证登录、创建Agent、执行任务和正确完成应分别计数。电信背景下尤其需区分只读诊断与网络配置变更，不能因使用广泛就授予生产处置权限。开放给员工建设还会引入维护责任，组织需要知道哪些能力重复、过期或无人负责，再判断推广是否健康。",
+      "design": "来源将Gemini Enterprise的低代码、统一编排与RAG结合，数据基础包括BigQuery和Cloud Storage，帮助员工检索企业知识。未披露全部Agent登记、读写权限、知识更新、审批和故障恢复。编辑建议是，员工可创建草稿，但生产发布需业务所有者和IT批准；每项Agent绑定目标、数据范围、版本、预算和退出条件。根因分析输出可验证证据，由工程师执行变更。重复技能应归并，闲置或过期Agent停用；来源冲突、权限撤销和工具失败进入人工队列。新Agent上线前运行最低验收集，记录能力变化；失败实例暂停写入，保留只读诊断入口。",
+      "evidence": "确认事实是客户与供应商公开的部署和活跃数字，没有独立使用日志、成功分母、MTTR、错误修复、人员工时或净成本。所谓“verified corporate data”不能自动证明每条回答正确；RAG同样可能检索错版本或把日志相关解释成因果。编辑判断是，1,000个Agent可能包含重叠、低使用或未验收实例，需披露活跃定义及观察周期。衡量推广应看用户持续采用、单位任务质量和故障接管，而非单次登录。对网络安全和客户账户相关任务，还需记录权限违规、错误写入及恢复时间。许可证活跃还可能只需要一次访问，不等于每周稳定使用。应明确活跃任务次数和时间窗，并检查哪些Agent长期闲置。采用越广，知识版本和权限同步越重要；维护费用可能随数量增加，只有持续完成与净节省才说明推广产生了可运营价值。",
+      "idea": "为一个班级或部门做Agent登记与验收台账：每项工具写明所有者、目标、数据、权限和测试结果，只挑两个高频流程试点。测活跃任务、真实完成、重复能力、人工推翻、费用和停用传播，避免仅以创建数量判断推广成功。再测离职或角色变化后的授权，确认部门共享Agent没有持续继承旧权限。",
+      "url": "https://www.googlecloudpresscorner.com/2026-10-08-Orange-Spain-Expands-Partnership-with-Google-Cloud-to-Industrialize-AI-Operations-with-Gemini-Enterprise",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct09-3.webp",
+        "alt": "Orange Spain披露1,000多个Agent：许可证活跃不等于任务稳定完成相关资料配图",
+        "caption": "来源机构的官方标识；用于识别资料出处。"
+      }
+    },
+    {
+      "type": "高校平台合作＋AI与高性能计算＋人员培训",
+      "source": "2026年10月8日｜SUNY、Google Public Sector",
+      "title": "SUNY共享AI平台覆盖九所研究校园，基础设施建设尚不能证明科研产出提升",
+      "summary": "SUNY与Google宣布AI平台，初始覆盖九所研究密集校园，共享存储、高性能计算、Gemini Enterprise及200多种模型能力，降低各研究团队自行建设环境的负担。公布场景包括天气、水质、DNA及脑部图像研究。编辑判断是，这种共同基础有助于集中技术支持，但“可访问模型多”不是科研效果；研究任务仍需领域真值、数据授权与方法复现。平台应把资源获得和研究验证分开，使非技术用户更容易运行工作，也更容易理解结果何时不能信任。共同资源也必须允许团队复现和退出，使研究者能检查模型与环境变化是否影响结论，而不是只获得计算入口。",
+      "design": "来源说明在Google Cloud上整合计算、数据与AI，提供共同治理和跨校园协作，并强调人员技能支持；未完整披露课题级身份、敏感数据审批、资源队列、费用分摊和故障恢复。编辑建议是，每个研究项目设置隔离空间和预算，模型输出与原始数据、软件版本及参数一起留存。医疗或人类数据需相应机构审批；运行失败保留断点与输入，避免重复处理和预算失控。共享模板仅作为起点，研究人员须验证其适用条件，不能跨领域默认复用。预算耗尽时保存检查点并通知项目负责人；重跑沿用明确版本，不自动替换模型或数据。",
+      "evidence": "确认事实是平台合作、初始机构范围和功能方向。没有公开研究任务成功率、科研周期、资源利用、论文产出或独立质量对照；官方提到的场景是用途，不代表相关科学结论已被验证。编辑判断是，共享基础设施的收益可以先从环境准备、故障支持和重复开发工时衡量，再观察研究质量，而不是直接归因为发现加速。校园间算力与人员差异也影响采用，必须报告项目分母、使用权限和培训工时。模型生成解释不能取代实验、统计检验和领域专家判断。研究结果的有效性还受到样本、方法和统计设计限制，不能由平台统一治理消除。不同课题的费用和敏感度差别较大，应按项目报告而非平均混合。观察实验是否可重复、失败数据是否保留及培训是否帮助用户识别错误，比计算调用量更接近平台价值。",
+      "idea": "为一个课程研究组做可复现任务模板：固定数据版本、运行环境、模型配置和输出检查，提供预算与失败重跑。由研究者核验结论。测环境准备分钟数、复现成功、数据越权、总运行成本和人工修复，先验证共享工具是否降低协作负担。将每次运行输出与输入版本绑定，验证课题成员能够独立重复同一分析流程。",
+      "url": "https://cloud.google.com/blog/topics/public-sector/gps-suny-launch-ai-enabled-platform-to-accelerate-university-research",
+      "relatedLinks": [
+        {
+          "label": "发布会演示入口",
+          "url": "https://www.googlecloudpresscorner.com/gemini-at-work-2026"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct09-4.webp",
+        "alt": "SUNY共享AI平台覆盖九所研究校园，基础设施建设尚不能证明科研产出提升相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "共同版本下的协作试点",
+      "description": "对一项流程变更统一需求、规则、证据和审批，测返工与端到端时间。",
+      "tags": [
+        "协作流程",
+        "版本管理"
+      ]
+    },
+    {
+      "title": "Agent登记与结果台账",
+      "description": "按所有者、权限和真实完成登记能力，观察持续采用与重复维护成本。",
+      "tags": [
+        "Agent治理",
+        "结果台账"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue adds four organizational practices disclosed on October 8: financial research, financial product development, internal telecom agents, and shared university infrastructure. They involve, respectively, retrieval at scale, collaborative process redesign, distributed agent development, and joint governance. Most evidence comes from customers and suppliers. A deployment, a planned build, and institutional coverage describe different kinds of progress.",
+      "takeaways": [
+        "BAM connects Gemini to more than 80 financial data sources and tools; scale does not establish research accuracy or investment returns",
+        "Zip plans an AI product factory, but has not published delivery results from parallel collaboration",
+        "Orange Spain reports more than 1,000 agents; active licenses do not establish reliable task completion",
+        "SUNY's shared AI platform spans nine research campuses, but infrastructure alone does not establish better research outcomes"
+      ],
+      "contrarian": "The four practices involve different organizational boundaries: BAM has access to the research platform, Zip describes the construction of a new operating model, Orange discloses the scale of promotion, and SUNY builds common resources. Editorial Judgment: Number of tools, licenses, and databases are only the capacity and adoption denominators. Real results also require the true value of tasks, human contributions and ongoing costs, and avoid adding up customer announcements into independent effect verification.",
+      "items": [
+        {
+          "type": "Customer deployment announcement + multi-model financial research platform",
+          "source": "October 8, 2026｜Balyasny Asset Management, Google Cloud",
+          "title": "BAM connects Gemini to more than 80 financial data sources and tools; scale does not establish research accuracy or investment returns",
+          "summary": "Balyasny Asset Management announced the deployment of Gemini on its internal financial research platform, serving more than 200 investment teams and connecting more than 80 internal databases and enterprise tools in a multi-model architecture. Assignments include extensive financial reports, meeting minutes, charts and market data research. The announcement emphasizes throughput, retrieval and multi-modal processing, and investment performance is not disclosed. Editorial judgment:  the minimum value unit of this type of system should be a research conclusion verified by analysts; the number of database connections and the number of teams can only represent the work surface, but cannot prove that the model understands time, units or caliber, nor can it extrapolate the speed of research into a higher return on investment. The value of a research assistant should be to reduce verifiable preparation and allow analysts to devote their time to interpretation rather than creating more seemingly complete reports to be verified.",
+          "design": "Source description Internal applications such as BAMAgent coordinate specialized models and agents, and use Gemini to analyze text, charts, and tables according to tasks; the statement uses VPC Service Controls to isolate data. The permissions of each tool, reference verification, data version, transaction execution boundaries and failure recovery are not disclosed. The editor's suggestion is that the research task is read-only, and the results are attached with the source date and numerical unit one by one; for cross-database conclusions, first check that the entities are consistent with the accounting standards, and refer to analysts if there are conflicts. Permissions and market data authorization are verified by the gateway; missing coverage is reported when the tool fails, the model is not allowed to use memory to fill in the latest data, and transactions are not directly triggered. The key values are reviewed from the original materials, and the calculation is handed over to the deterministic code; chart information that cannot correspond to the original text is marked for review.",
+          "evidence": "Customer joint announcements support platform deployment direction and connectivity range, but claims for throughput, accuracy, cost efficiency, etc. do not disclose task sets, baselines, critical errors, manual modifications, or total costs. Security controls are statements and it cannot be inferred that all access paths are independently audited. Editorial judgment is that access to public reporting and internal trading data must be separated, and chart reading should also verify axes, units, end-of-period and period values. Correct research does not mean effective decision-making, and effective decision-making does not mean causal attribution of investment returns. Acceptance should freeze material available at a historical point in time to avoid future information leaks, and compare the time, omissions, and review burden of the analyst's complete assignment. Different markets and material formats should be measured in layers to avoid selecting only the clearest document display. Also document required raw data and licensing costs. The correct conclusion after manually supplementing the evidence must be counted separately, and the additional verification time of the analyst cannot be omitted; if the summary is faster but the review takes longer, the end-to-end results will not improve.",
+          "idea": "Worked as a historical financial report research assistant for a company: limited to the public PDF, generated indicator comparison with page number, date and unit, and confirmed by analysts. Use numerical accuracy, citation support, point-in-time leakage, conflict identification, review minutes, and unit qualified conclusion cost acceptance; do not make automated investment recommendations or transactions. Add examples of fiscal year changes and indicators with the same name to test whether comparisons are correctly suspended when there are inconsistencies across reporting standards.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "BAM connects Gemini to more than 80 financial data sources and tools; scale does not establish research accuracy or investment returns: related source image",
+            "caption": "Official organization mark identifying the source."
+          }
+        },
+        {
+          "type": "Strategic Construction Announcement + Financial Product R&D Process",
+          "source": "October 8, 2026｜Zip US, Google Cloud",
+          "title": "Zip plans an AI product factory, but has not published delivery results from parallel collaboration",
+          "summary": "Zip US announced that it has chosen Google Cloud to build its AI-Native Product Factory, which connects research, design, engineering, risk, legal and compliance to a shared agent environment. The goal is to reduce serial handoffs and reuse enterprise knowledge, shortening the path from insights to products. The announcement uses the language of \"construction\" and \"design goals\" and cannot be written to say that the online speedup has been achieved. The editorial judgment is that producing more products in parallel is only valuable when dependencies, responsibilities, and acceptance are unified; if requirements, design, and compliance are based on different versions, automation may amplify rework in advance instead of eliminating collaboration costs. Product teams can’t just change how products are produced, but also need to reaffirm how risk and compliance are involved to keep accountability for parallel processes traceable.",
+          "design": "Source Description Gemini Enterprise will support the enterprise foundation for agents and people to work together, including data, knowledge, model selection, security, tracking and manual supervision. No specific task graphs, approval nodes, test coverage, release gates, or rollback processes are disclosed. The editor's suggestion is to divide a product change into tasks under a shared requirements version, with clear inputs, outputs, and dependencies; research and drafting can be done in parallel, and risk terms and releases must be reviewed independently. When modifying upstream requirements, mark the downstream product as invalid and re-verify, and the old version cannot be retained for approval. Personnel approval should be bound to specific Diff and acceptance evidence rather than generally approving the entire project. Approval records need to be bound to requirements and rule versions, so security auditors can view all affected work items, not just the summary.",
+          "evidence": "The confirmed facts are cooperation and construction plans, and speed, reuse and cumulative benefits are future propositions. There is no disclosure of deliverables, time to market, rework, compliance findings, customer harm, or investment costs. The joint announcement cannot be regarded as an effect comparison, and the scale of financial business cannot prove the effectiveness of the new R&D system. Editorial judgment:  the agent-generated code and testing may share misunderstandings, and the business party still needs to define independent acceptance conditions in advance. The assessment should start from requirement confirmation to post-launch observation, including review, queuing, repair and operation and maintenance, rather than just measuring the generation time. It should also be examined who bears final responsibility, whether multi-person collaboration reduces or increases communication rounds, and whether reused knowledge becomes obsolete in time as policies change. If the process is broken down into smaller parts, partial passing may hide overall inconsistencies. The evaluation requires end-to-end customer paths and risk scenarios, rather than self-testing of each Agent. After personnel change conditions, they should observe whether all old products have been updated; errors that continue to be released without being updated will be more difficult to track than single generation errors and must become key regression cases.",
+          "idea": "Select an internal application form to change, and make the requirements, interface, code and risk inspection into four reviewable products, share the version number; personnel approve the requirements and finally go online. Measure end-to-end delivery times, rework, version conflicts, missed tests, review hours, and post-deployment errors to demonstrate the net benefit of the process before expanding scope. Also keep the same range of artificial baselines to differentiate between producing more drafts and actually reducing the work required to go live.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Zip plans an AI product factory, but has not published delivery results from parallel collaboration: related source image",
+            "caption": "Official organization mark identifying the source."
+          }
+        },
+        {
+          "type": "Customer-scale deployment self-reporting + internal low-code construction + RAG",
+          "source": "October 8, 2026｜Orange Spain, Google Cloud",
+          "title": "Orange Spain reports more than 1,000 agents; active licenses do not establish reliable task completion",
+          "summary": "Orange Spain announced the deployment of more than 1,000 customized Agents covering HR, IT, sales and customer service. The scenarios include event classification, root cause analysis, knowledge acquisition and internal requests. The announcement stated that the main business unit licenses were close to 100% active within 30 days, and described low-code construction and unified control. Editorial judgment:  this shows the organization's promotion direction, but does not prove that each Agent is valid for a long time; license login, agent creation, task execution and correct completion should be counted separately. In the telecommunications context, it is especially necessary to distinguish between read-only diagnostics and network configuration changes, and production disposal rights cannot be granted just because of widespread use. Opening up employee development will also introduce maintenance responsibilities. Organizations need to know which capabilities are duplicated, expired, or have no one in charge before they can judge whether promotion is healthy.",
+          "design": "Source combines Gemini Enterprise's low-code, unified orchestration with RAG, and the data foundation includes BigQuery and Cloud Storage to help employees retrieve enterprise knowledge. All Agent registration, read and write permissions, knowledge updates, approvals and fault recovery are not disclosed. The editor's suggestion is that employees can create drafts, but production release requires approval from the business owner and IT; each Agent is bound to goals, data scope, version, budget, and exit conditions. Root cause analysis outputs verifiable evidence for engineers to implement changes. Duplicate skills should be merged, and idle or expired Agents should be deactivated; source conflicts, permission revocation, and tool failures should be entered into the manual queue. Before the new Agent goes online, a minimum test collection is run to record changes in capabilities; writing of failed instances is suspended and read-only diagnostic entries are retained.",
+          "evidence": "Verified facts are deployed and active numbers exposed by customers and vendors, without independent usage logs, success denominators, MTTR, bug fixes, staff hours, or net costs. The so-called \"verified corporate data\" cannot automatically prove that every answer is correct; RAG may also retrieve the wrong version or interpret log correlation as cause and effect. Editorial judgment:  the 1,000 Agents may contain overlapping, low-use or unaccepted instances, and active definitions and observation periods need to be disclosed. Measure rollout by continued user adoption, unit task quality, and failure recovery, not single logins. For network security and customer account-related tasks, permission violations, write errors, and recovery times also need to be recorded. An active license may also only require one visit, which does not equate to steady weekly use. The number of active tasks and time windows should be clarified, and which agents should be checked to be idle for a long time. The wider the adoption, the more important it is to synchronize knowledge versions and permissions; maintenance costs may increase with the number, and only continuous completion and net savings indicate that promotion has produced operational value.",
+          "idea": "Create an Agent registration and acceptance ledger for a class or department: indicate the owner, goal, data, permissions and test results of each tool, and only select two high-frequency processes to pilot. Test active tasks, real completion, repeatability, manual overturning, cost and deactivation propagation to avoid judging the success of promotion solely by the number of creations. Retest the authorization after resignation or role change to confirm that the department shared agent does not continue to inherit the old permissions.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Orange Spain reports more than 1,000 agents; active licenses do not establish reliable task completion: related source image",
+            "caption": "Official organization mark identifying the source."
+          }
+        },
+        {
+          "type": "University platform cooperation + AI and high-performance computing + personnel training",
+          "source": "October 8, 2026｜SUNY, Google Public Sector",
+          "title": "SUNY's shared AI platform spans nine research campuses, but infrastructure alone does not establish better research outcomes",
+          "summary": "SUNY and Google announced an AI platform that will initially cover nine research-intensive campuses and share storage, high-performance computing, Gemini Enterprise and more than 200 model capabilities, reducing the burden on each research team to build their own environment. Scenarios announced include weather, water quality, DNA and brain imaging studies. Editorial judgment:  this common basis helps to centralize technical support, but \"more accessible models\" is not a scientific research effect; research tasks still require domain truth, data authorization, and method reproduction. Platforms should separate resource acquisition and research validation, making it easier for non-technical users to run the job and understand when results cannot be trusted. Common resources must also allow for team replication and exit, allowing researchers to examine whether models and environmental changes affect conclusions, rather than just gaining access to calculations.",
+          "design": "The source description integrates computing, data and AI on Google Cloud, provides common governance and cross-campus collaboration, and emphasizes personnel skills support; it does not fully disclose subject-level identity, sensitive data approval, resource queues, cost sharing and fault recovery. The editors recommend that each research project set up an isolation space and budget, and the model output is retained together with the original data, software version and parameters. Medical or human data requires approval by the corresponding agency; breakpoints and inputs are retained for run failures to avoid repeated processing and budget loss. Shared templates are only used as a starting point. Researchers must verify their applicable conditions and cannot be reused by default across domains. Save checkpoints and notify the project leader when the budget is exhausted; reruns use the explicit version and do not automatically replace models or data.",
+          "evidence": "Confirmed facts include platform collaboration, initial institutional scope and functional direction. There is no disclosure of research mission success rate, scientific research cycle, resource utilization, paper output or independent quality control; the officially mentioned scenarios are purposes and do not mean that the relevant scientific conclusions have been verified. The editorial judgment is that the benefits of shared infrastructure can be measured first in terms of environment preparation, failure support and repeated development man-hours, and then looking at the research quality, rather than being directly attributed to discovery acceleration. Differences in computing power and personnel between campuses also affect adoption, and project denominators, usage rights, and training hours must be reported. Model-generated explanations cannot replace experimentation, statistical testing, and domain expert judgment. The validity of the research results is also limited by the sample, method and statistical design, which cannot be eliminated by the unified management of the platform. Costs and sensitivities vary widely between topics and should be reported on a project-by-project basis rather than evenly mixed. Observing whether experiments are repeatable, whether failure data is retained, and whether training helps users identify errors is closer to the value of the platform than calculating the number of calls.",
+          "idea": "Create a reproducible task template for a course research group: fixed data version, running environment, model configuration and output check, provide budget and fail rerun. The researchers verify the conclusions. Test environment preparation minutes, successful reproduction, data unauthorized access, total operating costs and manual repairs, first verify whether shared tools reduce collaboration burden. Bind the output of each run to the input version to verify that project members can independently repeat the same analysis process.",
+          "relatedLinks": [
+            {
+              "label": "Conference presentation entrance"
+            }
+          ],
+          "image": {
+            "alt": "SUNY's shared AI platform spans nine research campuses, but infrastructure alone does not establish better research outcomes: related source image",
+            "caption": "Image from the original source page."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Collaboration pilot with one shared version",
+          "description": "Unify requirements, rules, evidence and approval for a process change, and measure rework and end-to-end time.",
+          "tags": [
+            "Collaboration process",
+            "Version management"
+          ]
+        },
+        {
+          "title": "Agent registry and outcomes ledger",
+          "description": "Observe ongoing adoption and recurring maintenance costs by owner, permissions, and true completion capabilities.",
+          "tags": [
+            "Agent governance",
+            "Result ledger"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "12c18ebada7216bf"
+}

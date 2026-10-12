@@ -1,0 +1,208 @@
+{
+  "issue": "ISSUE 041",
+  "date": "2026.10.08",
+  "thesis": "本期聚焦Google同期发布的工作Agent与三个具体场景：云迁移、诉讼脱敏和独件商品检索。联合公告共享同一发布背景，不能视为四份独立效果验证。迁移有自报时间数字，购物有可用范围，法律产品仍在开发；不同成熟度必须分开。",
+  "takeaways": [
+    "Gemini工作Agent进入私人预览：持续上下文需要持续权限管理",
+    "On称Agent将24项核心服务迁移提速，生产切换仍由工程师授权",
+    "Cooley研发诉讼脱敏Agent：提出遮盖建议，律师逐项决定",
+    "Ask TRR面向4,500万会员开放：独件商品检索必须连接实时库存"
+  ],
+  "contrarian": "四组资料体现不同执行边界：统一Agent仍在预览；迁移把关键执行交工程师；脱敏把法律决定留给律师；购物推荐依赖实时商品状态。联合公告不能互相充当独立验证。编辑判断：场景越具体，越应以权威业务状态定义“完成”，并披露人工贡献。",
+  "items": [
+    {
+      "type": "官方发布＋独立新闻＋私人预览",
+      "source": "2026年10月8日｜Google Cloud、Reuters、The Verge",
+      "title": "Gemini工作Agent进入私人预览：持续上下文需要持续权限管理",
+      "summary": "Google推出统一Gemini工作Agent，计划在不同设备和工作渠道共享记忆、技能与控制，完成知识工作、内容生成和代码执行，也可按特定角色运作。独立报道确认目前为企业私人预览，不应写成所有企业已可使用。编辑判断是，云端持续执行让任务跨设备继续，但也使权限、记忆和过期目标成为长期运行对象；一个被撤销的业务授权必须及时影响后台任务，不能只在界面关闭后等待Agent自行理解授权变化。从助手到持续执行者的变化，会把原来由用户逐次操作承担的风险转交系统，因此应先界定允许自动完成的任务。",
+      "design": "官方描述Agent结合业务系统、工具与技能处理目标，使用模型路由和费用控制，并提供身份、授权、沙箱与网络管理能力。来源未完整给出各动作审批、后台会话撤销、重试去重和运行状态恢复。编辑建议是，任务绑定用户或独立机器身份，读写范围由外部服务验证；持续任务保存可恢复状态，写入前重新确认数据和权限。跨设备共享应展示任务队列、已完成步骤与停止按钮；低证据或预算不足时明确转交人员，不默默结束或继续过期目标。任务重开需明确沿用哪些已确认决定，权限与成本状态由服务端检查，不从旧消息推断。",
+      "evidence": "官方和独立媒体可核验发布及预览状态，连接能力与持续上下文仍主要是产品说明，没有公开业务任务集、严重错误、运行成本或长期漂移结果。客户采用数字涵盖既有Google AI产品，不能自动归因于新Agent。编辑判断是，统一入口既可能降低操作成本，也可能掩盖跨应用访问范围；评估需要分别记录读取、外发、创建和修改。私人预览案例还可能接受额外人工支持，外推到常规客户前应披露支持工时、任务分母和失败恢复路径，并以实际业务状态而非自然语言“完成”判断成功。另外要区分完成内容与执行动作。生成会议草稿、创建日历记录及向外发送邀请具有不同责任，统一聊天界面可能让用户忽略差异。试点应按动作统计成功、误执行与审批耗时，并验证用户退出或撤销权限后的后台行为，不能仅以满意反馈判定可控。",
+      "idea": "为项目周报建立持续只读助手：从两类批准来源收集进展，生成带证据草稿，由人员发送。测试授权撤销、重复执行、跨设备停止和任务过期。用证据支持、错误外发、恢复时长、人工修改和单位合格周报成本验收。再加入不同权限用户的相同请求，确认统一入口没有扩大实际访问范围。",
+      "url": "https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026/",
+      "relatedLinks": [
+        {
+          "label": "Reuters",
+          "url": "https://www.reuters.com/business/google-cloud-introduces-gemini-agent-work-ai-race-heats-up-2026-10-08/"
+        },
+        {
+          "label": "The Verge",
+          "url": "https://www.theverge.com/tech/1007904/google-gemini-ai-agent-enterprise"
+        },
+        {
+          "label": "发布会与演示",
+          "url": "https://www.googlecloudpresscorner.com/gemini-at-work-2026"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct08-1.webp",
+        "alt": "Gemini工作Agent进入私人预览：持续上下文需要持续权限管理相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    },
+    {
+      "type": "客户联合公告＋实际工程交付自报",
+      "source": "2026年10月8日｜On、Google Cloud",
+      "title": "On称Agent将24项核心服务迁移提速，生产切换仍由工程师授权",
+      "summary": "运动品牌On宣布用AI Agent迁移24项核心服务，每项迁移由三个月缩短至两周；其中15项由内部团队完成，计划停机每项低于五分钟。公告把代码分析、配置、复制和验证交给专门Agent，工程师保留关键执行判断。这是具体工程结果披露，但观察口径来自客户与供应商。编辑判断是，可借鉴的不是迁移速度本身，而是明确分工、可检查产物和人工切换；品牌具有体育属性，也不能将这项内部基础设施案例解释为足球或球迷AI应用。迁移的最终收益还依赖后续稳定运行与团队维护能力，短期速度不能代替切换后的长期质量和可恢复性。",
+      "design": "公告描述跨20多个仓库分析部署模式，将迁移分为代码检查、基础设施配置、转换管道与测试验证；工程师审查生成代码、运行基础设施变更并批准生产切换。来源未披露完整模型、任务调度、校验数据、回滚门或迁移后故障监测。编辑建议是，Agent只生成计划和可审阅配置，在隔离环境执行；比较数据完整、依赖和性能后才进入切换窗口。失败应回到原环境或上一断点，去重复制并保存差异，所有关键状态由权威监控确认。切换计划同时声明停止标准、回滚负责人和数据核验范围，避免各Agent独立定义成功。",
+      "evidence": "联合公告提供24项、15项、三个月至两周及低于五分钟等自报数字，但没有逐服务复杂度、原计划依据、全部工程工时和独立故障审计。外部供应商曾报价50万美元仅覆盖部分服务，不能直接当作已节省50万美元，更不能当全部项目成本。编辑判断是，时间对照应统一范围、依赖和验收标准，同时纳入模型、平台、审核与后续维护；计划停机短也不等于零业务影响。需要观察切换后的错误率、数据一致性和恢复事件，以确认速度没有将成本推迟到运维阶段。服务之间依赖也会影响数字可比性。需要知道是否包含数据库迁移、外部接口和合规验证，原三个月估算与新两周是否使用同一范围。若只披露成功服务而排除延迟或人工接管项目，会高估可推广性，因此应报告全部候选和最终完成漏斗。",
+      "idea": "选择一个非生产服务做迁移：Agent生成依赖清单、配置Diff和验证脚本，工程师批准执行。测数据一致、配置错误、净工程时长、推理费用、停机及回滚成功。保留人工基线和相同验收任务，只在这些结果通过后扩大服务范围。迁移完成后持续观察性能与错误，验证初期省时没有转为后续额外运维。",
+      "url": "https://www.googlecloudpresscorner.com/2026-10-08-On-Establishes-Google-Cloud-as-Enterprise-AI-Backbone,-Beginning-with-Agent-Led-Cloud-Migration",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct08-2.webp",
+        "alt": "On称Agent将24项核心服务迁移提速，生产切换仍由工程师授权相关资料配图",
+        "caption": "来源机构的官方标识；用于识别资料出处。"
+      }
+    },
+    {
+      "type": "联合研发公告＋高风险文档人工复核",
+      "source": "2026年10月8日｜Cooley、Google Cloud",
+      "title": "Cooley研发诉讼脱敏Agent：提出遮盖建议，律师逐项决定",
+      "summary": "Cooley与Google研发诉讼文件脱敏Agent，识别个人信息、技术信息及其他潜在保密内容，生成针对性遮盖建议；提交法院前的所有脱敏决定仍由律师作出。公告明确产品仍在开发，不是已经全面生产部署。这与隐私辅助工具定位相近，但目标比通用PII识别更广：某段技术描述是否应保密依赖案件与法律判断。编辑判断是，工具应把漏检风险和复核负担同时展示，不能用几组演示成功证明高风险文件已可自动安全上传。风险不只在检测结果，还在人员如何检查与最终文件如何导出；这要求同时设计识别、复核和文件验证。",
+      "design": "来源仅说明Gemini Enterprise支持候选识别并由律师复核，未披露OCR、标签、模型阈值、文档坐标或实体关联机制。编辑建议是，输入限定单一案件，输出原文位置、建议类别和依据；跨页相同信息保持一致候选，所有遮盖可撤销。文档权限和保留由外部策略管理，低质量扫描、冲突及不确定内容进入人工队列。最终导出应验证真正移除敏感文本层，并检查截图、元数据与附件，而不只在页面上覆盖黑色矩形。导出验证失败即停止提交，保留人工已确认的遮盖记录，重新生成文件后再做残留检查。",
+      "evidence": "确认事实是合作研发、目标场景和律师最终判断权。没有公开测试集、漏检、误检、复核时长、导出泄漏或生产案件数量；“几天人工工作”的描述不能直接当已实现节省。编辑判断是，姓名邮箱的高召回不能代表技术秘密或案件特定保密内容；字级、span级和整份文档无泄漏指标应分开。实际辅助价值还取决于复核者是否被候选误导，遗漏是否被发现，以及误遮盖是否损害证据可读性。需要冻结测试、独立律师真值和导出后再检查，不能只评生成阶段。文档级成功应要求所有相关敏感信息均被发现，而非平均span召回达到某个比例。尤其需要按信息类型统计漏检，检查复杂表格和跨页重复。复核者可能只检查高亮候选，故应加入未高亮随机抽审，测真实错误发现而非仅测接受建议率。",
+      "idea": "为合成客服或合同文本建立脱敏候选工具，覆盖姓名、地址及一类内部编号；人员逐项确认，不自动提交。用exact-span与overlap召回、误检、整文档漏泄漏、复核分钟数和导出残留验收，明确工具是辅助，不能承诺“检查过即安全”。另测无敏感信息与不应遮盖文本，确认误检没有破坏文件原本的业务意义。",
+      "url": "https://www.googlecloudpresscorner.com/2026-10-08-Cooley-Collaborates-With-Google-Cloud-to-Develop-AI-Agent-for-Complex-Litigation",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct08-3.webp",
+        "alt": "Cooley研发诉讼脱敏Agent：提出遮盖建议，律师逐项决定相关资料配图",
+        "caption": "来源机构的官方标识；用于识别资料出处。"
+      }
+    },
+    {
+      "type": "客户产品上线公告＋购物发现与个性化",
+      "source": "2026年10月8日｜The RealReal、Google Cloud",
+      "title": "Ask TRR面向4,500万会员开放：独件商品检索必须连接实时库存",
+      "summary": "The RealReal宣布将Ask TRR购物Agent扩展到4,500万会员，帮助用户用场合、轮廓和偏好检索不断变化的奢侈品二手库存。平台每件商品为独件，售出后即不可再买，公告称每日超过150万件商品。这是适合语义检索的具体业务问题：用户知道想要的风格，却不一定知道品牌关键词。编辑判断是，会员规模和库存规模只描述可用范围，不能证明使用、转化或满意度；推荐必须以当下商品状态为依据，不能把过期检索结果当可购买承诺。对于这种高变化库存，检索系统需要及时反映供给，而对话体验只能在真实可用的候选范围内帮助选择。",
+      "design": "公告称系统以自然语言理解购物意图，结合平台商品和偏好给出个性化建议，未来还计划在商品详情页增加指导。未披露向量更新、库存校验、排序、用户记忆授权、购买动作或超时恢复。编辑建议是，模型只解释需求，商品ID、价格和可售状态从实时系统取得；推荐点击时再校验，售出则提供替代。偏好允许用户查看、修正和删除；支付或预留需独立确认。遇到品牌、尺寸或真伪信息不足时明确提示，不能补写商品属性。推荐理由应与商品实际字段对应；缺字段直接说明，不从风格相似推导材质、品牌或尺寸。",
+      "evidence": "确认事实是客户宣布全面开放及业务范围；“成功试点”没有公开分母、周期、转化对照、退货或投诉。4,500万会员不等于活跃Agent用户，150万库存也不等于Agent正确索引全量商品。编辑判断是，应同时测检索相关、属性真实、库存有效和购买后满意，尤其关注独件造成的供给偏差：推荐可能相关但已售出。个性化还可能压低长尾商品曝光，不能只看点击率。评估需保留相同库存与人群对照，并把退货、人工咨询和误导属性的业务损害纳入。试点对照还需控制新品流入与售出速度，避免供给变化被误归因于Agent。用户已经明确品牌时，与仅有场合偏好时的检索难度不同，应分层报告。需要跟踪未找到商品和退出用户，而不是只分析点击过建议的人，否则满意与转化都会受选择偏差影响。",
+      "idea": "为小型二手店做“场合＋预算”检索助手：仅推荐数据库中真实可售商品，展示属性来源，点击时复核库存。以相关性、虚构属性、已售推荐、查找分钟数、购买后退货和单位有效推荐成本验收，用户自选且不自动付款。同时抽检长尾商品是否仍可发现，避免个性化只持续放大热门候选的曝光。",
+      "url": "https://www.googlecloudpresscorner.com/2026-10-08-The-RealReal-Expands-Ask-TRR-AI-Shopping-Agent-With-Google-Clouds-Gemini-Enterprise",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct08-4.webp",
+        "alt": "Ask TRR面向4,500万会员开放：独件商品检索必须连接实时库存相关资料配图",
+        "caption": "来源机构的官方标识；用于识别资料出处。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "可审阅高影响产物",
+      "description": "配置或脱敏候选先生成Diff和来源，再由专业人员批准。",
+      "tags": [
+        "人工审批",
+        "差异审核"
+      ]
+    },
+    {
+      "title": "实时状态约束的检索",
+      "description": "商品与服务推荐在输出、点击和执行三处检查状态，测试过期与恢复。",
+      "tags": [
+        "实时检索",
+        "状态校验"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue examines Google's newly announced work agents and three scenarios: cloud migration, litigation redaction, and search across one-of-a-kind goods. The announcements share a launch context, so they are not four independent tests of effectiveness. Migration includes self-reported time savings; shopping has a stated availability scope; the legal agent remains in development. Those maturity levels need to stay distinct.",
+      "takeaways": [
+        "Gemini work agents enter private preview, making ongoing permission control essential to persistent context",
+        "On says agents accelerated the migration of 24 core services; engineers still authorize production cutover",
+        "Cooley develops a litigation redaction agent that proposes changes for lawyers to decide one by one",
+        "Ask TRR opens to 45 million members; search for one-of-a-kind goods needs live inventory"
+      ],
+      "contrarian": "Four sets of data reflect different execution boundaries: unified agent is still in preview; migration leaves key execution to engineers; redaction leaves legal decisions to lawyers; shopping recommendations rely on real-time product status. Joint announcements do not serve as independent verification of each other. Editorial Judgment: The more specific the scenario, the more important it is to define \"done\" in terms of authoritative business status and disclose human contributions.",
+      "items": [
+        {
+          "type": "Official release + independent news + private preview",
+          "source": "October 8, 2026｜Google Cloud, Reuters, The Verge",
+          "title": "Gemini work agents enter private preview, making ongoing permission control essential to persistent context",
+          "summary": "Google launched a unified Gemini work agent, which plans to share memory, skills and control across different devices and work channels to complete knowledge work, content generation and code execution, and can also operate according to specific roles. Independent reports confirm that it is currently a private preview for enterprises and should not be written to be available to all enterprises. Editorial judgment:  continuous execution in the cloud allows tasks to continue across devices, but it also makes permissions, memories, and expiration targets long-term running objects; a revoked business authorization must affect background tasks in a timely manner, and cannot just wait for the Agent to understand the authorization changes on its own after the interface is closed. The change from an assistant to a continuous executor transfers the risk originally borne by the user to the system, so the tasks that are allowed to be automated should be defined first.",
+          "design": "Official description Agent combines business systems, tools and skills to process targets, uses model routing and cost control, and provides identity, authorization, sandbox and network management capabilities. The source does not fully provide each action approval, background session cancellation, retry deduplication and running status recovery. The editor's suggestion is that the task should be bound to the user or independent machine identity, and the read and write range should be verified by an external service; the continuous task should save the recoverable state, and re-confirm the data and permissions before writing. Cross-device sharing should display task queues, completed steps, and stop buttons; clearly transfer personnel when evidence is low or budget is insufficient, and do not end silently or continue expired goals. When a task is reopened, it must be clear which confirmed decisions will be used. Permissions and cost status are checked by the server and are not inferred from old messages.",
+          "evidence": "Official and independent media can verify the release and preview status. Connectivity and persistence context are still mainly product descriptions, and no business task sets, critical errors, running costs or long-term drift results are disclosed. Customer adoption numbers cover existing Google AI products and cannot be automatically attributed to new agents. Editorial judgment:  a unified entrance may reduce operating costs and may also obscure the scope of cross-application access; the evaluation needs to record reads, outgoings, creations, and modifications separately. Private preview cases may also receive additional manual support. Support hours, task denominators, and failure recovery paths should be disclosed before extrapolating to regular customers, and success should be judged by actual business status rather than natural language \"completed\". In addition, it is necessary to distinguish between completing content and performing actions. Generating meeting drafts, creating calendar records, and sending out invitations have different responsibilities, and a unified chat interface may make users ignore the differences. The pilot should count success, incorrect execution and approval time by action, and verify the background behavior after the user exits or revokes permissions. It cannot be judged controllable based on satisfactory feedback alone.",
+          "idea": "Create a persistent read-only assistant for weekly project reports: collect progress from two types of approved sources, generate drafts with evidence, and send them by personnel. Test authorization revocation, re-execution, cross-device stopping and task expiration. Use evidence support, error outsourcing, recovery time, manual modification and unit qualified weekly report cost acceptance. Then add the same requests from users with different permissions to confirm that the unified entrance does not expand the actual access scope.",
+          "relatedLinks": [
+            {
+              "label": "Reuters"
+            },
+            {
+              "label": "The Verge"
+            },
+            {
+              "label": "Press conferences and demonstrations"
+            }
+          ],
+          "image": {
+            "alt": "Gemini work agents enter private preview, making ongoing permission control essential to persistent context: related source image",
+            "caption": "Image from the original source page."
+          }
+        },
+        {
+          "type": "Customer joint announcement + self-report of actual project delivery",
+          "source": "October 8, 2026｜On, Google Cloud",
+          "title": "On says agents accelerated the migration of 24 core services; engineers still authorize production cutover",
+          "summary": "Sports brand On announced that it will use AI Agent to migrate 24 core services. Each migration will be shortened from three months to two weeks; 15 of them will be completed by internal teams, and each planned downtime will be less than five minutes. The announcement leaves code analysis, configuration, copying, and verification to specialized agents, while engineers retain key execution judgments. This is a specific project result disclosure, but the observation caliber comes from customers and suppliers. The editor’s judgment is that what can be learned is not the migration speed itself, but a clear division of labor, checkable products and manual switching; the brand has sports attributes, and this internal infrastructure case cannot be interpreted as a football or fan AI application. The ultimate benefit of migration also depends on subsequent stable operation and team maintenance capabilities. Short-term speed cannot replace long-term quality and recoverability after the switch.",
+          "design": "The announcement describes analyzing deployment patterns across more than 20 warehouses, dividing migration into code inspection, infrastructure configuration, conversion pipeline and test verification; engineers review generated code, run infrastructure changes and approve production cutovers. The source does not disclose the complete model, task scheduling, verification data, rollback gates, or post-migration failure monitoring. The editor's suggestion is that the Agent only generates plans and reviewable configurations, and executes them in an isolated environment; it enters the switching window only after comparing data integrity, dependencies, and performance. In case of failure, you should return to the original environment or the previous breakpoint, copy and save the differences, and all critical status should be confirmed by authoritative monitoring. The switching plan also declares the stop criteria, rollback person, and data verification scope to prevent each Agent from independently defining success.",
+          "evidence": "The joint announcement provides self-reported figures such as 24 items, 15 items, three months to two weeks, and less than five minutes, but does not provide service-by-service complexity, original plan basis, total engineering hours, and independent failure audits. The external supplier once quoted US$500,000, which only covered part of the services. It cannot be directly regarded as saving US$500,000, let alone the entire project cost. Editorial judgment:  the timing should be consistent with the scope, dependencies, and acceptance criteria, and should include models, platforms, reviews, and subsequent maintenance; short planned downtime does not mean zero business impact. Post-switch error rates, data consistency, and recovery events need to be observed to confirm that speed is not deferring costs to the operations phase. Dependencies between services also affect numerical comparability. You need to know whether database migrations, external interfaces, and compliance verification are included, and whether the original three-month estimate uses the same scope as the new two-week estimate. Disclosing only successful services and excluding delayed or manual projects overestimates generalizability, so the entire candidate and final completion funnel should be reported.",
+          "idea": "Select a non-production service for migration: the agent generates a dependency list, configuration Diff and verification script, and the engineer approves the execution. Test data consistency, configuration errors, net project time, inference costs, shutdown and rollback success. Keep manual baselines and the same acceptance tasks, and only expand the scope of services once these results are passed. After the migration is completed, continue to observe performance and errors to verify that the initial time savings did not translate into additional subsequent operations and maintenance.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "On says agents accelerated the migration of 24 core services; engineers still authorize production cutover: related source image",
+            "caption": "Official organization mark identifying the source."
+          }
+        },
+        {
+          "type": "Joint R&D announcement + manual review of high-risk documents",
+          "source": "October 8, 2026｜Cooley, Google Cloud",
+          "title": "Cooley develops a litigation redaction agent that proposes changes for lawyers to decide one by one",
+          "summary": "Cooley and Google developed a litigation document redaction agent to identify personal information, technical information and other potentially confidential content, and generate targeted masking recommendations; all redaction decisions before submission to court are still made by lawyers. The announcement clarified that the product is still under development and has not been fully deployed in production. This is similar to the positioning of privacy assistance tools, but its goal is broader than general PII identification: whether a certain technical description should be kept confidential depends on the case and legal judgment. Editorial judgment:  the tool should display the risk of missed detection and the burden of review at the same time, and cannot successfully prove that high-risk files can be automatically and safely uploaded with several sets of demonstrations. The risk is not only in the test results, but also in how personnel check and how the final documents are exported; this requires simultaneous design identification, review, and document verification.",
+          "design": "The source only states that Gemini Enterprise supports candidate identification and is reviewed by lawyers, and does not disclose OCR, tags, model thresholds, document coordinates, or entity association mechanisms. The editor's suggestion is to input and limit a single case, output the original text location, suggestion category and basis; maintain consistent candidates for the same information across pages, and all covers can be revoked. Document permissions and retention are managed by external policies, and low-quality scans, conflicts, and uncertain content go into manual queues. The final export should verify that sensitive text layers are actually removed and check screenshots, metadata and attachments, and not just cover the page with a black rectangle. If the export verification fails, the submission will be stopped, the manually confirmed masking record will be retained, and the file will be regenerated before residual inspection.",
+          "evidence": "Confirmed facts include a matter of collaborative development, target scenarios, and attorneys’ final judgment. There are no public test sets, missed detections, false detections, review times, export leaks, or production case counts; descriptions of \"a few days of manual work\" cannot be taken directly as savings achieved. Editorial judgment is that high recall of name mailboxes cannot represent technical secrets or case-specific confidential content; word-level, span-level and entire document non-disclosure indicators should be separated. The actual aiding value also depends on whether the reviewer was misled by the candidate, whether omissions were discovered, and whether false obscuration impaired the readability of the evidence. It is necessary to freeze the test, independent lawyer truth value and check after exporting, and cannot only evaluate the generation stage. Document-level success should require that all relevant sensitive information is discovered, rather than average span recall reaching a certain ratio. In particular, it is necessary to count missed detections by information type, check complex tables and cross-page duplication. Reviewers may only check highlighted candidates, so a random sample of unhighlighted candidates should be included to measure actual error detection rather than just the acceptance rate.",
+          "idea": "Establish a redaction candidate tool for synthetic customer service or contract text, covering names, addresses and first-class internal numbers; personnel confirm each item and do not submit it automatically. Use exact-span and overlap to recall, misdetection, leakage of the entire document, review minutes and export residual acceptance. It is clear that the tool is an auxiliary and cannot promise that \"it is safe after inspection\". Also test that there is no sensitive information and text that should not be obscured to confirm that misdetection does not destroy the original business significance of the document.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Cooley develops a litigation redaction agent that proposes changes for lawyers to decide one by one: related source image",
+            "caption": "Official organization mark identifying the source."
+          }
+        },
+        {
+          "type": "Customer product launch announcement + shopping discovery and personalization",
+          "source": "October 8, 2026｜The RealReal, Google Cloud",
+          "title": "Ask TRR opens to 45 million members; search for one-of-a-kind goods needs live inventory",
+          "summary": "The RealReal announced the expansion of Ask TRR shopping agent to 45 million members, helping users search the ever-changing luxury second-hand inventory by occasion, silhouette and preference. Each product on the platform is unique and cannot be bought again after it is sold. The announcement states that there are more than 1.5 million products every day. This is a specific business problem suitable for semantic retrieval: the user knows the desired style, but does not necessarily know the brand keywords. The editor’s judgment is that the membership scale and inventory scale only describe the available range and cannot prove usage, conversion or satisfaction; recommendations must be based on the current product status, and expired search results cannot be regarded as a promise of purchase. For this kind of high-variation inventory, the retrieval system needs to reflect the supply in a timely manner, and the conversational experience can only help selection within the true range of available candidates.",
+          "design": "The announcement stated that the system uses natural language to understand shopping intentions and gives personalized suggestions based on platform products and preferences. In the future, it plans to add guidance to product details pages. No vector updates, inventory verification, sorting, user memory authorization, purchase actions, or timeout recovery are disclosed. The editor's suggestion is that the model only explains the demand, and the product ID, price and availability status are obtained from the real-time system; the recommendation is verified again when it is clicked, and a replacement is provided when it is sold. Preferences allow users to view, correct and delete; payment or reservation requires independent confirmation. When there is insufficient brand, size or authenticity information, a clear reminder is provided and product attributes cannot be filled in. The reason for recommendation should correspond to the actual fields of the product; missing fields are directly explained, and the material, brand or size should not be deduced from similar styles.",
+          "evidence": "The confirmed fact is that the customer announced full opening and business scope; \"successful pilot\" did not disclose the denominator, cycle, conversion comparison, returns or complaints. 45 million members do not mean active Agent users, and 1.5 million inventory does not mean that Agent can correctly index all products. Editorial judgment:  retrieval relevance, authentic attributes, valid inventory, and post-purchase satisfaction should all be tested at the same time, with special attention being paid to the supply deviation caused by unique items: recommendations may be relevant but have been sold. Personalization may also reduce the exposure of long-tail products, so you can’t just look at click-through rates. The assessment needs to keep the same inventory and compare it to the population, and take into account the business damage from returns, manual inquiries, and misleading attributes. The pilot comparison also needs to control the inflow and sales speed of new products to prevent supply changes from being mistakenly attributed to the Agent. When the user has clearly identified the brand, the retrieval difficulty is different from when it only has occasion preference, and should be reported in layers. It is necessary to track products not found and users who exit, rather than only analyzing those who clicked on the suggestions, otherwise both satisfaction and conversion will be affected by selection bias.",
+          "idea": "Create an \"occasion + budget\" search assistant for small second-hand stores: only recommend real products for sale in the database, display attribute sources, and review inventory when clicked. Acceptance based on relevance, fictitious attributes, sold recommendations, search minutes, post-purchase returns and effective recommendation cost per unit, user-selected and no automatic payment. At the same time, we randomly check whether long-tail products are still discoverable to avoid personalization that only continues to amplify the exposure of popular candidates.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Ask TRR opens to 45 million members; search for one-of-a-kind goods needs live inventory: related source image",
+            "caption": "Official organization mark identifying the source."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Reviewable high-impact outputs",
+          "description": "Configuring or desensitizing candidates first generates Diffs and sources, which are then approved by professionals.",
+          "tags": [
+            "Manual approval",
+            "Discrepancy review"
+          ]
+        },
+        {
+          "title": "Search constrained by live state",
+          "description": "Product and service recommendations are checked for status at output, click, and execution, and expiration and recovery are tested.",
+          "tags": [
+            "real time search",
+            "status check"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "afc28c90936468ba"
+}

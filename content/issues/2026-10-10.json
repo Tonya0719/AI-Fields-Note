@@ -1,0 +1,235 @@
+{
+  "issue": "ISSUE 043",
+  "date": "2026.10.10",
+  "thesis": "本期为研究专题补刊，四项均为2026年7月ACL行业论文，不作为10月10日新发布。主题是评价业务语义，而不是只评价回答表面：检索不能过早丢证据，政策判断不能只识别关键词，质检问题要可观察，多轮字段要区分暂定与最终承诺。",
+  "takeaways": [
+    "NEST延后证据裁剪，最高公开EM提升2.4点并非生产业务收益",
+    "自然语言政策合规基准：最优联合准确率55.11%，模型判断不能替代权限网关",
+    "BQR通过反向问题修订客服质检：明确行为标准比模糊“态度好”更可评",
+    "多轮实体抽取应取最终承诺：6,387段真实对话暴露修正与协商难题"
+  ],
+  "contrarian": "四项论文揭示评价对象的不同层次：证据是否幸存、请求是否合规、评分标准是否明确、字段是否真正承诺。编辑判断：回答流畅、字段齐全或平均F1都不足以证明业务成功。公开基准、私有数据和合成样例的可复现程度不同，试点应建立自己的独立真值和错误严重度。",
+  "items": [
+    {
+      "type": "同行评审研究＋检索消融＋高噪声实验",
+      "source": "2026年7月｜Amazon研究团队；ACL Industry Track",
+      "title": "NEST延后证据裁剪，最高公开EM提升2.4点并非生产业务收益",
+      "summary": "NEST把召回与精筛分开，先在文档、章节和片段等范围保存候选，再按跨范围排名稳定性选择最终证据，减少孤立片段弱相关而被提前丢弃的问题。论文报告相对DeepRAG在WebQuestions上EM提升2.4个百分点，检索Recall@50提升6.8点，并称额外时延约12—18毫秒。编辑判断是，这提示不必首先增加复杂Agent循环；但基准改进不是线上解决率，额外时延也依赖硬件和索引，不能直接套用到普通企业部署。应先确认漏证据发生在哪个阶段，再选择扩展召回或改变裁剪；否则增加复杂度可能没有解决实际失败原因。",
+      "design": "实验采用BM25与Contriever混合检索，候选在不同范围保留生存排名，再由倒数排名聚合得到精筛结果，生成模型读取最终证据。来源没有给企业身份权限、文档删除传播、无答案和超时转人工的完整流程。编辑建议是，在同一检索器上替换筛选机制，保持模型与预算一致；权限过滤先于任何召回扩展，最终证据附文档版本。检索不足或冲突时拒答，保留被过滤原因与候选轨迹，便于定位漏证据，而不是在生成端强行补全。生成端只使用被保留且有权限的证据，答案缺必要依据时返回缺口，人工决定扩大检索。",
+      "evidence": "同行评审提供公共与私有任务实验，WebQuestions为2,032题、HotpotQA为7,405题，InternalQA为私有20K题；高噪声环境加入5,000万Common Crawl片段，硬件为八张A100。私有结果不能完全复现，人工工时与业务净收益未测。编辑判断是，固定实验中的高噪声并不代表企业知识库的版本、权限和重复文档分布；还需检验长尾、无答案及被撤销文件。应区分候选召回、最终证据召回与答案正确，避免召回增加却把无关内容带入生成。成本应包括索引维护和实际P95时延。硬件和数据组织方式会决定附加时延，实验的小增量不保证在普通资源上成立。高噪声公共片段也缺少企业的访问分区，需自行加入权限测试和删除案例。比较时控制候选数量与上下文长度，否则准确改善可能来自更大预算，而不是筛选机制本身。",
+      "idea": "在200题内部FAQ上比较固定Top-k与延后裁剪，固定模型、权限和Token预算。标注多跳、无答案及冲突题，测证据召回、答案支持、正确拒答、P95时延和单位合格答案成本；人工检查被裁掉的关键证据后再选择方案。另按问题难度分层，特别检查简单问题是否因复杂筛选增加不必要的延迟。",
+      "url": "https://aclanthology.org/2026.acl-industry.35/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.35.pdf"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct10-1.webp",
+        "alt": "NEST延后证据裁剪，最高公开EM提升2.4点并非生产业务收益相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    },
+    {
+      "type": "同行评审研究＋公开人工编写基准＋合规分类",
+      "source": "2026年7月｜Pedro Cisneros-Velarde；ACL Industry Track",
+      "title": "自然语言政策合规基准：最优联合准确率55.11%，模型判断不能替代权限网关",
+      "summary": "研究构建九项组织政策与225条人工编写请求，测试模型是否能判断请求合规并识别违反政策。政策覆盖内部数据、提示注入、护栏暴露及受保护目标。最佳联合准确率55.11%，说明理解语义与政策关系仍困难。编辑判断是，可借鉴的是建立包含合法近似请求的测试，而非直接部署某模型当最终安全门；关键词相似不代表违规，同样自然的业务请求也可能隐含越权，必须结合实际用户身份和动作权限判断。对合法但含敏感关键词的请求保留通行能力，与拦截违规同样重要，否则系统可能以拒绝一切换取表面安全。",
+      "design": "基准将政策列表与请求输入不同LLM方法，输出违反政策列表；每条不合规请求设计为违反一项政策，另有18条开发请求。来源聚焦请求分类，没有实现完整工具执行链。编辑建议是，将语义分类器作为升级信号，明确文件、网络、凭证和写入规则由确定性组件执行。涉及组织例外时读取权威身份，不能接受用户自述职位作为授权；低置信或多政策冲突交安全负责人。政策更改应版本化，重新运行合法与违规对照样例。违规分类仅产生拒绝或复核建议；允许执行仍要检查资源权限，记录适用政策及版本。",
+      "evidence": "论文评估六项开源模型，225条请求中合规52.89%、不合规47.11%，全部人工编写，避免将模型合成答案当真值。最佳55.11%是联合识别口径，不能视为拦截召回。基准规模有限、单一违规设计简化了真实复合请求，也没有多轮欺骗、工具结果注入和运行中行为。编辑判断是，离线分类仅验证请求层，不能说明Agent在获得工具后仍遵守规则。上线需分别报告违规漏放、合法误阻、人工升级及运行越权，按错误严重度评估，不能只优化平均准确率。某些业务请求可能同时违反多条规定，单项违规设计不能代表真实风险组合。还需测试合法引用、教育性讨论和不同角色例外。阈值选择应在开发集完成，并冻结后评估，不得按测试反馈继续调到满意；误阻代价和漏放严重度需要单独计量。",
+      "idea": "为内部文件助手编写100条合法、越权和需要澄清请求，人员提供政策版本与真值；模型分类，外部网关执行目录和读写限制。以漏放、误阻、升级率、真实越权和审核分钟数验收，添加用户角色差异但不让模型自行授予权限。保留无明确答案案例，让人员检查是否需要补充身份或上下文后再作判断。",
+      "url": "https://aclanthology.org/2026.acl-industry.21/",
+      "relatedLinks": [
+        {
+          "label": "PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.21.pdf"
+        },
+        {
+          "label": "基准仓库",
+          "url": "https://github.com/PedroCV/policy-compliance-requests-AI"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct10-2.webp",
+        "alt": "自然语言政策合规基准：最优联合准确率55.11%，模型判断不能替代权限网关相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    },
+    {
+      "type": "同行评审研究＋评测计划优化＋小模型质检",
+      "source": "2026年7月｜Observe.AI；ACL Industry Track",
+      "title": "BQR通过反向问题修订客服质检：明确行为标准比模糊“态度好”更可评",
+      "summary": "BQR让模型从结果反推出它实际理解的评价问题，暴露原评测计划中的含糊标准，再由较强模型离线修订供小模型使用。论文中“愿意帮助”的Macro F1由42.9%升至62.9%，但不是所有指标改善。编辑判断是，这类方法有助于将“同理心”“理解问题”等抽象评价转成可观察行为；同时不能把新rubric只设计为贴合模型输出。用户真正关心的解决质量、未授权操作和承诺兑现仍需独立定义，不能靠语言风格替代。评分标准若能展示对应行为，也更便于员工理解与申诉；透明性应建立在原文证据，而不是更长的自动解释。",
+      "design": "框架围绕误差生成反向问题与诊断信号，通过聚类和筛选修订计划，保留开发、验证与测试分离；较强模型在离线优化阶段工作，在线仍用较小模型评分。来源未披露生产质检的申诉、人员复核和评分落地机制。编辑建议是，业务负责人先定义可观察行为和证据位置，优化器只提出rubric Diff；人员检查新标准是否改变业务含义。评分附原文证据，低置信与冲突交质检员，员工申诉可追踪，禁止自动依据未审评分作绩效处罚。每条分数保留证据片段和规则版本；无法找到支持时标记不确定，由人员补判而非猜测。",
+      "evidence": "同行评审实验覆盖12个质检问题，数据因商业限制不公开；表中“愿意帮助”提升20点，但“确认问题”由93.0%降至90.7%，PII披露问题未改善。因此最佳单项提升不能代表全任务提高。论文报告特定设置离线优化约每计划2美元，不是所有企业部署费用。编辑判断是，模型评委与rubric优化可能共同强化偏差，需要独立人工留出集、双人分歧分析和版本记录。还应测客户真实结果与审核负担，避免更详细评分只增加可解释文本，却没有减少误判或提高实际服务质量。主观标准还会随语言和团队文化变化，必须分别检验适用范围。质检员与模型一致不一定说明双方都正确，应对严重问题开展独立复审。新rubric若提高大多数问题却降低关键合规问题，不应自动接受；应由业务方预先指定不可下降的质量门槛。",
+      "idea": "为30条合成客服对话定义“核实需求、给出可执行下一步、明确承诺”三项质检，人员先标注，再比较原rubric与优化版本。以Macro F1、严重误判、证据支持、人工一致和申诉推翻验收；冻结标准后测新对话，避免在测试集继续修订。加入不友好但正确解决的对话，检验模型没有把语气和业务完成混为一谈。",
+      "url": "https://aclanthology.org/2026.acl-industry.113/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.113.pdf"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct10-3.webp",
+        "alt": "BQR通过反向问题修订客服质检：明确行为标准比模糊“态度好”更可评相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    },
+    {
+      "type": "同行评审诊断研究＋真实私有对话＋公开合成样例",
+      "source": "2026年7月｜Observe.AI；ACL Industry Track",
+      "title": "多轮实体抽取应取最终承诺：6,387段真实对话暴露修正与协商难题",
+      "summary": "Entity Exchange研究6,387段英文客户与客服对话，区分实体如何被提出、如何在多轮中修正或协商、以及最终值如何表达。评估目标是最终承诺值，没有达成承诺则返回NULL，而非找到任意提到的地址或时间。编辑判断是，这对维修预约和订单修改尤其重要：“周二可能可以”与“确认周三下午”代表不同状态。通用NER擅长找词，却不能自动完成业务承诺判断；Agent必须记录值的演变与确认依据，不能将最早提及或最后一次提及直接当最终结果。在协调业务中，错误地选中旧值会直接引起返工；因此最终承诺比实体是否出现更适合定义执行资格。",
+      "design": "研究对12类实体标注最终值及三个交互维度，比较16项模型，并分析错误感知提示。来源属于抽取诊断，不是完整预约执行系统。编辑建议是，字段保存候选、暂定、已确认和撤销状态，附相关对话轮次；模型提取值，确定性规则检查格式、冲突与必要确认。跨轮更改时废止旧候选，执行前向用户展示最终摘要。未达成一致、语音含糊或时间冲突时返回待确认，转协调员；不得因字段看似完整就自动安排资源。关键字段提交前展示最后确认轮次和撤销历史；用户未确认时保持待处理，不写进排程。",
+      "evidence": "私有对话跨多个行业、长度25—180轮，数据脱敏后标注；真实集无法公开，另提供合成样例。1,900条分层样例上人类与LLM标注一致性κ分别0.82、0.62、0.72，说明不同交互维度的真值难度不同。编辑判断是，合成数据不能完全复现真实语音噪声、犹豫与协商压力；研究抽取正确也不证明预约或写入正确。应把字段格式、最终承诺、执行结果和用户确认分开评价，特别关注被撤销值、跨轮否定和无承诺；提高精度可能增加NULL，需要报告覆盖与人工补充成本。语音识别错误与承诺判断错误需要分开，前者可能损坏字面值，后者可能选择了正确表达的旧值。复核负担也取决于证据是否容易定位。评测要报告完整对话分母、无承诺比例和字段间一致性，不能只保留有清晰最终值的成功案例进行测试。",
+      "idea": "为维修预约写50段包含改期、撤回和含糊时间的对话，标注最终确认与NULL；输出字段和证据轮次，由协调员批准安排。测最终值准确、旧值复用、错误确认、弃权、人工补充及排程返工，重点测试用户多次改变时间的情况。增加复合请求中两项服务不同时间的案例，检查系统没有把各自承诺错误合并。",
+      "url": "https://aclanthology.org/2026.acl-industry.132/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://aclanthology.org/2026.acl-industry.132.pdf"
+        },
+        {
+          "label": "合成数据仓库",
+          "url": "https://github.com/Observeai-Research/entity-exchange-in-the-wild/"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct10-4.webp",
+        "alt": "多轮实体抽取应取最终承诺：6,387段真实对话暴露修正与协商难题相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "最终承诺与执行门",
+      "description": "为预约或地址修改保存候选演变、明确确认和执行证据，测错误写入及人工补充。",
+      "tags": [
+        "执行门",
+        "最终确认"
+      ]
+    },
+    {
+      "title": "业务语义评测集",
+      "description": "同时收集合法近似请求、模糊质检和漏证据案例，冻结rubric并报告分层错误。",
+      "tags": [
+        "业务评测",
+        "分层错误"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This research supplement covers four ACL industry papers published in July 2026, not new releases on October 10. Its theme is evaluating business meaning alongside surface-level answers: retrieval must retain necessary evidence, policy checks must go beyond keywords, quality criteria need observable behavior, and multi-turn extraction must distinguish tentative statements from final commitments.",
+      "takeaways": [
+        "NEST delays evidence pruning; its reported exact-match gain of up to 2.4 points is not a production business result",
+        "Natural-language policy benchmark peaks at 55.11% joint accuracy; model judgment cannot replace an authorization gateway",
+        "BQR revises support quality checks with reverse questions, making observable behavior easier to assess than vague 'good attitude'",
+        "Multi-turn entity extraction should capture the final commitment: 6,387 real conversations reveal revisions and negotiation"
+      ],
+      "contrarian": "Four papers reveal different levels of what is being evaluated: whether the evidence survives, whether the request is compliant, whether the scoring criteria are clear, and whether the field is truly committed. Editor's judgment: Fluent answers, complete fields, or average F1 are not enough to prove business success. Public benchmarks, private data, and synthetic examples have varying degrees of reproducibility, and pilots should establish their own independent truth values and error severities.",
+      "items": [
+        {
+          "type": "Peer-reviewed research + retrieval ablation + high-noise experiments",
+          "source": "July 2026｜Amazon Research Team; ACL Industry Track",
+          "title": "NEST delays evidence pruning; its reported exact-match gain of up to 2.4 points is not a production business result",
+          "summary": "NEST separates recall and fine screening. It first saves candidates in the scope of documents, chapters, and fragments, and then selects the final evidence based on cross-range ranking stability, reducing the problem of isolated fragments being discarded in advance due to weak correlation. The paper reports that compared to DeepRAG, the EM on WebQuestions is improved by 2.4 percentage points, and the retrieval Recall@50 is improved by 6.8 points. It is said that the additional delay is about 12-18 milliseconds. Editorial judgment:  this suggests that there is no need to add complex Agent loops first; however, the baseline improvement is not the online resolution rate, and the additional delay also depends on hardware and indexing, and cannot be directly applied to ordinary enterprise deployments. You should first confirm at which stage evidence leakage occurs before choosing to expand recall or change pruning; otherwise, increasing complexity may not solve the actual cause of failure.",
+          "design": "The experiment uses a hybrid search of BM25 and Contriever. The candidates retain survival rankings in different ranges, and then the reciprocal rankings are aggregated to obtain the refined screening results, and a model is generated to read the final evidence. The source did not give the company identity permissions, document deletion and propagation, no answer, and a complete process of manual transfer after timeout. The editor's recommendation is to replace the filtering mechanism on the same retriever to keep the model consistent with the budget; permission filtering precedes any recall extensions, and the final proof is attached to the document version. Refuse to answer when there is insufficient retrieval or conflict, and retain the filtered reasons and candidate trajectories to facilitate locating missing evidence, instead of forcibly completing it at the generation end. The generation side only uses reserved and authorized evidence. If the answer lacks necessary evidence, a gap will be returned and the search will be expanded manually.",
+          "evidence": "Peer review provides public and private task experiments, with 2,032 questions for WebQuestions, 7,405 questions for HotpotQA, and 20K private questions for InternalQA; 50 million Common Crawl fragments are added to the high-noise environment, and the hardware is eight A100s. The private results cannot be completely reproduced, and the man-hours and net business income are unmeasured. Editorial judgment:  the high noise in the fixed experiment does not represent the distribution of versions, permissions, and duplicate documents in the enterprise knowledge base; long tail, no answers, and withdrawn documents also need to be examined. Candidate recall, final evidence recall and correct answer should be distinguished to avoid increasing recall but bringing irrelevant content into the generation. Cost should include index maintenance and actual P95 latency. Hardware and data organization methods will determine the additional latency, and the small increments of the experiment are not guaranteed to be established on ordinary resources. High-noise public segments also lack enterprise access partitions, and you need to add permission testing and deletion cases by yourself. Control the number of candidates and context length when comparing, otherwise accuracy improvements may come from a larger budget rather than the screening mechanism itself.",
+          "idea": "Compare fixed Top-k and delayed cropping, fixed model, permissions and token budget on the 200-question internal FAQ. Mark multi-hop, no-answer and conflict questions, and measure evidence recall, answer support, correct rejection, P95 delay and unit qualified answer cost; manually check the key evidence that has been cut out before selecting a plan. It is also stratified according to the difficulty of the questions, and simple questions are particularly checked to see whether unnecessary delays are added due to complex screening.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            }
+          ],
+          "image": {
+            "alt": "NEST delays evidence pruning; its reported exact-match gain of up to 2.4 points is not a production business result: related source image",
+            "caption": "Image from the original source page."
+          }
+        },
+        {
+          "type": "Peer-reviewed research + public human-written benchmarks + compliance classification",
+          "source": "July 2026 | Pedro Cisneros-Velarde; ACL Industry Track",
+          "title": "Natural-language policy benchmark peaks at 55.11% joint accuracy; model judgment cannot replace an authorization gateway",
+          "summary": "The study constructed nine organizational policies and 225 manually written requests to test whether the model can determine whether requests are compliant and identify policy violations. Policies cover internal data, hint injection, guardrail exposure, and protected targets. The best joint accuracy is 55.11%, which shows that it is still difficult to understand the relationship between semantics and policy. Editorial judgment:  what can be used as a reference is to establish a test that contains legal similar requests, rather than directly deploying a certain model as the final security door; similar keywords do not mean a violation, and similarly natural business requests may also imply violation of authority, and must be judged based on the actual user identity and action permissions. Preserving the ability to pass requests that are legitimate but contain sensitive keywords is as important as intercepting violations, otherwise the system may deny everything in exchange for superficial security.",
+          "design": "The benchmark inputs policy lists and requests into different LLM methods and outputs a list of policy violations; each non-compliant request is designed to violate a policy, and there are 18 development requests. The source focuses on request classification and does not implement the complete tool execution chain. The editor's recommendation is to use semantic classifiers as upgrade signals to make it clear that file, network, credential, and write rules are enforced by deterministic components. When organizational exceptions are involved, the authoritative identity is read and the user's self-reported position cannot be accepted as authorization; low confidence or multiple policy conflicts are reported to the security manager. Policy changes should be versioned and legal and non-compliance examples should be re-run. Violation classification only generates rejection or review recommendations; allowing execution still requires checking resource permissions and recording applicable policies and versions.",
+          "evidence": "The paper evaluates six open source models. Among the 225 requests, 52.89% are compliant and 47.11% are non-compliant. All of them are manually written to avoid taking model synthetic answers as true values. The best 55.11% is a joint identification caliber and cannot be considered an interception recall. The limited baseline size and single-violation design simplify real compound requests and eliminate multiple rounds of spoofing, tool result injection, and on-the-fly behavior. Editorial judgment:  offline classification only verifies the request layer and cannot show that the agent still abides by the rules after obtaining the tool. When going online, it is necessary to report illegal leaks, legal errors, manual upgrades and operation overrides, and evaluate them according to the severity of the errors. You cannot only optimize the average accuracy rate. Some business requests may violate multiple regulations at the same time, and a single violation design cannot represent the real risk combination. Legal citations, educational discussions, and different role exceptions will also need to be tested. Threshold selection should be completed in the development set and evaluated after freezing, and should not be adjusted to satisfaction based on test feedback; the cost of mis-blocking and the severity of leakage need to be measured separately.",
+          "idea": "Written 100 legal, ultra vires and clarification requests for internal document assistant, personnel provided policy version and truth value; model classification, external gateway execution directory and read and write restrictions. Acceptance is based on leakage, mis-blocking, upgrade rate, true override and review minutes, and user role differences are added but the model is not allowed to grant permissions on its own. Keep cases without clear answers so that personnel can check whether additional identity or context is needed before making a judgment.",
+          "relatedLinks": [
+            {
+              "label": "PDF"
+            },
+            {
+              "label": "Baseline warehouse"
+            }
+          ],
+          "image": {
+            "alt": "Natural-language policy benchmark peaks at 55.11% joint accuracy; model judgment cannot replace an authorization gateway: related source image",
+            "caption": "Image from the original source page."
+          }
+        },
+        {
+          "type": "Peer review research + evaluation plan optimization + small model quality inspection",
+          "source": "July 2026 | Observe.AI; ACL Industry Track",
+          "title": "BQR revises support quality checks with reverse questions, making observable behavior easier to assess than vague 'good attitude'",
+          "summary": "BQR allows the model to deduce the evaluation issues it actually understands from the results, exposing the vague standards in the original evaluation plan, and then revise them offline by the stronger model for use by the smaller model. The \"willing to help\" Macro F1 in the paper increased from 42.9% to 62.9%, but not all indicators improved. Editorial judgment:  this type of method helps to convert abstract evaluations such as \"empathy\" and \"understanding of the problem\" into observable behaviors; at the same time, the new rubric cannot be designed only to fit the model output. The solution quality, unauthorized operations and promise fulfillment that users really care about still need to be independently defined and cannot be replaced by language style. If the scoring criteria can display corresponding behaviors, it will be easier for employees to understand and appeal; transparency should be based on original evidence rather than longer automatic explanations.",
+          "design": "The framework generates reverse questions and diagnostic signals around errors, revise plans through clustering and screening, and retains the separation of development, verification, and testing; stronger models work in the offline optimization phase, and smaller models are still used for scoring online. The source did not disclose the appeal, personnel review and scoring implementation mechanism for production quality inspection. The editor's suggestion is that the business leader first defines the observable behavior and evidence location, and the optimizer only proposes rubric Diff; personnel check whether the new standard changes the business meaning. Ratings are accompanied by original evidence, low confidence and conflicts are reported to the quality inspector, employee complaints can be tracked, and automatic performance penalties based on unreviewed ratings are prohibited. Each score retains evidence fragments and rule versions; when support cannot be found, it is marked as uncertain and is left to the personnel to make a supplementary judgment instead of guessing.",
+          "evidence": "The peer review experiment covers 12 quality inspection questions, and the data is not disclosed due to commercial restrictions; the \"willingness to help\" in the table increased by 20 points, but the \"confirmation of problems\" dropped from 93.0% to 90.7%, and the PII disclosure problem has not improved. Therefore, the best single improvement cannot represent the overall task improvement. The paper reports that offline optimization for specific settings is approximately $2 per plan, and is not a cost for all enterprise deployments. Editorial judgment:  model review and rubric optimization may jointly strengthen deviations, requiring independent manual set-aside, two-person disagreement analysis, and version recording. Customers’ real results and review burdens should also be measured to avoid more detailed scoring that only adds interpretable text but does not reduce misjudgments or improve actual service quality. Subjective criteria also vary with language and team culture, and scope must be examined individually. The consistency between the quality inspector and the model does not necessarily mean that both parties are correct, and independent reviews should be conducted for serious issues. If a new rubric improves most issues but reduces key compliance issues, it should not be automatically accepted; the business party should pre-specify a quality threshold that cannot be lowered.",
+          "idea": "Define three quality checks for 30 synthetic customer service conversations: \"verify requirements, provide executable next steps, and make clear commitments\". The staff first annotates and then compares the original rubric with the optimized version. Use Macro F1, serious misjudgment, evidence support, manual agreement and appeal to overturn acceptance; freeze the standard and post-test new dialogue to avoid continued revision in the test set. Check that the model doesn't confuse tone with business completion by engaging in unfriendly but correctly resolved conversations.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            }
+          ],
+          "image": {
+            "alt": "BQR revises support quality checks with reverse questions, making observable behavior easier to assess than vague 'good attitude': related source image",
+            "caption": "Image from the original source page."
+          }
+        },
+        {
+          "type": "Peer-reviewed diagnostic research + real private conversations + public synthetic examples",
+          "source": "July 2026 | Observe.AI; ACL Industry Track",
+          "title": "Multi-turn entity extraction should capture the final commitment: 6,387 real conversations reveal revisions and negotiation",
+          "summary": "Entity Exchange studied 6,387 English customer and customer service conversations, distinguishing how entities are proposed, how they are revised or negotiated in multiple rounds, and how their final values are expressed. The evaluation target is the final promise value, and NULL is returned if the promise is not met, rather than finding any mentioned address or time. Editorial judgment is that this is particularly important for repair appointments and order modifications: \"Possibly available on Tuesday\" represents a different status than \"Confirmed Wednesday afternoon\". General NER is good at finding words, but it cannot automatically complete business commitment judgment; the agent must record the evolution and confirmation basis of the value, and cannot directly regard the earliest mention or the last mention as the final result. In a reconciliation business, incorrectly selecting an old value can directly lead to rework; therefore the final commitment is more suitable for defining execution eligibility than the presence of the entity.",
+          "design": "The study labels final values and three interaction dimensions for 12 types of entities, compares 16 models, and analyzes error perception prompts. The source is an extraction diagnosis, not a complete appointment execution system. The editor's suggestion is that the field saves the candidate, tentative, confirmed and withdrawn status, with the relevant dialogue rounds; the model extracts the value, and the deterministic rules check the format, conflicts and necessary confirmations. Old candidates are discarded when changes occur across rounds, and the final summary is shown to the user before execution. If no agreement is reached, the voice is ambiguous, or there is a time conflict, it will be returned to the coordinator for confirmation. Resources shall not be automatically arranged just because the fields appear to be complete. The last confirmation round and revocation history are displayed before key fields are submitted; if the user does not confirm, it remains pending and is not written into the schedule.",
+          "evidence": "Private conversations span multiple industries, are 25-180 rounds in length, and are annotated after data redaction; the real set cannot be made public, and synthetic samples are provided. The consistency κ between human and LLM annotations on 1,900 hierarchical samples was 0.82, 0.62, and 0.72 respectively, indicating that the difficulty of truth values in different interaction dimensions is different. Editorial judgment:  the synthetic data cannot fully reproduce real speech noise, hesitation and negotiation pressure; the correct extraction of the research does not prove that the reservation or writing is correct. Field format, final commitment, execution results and user confirmation should be evaluated separately, paying special attention to revoked values, cross-round negation and no commitment; improving accuracy may increase NULL, requiring reporting coverage and manual supplement costs. Speech recognition errors, which may corrupt a literal value, need to be separated from commitment judgment errors, which may select an older value that is correctly expressed. The burden of review also depends on whether the evidence is easy to locate. Evaluations need to report on full conversation denominators, no-commitment ratios, and inter-field consistency, and not just keep successful cases with clear final values for testing.",
+          "idea": "Write 50 dialogues for the maintenance appointment including rescheduling, withdrawal and ambiguous time, mark the final confirmation and NULL; output fields and evidence rounds, and arrange them with the approval of the coordinator. Test the accuracy of the final value, reuse of old values, error confirmation, waiver, manual supplement and scheduled rework, focusing on testing the situation where the user changes the time multiple times. Add the case of two services with different times in the composite request, and check that the system does not merge the respective commitment errors.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            },
+            {
+              "label": "synthetic data warehouse"
+            }
+          ],
+          "image": {
+            "alt": "Multi-turn entity extraction should capture the final commitment: 6,387 real conversations reveal revisions and negotiation: related source image",
+            "caption": "Image from the original source page."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Final commitment and execution gate",
+          "description": "Save candidate evolutions, clear confirmation and execution evidence for reservations or address modifications, test error writing and manual additions.",
+          "tags": [
+            "execution gate",
+            "final confirmation"
+          ]
+        },
+        {
+          "title": "Business-semantics evaluation set",
+          "description": "At the same time, legal similarity requests, fuzzy quality inspection and missing evidence cases are collected, rubrics are frozen and layering errors are reported.",
+          "tags": [
+            "Business evaluation",
+            "layering error"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "a7f4a204f0950987"
+}

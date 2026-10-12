@@ -1,0 +1,185 @@
+{
+  "issue": "ISSUE 044",
+  "date": "2026.10.11",
+  "thesis": "本期为历史工程专题补刊，材料来自Anthropic不同时间的工程文章，不声称10月11日有这些新发布。四组分别讨论状态与执行分离、跨会话交接、上下文压缩和多Agent研究。它们来自同一厂商，不能互相提供独立效果核验；本期价值主要是可测试的工程机制。",
+  "takeaways": [
+    "Managed Agents分离会话、运行循环与沙箱，故障恢复不应依赖单个容器",
+    "长时编码交接依赖可检查产物：压缩摘要不能单独证明功能完成",
+    "上下文工程强调按需取证与保留决策，支线隔离需要测试信息回流",
+    "多Agent研究适合可独立探索，内部提升90.2%并非所有任务都更好"
+  ],
+  "contrarian": "四种机制分别保存系统状态、交接产物、任务上下文和独立探索。它们互补而不能互相替代：摘要无法保证事务恢复，日志无法保证需求覆盖，支线无法保证回流，多Agent无法保证引用真实。本期同厂商材料只用于形成工程假设，实际选择需用任务和预算一致的对照验证。",
+  "items": [
+    {
+      "type": "厂商工程复盘＋托管Agent架构",
+      "source": "2026年4月8日｜Anthropic",
+      "title": "Managed Agents分离会话、运行循环与沙箱，故障恢复不应依赖单个容器",
+      "summary": "Anthropic描述将Agent会话日志、模型运行循环和执行沙箱分开，避免单个容器故障同时丢失任务状态。执行环境和运行循环可替换，凭证也从生成代码所在沙箱移出。这是一项比提示词更明确的结构边界。编辑判断是，长任务应把“模型当前看到什么”“系统实际完成什么”和“执行环境仍可用吗”分开保存；容器重建只能恢复计算，不保证外部业务动作没有重复。恢复设计需要检验权威状态与未完成动作，而不是简单重播所有工具调用。可替换组件降低恢复耦合，但每个边界仍需明确事件与权限语义；否则故障只会从容器转移到跨服务交接。",
+      "design": "来源描述外部会话事件日志，运行循环通过工具接口调用沙箱；凭证在外部保管，通过代理调用MCP工具。运行循环失败后读取事件恢复，沙箱失败表现为工具错误。未给所有外部写入的幂等和补偿规则。编辑建议是，每项写入带唯一请求ID，日志保存提交前后状态；恢复时先查询业务系统确认是否生效。权限撤销在代理处强制，不能依赖模型读取提示。故障超过预算即停止，输出待处理动作；人工操作后重新读状态，避免旧计划覆盖已修正结果。敏感凭证不写入会话内容，代理只执行批准资源范围，并记录授权撤销后拒绝的调用。",
+      "evidence": "工程文章给出实际架构经验，但未公开故障注入任务集、丢事件率、恢复成功、凭证攻击对照或业务错误成本。结构上分离凭证能缩小暴露面，不能自动证明代理、会话授权和工具实现都无漏洞。编辑判断是，事件日志不是事务日志；记录“请求发出”仍可能不知道是否执行完成。上线需测响应丢失、进程重启和授权撤销的组合，并检查重复外发与重复写入。也应计入事件存储、沙箱启动与人工恢复成本，而非只比较模型调用费用或成功演示。可恢复还应包括人的接管。若人员修正业务状态，而Agent从旧事件恢复，会重新引入错误。需要明确哪个系统为状态真值、谁能重开任务及如何验证外部动作。故障注入不仅测进程重启，还应测响应丢失后的不确定提交和并发人工修改。",
+      "idea": "为模拟工单流程分离事件存储、Agent循环与工具执行，写入带幂等ID；随机中断容器、网络和响应，人工确认待处理项。测状态丢失、重复写入、恢复秒数、权限撤销及单位完成成本。先在假数据系统验证，不直接接入真实业务写入。另检验人工接管后恢复是否读取新状态，避免重新执行人员已完成的步骤。",
+      "url": "https://www.anthropic.com/engineering/managed-agents",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct11-1.webp",
+        "alt": "Managed Agents分离会话、运行循环与沙箱，故障恢复不应依赖单个容器相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    },
+    {
+      "type": "历史工程复盘＋代码样例＋长任务交接",
+      "source": "2025年11月26日｜Anthropic",
+      "title": "长时编码交接依赖可检查产物：压缩摘要不能单独证明功能完成",
+      "summary": "文章观察长时编码Agent跨上下文窗口时容易半途留下未完成功能，或看到部分进展就宣布完成。做法是由初始化阶段建立功能清单、环境和进度记录，后续每轮只推进有限工作并留下可检查交接。编辑判断是，这适用于任何多天任务：摘要负责告诉下一轮去哪里找证据，不能替代实际产物。完成状态应绑定验收结果与版本；即使交接文字很清楚，也必须检验文件、程序和用户路径仍与记录一致，防止错误状态持续传播。功能清单让下一轮有明确起点，但业务范围仍应由用户确认；初始化阶段遗漏也可能被后续流程持续继承。",
+      "design": "来源采用初始化与增量编码两个角色，进度文件与Git历史帮助新会话恢复，功能列表保留通过状态，并强调端到端验证。未披露企业权限、生产部署审批和全量失败恢复。编辑建议是，每个工作项包含需求、输入、产物、验证和未决问题；执行者只能更新状态，不任意删改验收条件。下一会话先检查环境与已完成关键路径，再选择未完成项。测试失败时回到已知有效版本；需求改变要显式重开受影响项，不能仅重写进度文本以保持“全部通过”。保存失败测试与对应提交，便于下一轮区分环境问题和功能问题，而不只读取成功摘要。",
+      "evidence": "这是厂商内部经验和样例，不是公开随机对照；未提供任务数量、全部完成率、平均成本或独立复现。文章承认浏览器工具与视觉限制可能漏掉某些问题。编辑判断是，强提示要求测试仍属于行为引导，需要外部验收和不可随意修改的规则。单元测试通过不能代表用户流程正常，功能清单也可能在初始化时遗漏需求。因此应先人工确认范围，再观察跨会话恢复、完成误报、需求覆盖与净工时；不能用Git提交次数或记录长度当作实际进展。应将恢复效率与最终质量分开。交接更快若只是跳过关键验证，不是收益；同样，过度检查也可能抵消节省。比较不同交接方法时保持任务、模型和预算一致，统计所有中断而非只挑顺利恢复案例，并由不参与实现的人核验最终功能。",
+      "idea": "为一个三功能小应用建立需求清单、进度文件和版本检查，安排两次主动中断后恢复；人员确认功能范围和最终用户路径。测恢复准备时间、重复工作、遗漏、完成误报和端到端通过，比较只有摘要与有产物交接的任务表现。对其中一项需求在中途修改，检查旧通过状态是否被正确重新打开并验证。",
+      "url": "https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct11-2.webp",
+        "alt": "长时编码交接依赖可检查产物：压缩摘要不能单独证明功能完成相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    },
+    {
+      "type": "历史工程方法＋上下文管理",
+      "source": "2025年9月29日｜Anthropic",
+      "title": "上下文工程强调按需取证与保留决策，支线隔离需要测试信息回流",
+      "summary": "文章将上下文视为有限工作资源，讨论按需读取引用、压缩、结构化笔记和分离探索，避免把所有历史工具结果反复塞入模型。编辑判断是，这为“主任务中临时解释一个错误”的交互提供机制参考：支线可保留自己的讨论，主流程只接收用户确认的结论及证据。隔离并不意味着永久丢弃；当支线改变了原计划的假设，需要明确回流。否则减少污染的界面可能同时造成重要修正遗失，让主Agent继续执行已经不成立的方案。支持临时解释而不打断主任务，是产品交互假设；其是否有效取决于用户能否理解并控制结论回流。",
+      "design": "来源描述用文件路径、链接与查询等轻量引用按需加载数据，并通过压缩和笔记支持长任务。未提供一套非线性对话界面的完整交互或效果评测。编辑建议是，主任务保存目标、决定、约束和未决事项，支线默认只读且不修改主状态；用户可一次确认“带回这条结论”。回流记录来源、适用条件和冲突，主Agent执行前重新核对。压缩后必须保留引用与关键数字；不可逆操作前再读权威状态，不能只依据被压缩的自然语言记忆。支线权限继承主任务只读范围，内容不会自动提升授权；回流改变计划时显示具体差异。",
+      "evidence": "文章提供工程原则和取舍，未证明某种支线UI能减少错误或提升用户效率。按需探索也可能增加工具调用和时延，压缩可能丢失后来才重要的细节。编辑判断是，界面简单与信息治理可靠需分别验证；支线内容不进入主上下文可能减少干扰，也可能降低知识共享。评测应加入支线解释、修正主假设、无关提问和恶意内容四类任务，测主目标保持、关键约束记忆和正确回流。不能只看Token减少或主任务回答更短，需观察实际完成和用户确认负担。真实用户可能忘记确认回流，或将不确定解释误当结论，必须观察这些行为。测量应包含需要带回和不需带回两种场景，分别看主任务正确与操作负担。若支线界面迫使用户反复选择，减少上下文污染的技术收益未必转成更好的体验。",
+      "idea": "做轻量支线按钮：选中日志开启解释，主任务保持原状态，用户点击才带回结论与出处。用调试任务比较线性对话与支线交互，测主目标偏移、约束遗漏、恢复步骤、Token、用户确认次数和完成时间，明确测试回流失败。设置支线结论与主计划冲突的任务，验证系统提示冲突而非静默覆盖已有决定。",
+      "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct11-3.webp",
+        "alt": "上下文工程强调按需取证与保留决策，支线隔离需要测试信息回流相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    },
+    {
+      "type": "历史生产工程复盘＋内部评测＋成本取舍",
+      "source": "2025年6月13日｜Anthropic",
+      "title": "多Agent研究适合可独立探索，内部提升90.2%并非所有任务都更好",
+      "summary": "Anthropic描述研究系统由主Agent规划，子Agent在独立上下文探索不同方向，再汇总并处理引用。内部评测称Opus 4加Sonnet 4子Agent相对单Agent改善90.2%，同时指出多Agent较普通聊天约耗15倍Token。编辑判断是，可拆分的广度研究可以从隔离探索获益，但这不是所有任务都该增加Agent的理由；共享状态紧密、步骤依赖多的执行任务可能产生协调冲突。必须把任务质量与增量成本一起比较，不能只看相对提升或并发数量。这一机制更像计算与信息分工策略，适合先在高价值独立方向验证，再决定是否值得承担协调和审核费用。",
+      "design": "来源采用主从编排与最终引用处理，主Agent保存计划，子任务返回发现，再决定是否继续探索。文章讨论过度派生和无止境搜索等问题，但未公开所有产品权限和异常补偿细节。编辑建议是，先明确子任务互不覆盖的范围、输出格式、来源和预算；汇总者核对冲突与重复主张，不能简单拼接。所有研究工具保持只读，超时子任务报告缺口，不让总任务虚称完整。停止条件由覆盖要求与预算决定，人工处理来源争议，并在写入外部系统前集中审批。汇总者必须能定位每项原始证据，子任务失败或冲突记录保持可见，人员可要求补查。",
+      "evidence": "90.2%来自厂商内部评测，不是公开业务任务的准确率提升90.2个百分点；约15倍Token的基线是聊天，也不能直接当相对单Agent任务成本。未给可复现完整任务集或真实人工净节省。编辑判断是，多Agent可能只是获得了更多计算预算，需要同预算对照识别架构贡献。还应分别测检索遗漏、来源支持、冲突处理和汇总错误，避免子Agent正确但最终答案错误。并行墙钟时间缩短若伴随大量重复搜索与人工审核，未必有经济性；高价值任务也需报告单位合格成果成本。子任务相关性和重复工作会改变收益，不能假设各方向真正独立。评估需比较相同预算和工具条件，加入事实冲突、错误引用与未找到来源的案例。若最终汇总丢失限定或夸大主张，子任务正确也无助于业务交付，必须统计合成阶段的错误。",
+      "idea": "选择20项需要三个独立来源方向的研究任务，比较单Agent与固定预算多Agent；人工检查引用和冲突。测覆盖、事实错误、重复检索、墙钟时间、审核分钟数和单位合格报告成本。任务高度依赖共享状态时另测，不能直接沿用研究结果。另外测无法独立拆分的任务，确认架构选择依据实际结果而非预设并行更好。",
+      "url": "https://www.anthropic.com/engineering/multi-agent-research-system",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/oct11-4.webp",
+        "alt": "多Agent研究适合可独立探索，内部提升90.2%并非所有任务都更好相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "可恢复任务账本",
+      "description": "保存需求、业务事件和产物版本，注入中断与重复响应，测恢复和完成误报。",
+      "tags": [
+        "任务恢复",
+        "事件账本"
+      ]
+    },
+    {
+      "title": "轻量支线与信息回流",
+      "description": "让用户确认哪些解释改变主任务，评估目标保持与关键约束，而非只看Token。",
+      "tags": [
+        "上下文工程",
+        "信息回流"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This historical engineering supplement draws on Anthropic articles published at different times; it does not present them as October 11 releases. The four pieces cover separating state from execution, handoffs across sessions, context management, and multi-agent research. Because all come from one vendor, they do not independently verify one another's results. Their main value is in engineering mechanisms that teams can test.",
+      "takeaways": [
+        "Managed Agents separate sessions, execution loops, and sandboxes so recovery does not depend on one container",
+        "Long-running coding handoffs need inspectable artifacts; a compressed summary alone cannot prove work is complete",
+        "Context engineering calls for evidence on demand and preserved decisions; subtask isolation must be tested for what flows back",
+        "Multi-agent research suits independently explorable tasks; an internal 90.2% gain does not generalize to every task"
+      ],
+      "contrarian": "The four mechanisms save system status, handover products, task context and independent exploration respectively. They are complementary but cannot replace each other: digests cannot guarantee transaction recovery, logs cannot guarantee demand coverage, subtasks cannot guarantee reflow, and multiple agents cannot guarantee the authenticity of references. Materials from the same vendor in this issue are only used to form engineering assumptions, and the actual selection needs to be verified by comparing tasks and budgets.",
+      "items": [
+        {
+          "type": "Manufacturer project review + managed Agent architecture",
+          "source": "April 8, 2026 | Anthropic",
+          "title": "Managed Agents separate sessions, execution loops, and sandboxes so recovery does not depend on one container",
+          "summary": "Anthropic description separates the Agent session log, model run loop and execution sandbox to avoid single container failure and simultaneous loss of task status. Execution environments and run loops are replaceable, and credentials are moved out of the sandbox where the code is generated. This is a clearer structural boundary than cue words. Editorial judgment:  for long tasks, \"what the model is currently seeing\", \"what the system actually accomplished\" and \"is the execution environment still available\" should be saved separately; container reconstruction can only resume calculations, but does not guarantee that external business actions will not be repeated. Recovery design requires verification of authoritative state and outstanding actions, rather than simply replaying all tool calls. Replaceable components reduce recovery coupling, but event and permission semantics still need to be clear at each boundary; otherwise failures will simply be transferred from containers to cross-service handovers.",
+          "design": "Source description External session event log, the run loop calls the sandbox through the tool interface; the credentials are kept externally, and the MCP tool is called through the proxy. Read events resume after run loop failure, sandbox failure manifests as tool error. Idempotence and compensation rules are not given to all external writes. The editor's suggestion is that each write should have a unique request ID, and the log should save the status before and after submission; when restoring, first query the business system to confirm whether it is effective. Permission revocation is enforced at the agent, and model read hints cannot be relied upon. If the fault exceeds the budget, it will stop and output pending actions; re-read the status after manual operation to avoid the old plan overwriting the corrected results. Sensitive credentials are not written to the session content, and the agent only performs approved resource scopes and logs rejected calls after authorization revocation.",
+          "evidence": "The engineering article gives actual architectural experience, but does not disclose the fault injection task set, lost event rate, recovery success, credential attack comparison, or business error cost. Structural separation of credentials reduces exposure and does not automatically prove that agents, session authorization, and tool implementations are flawless. Editorial judgment:  the event log is not a transaction log; recording \"request issued\" still may not know whether the execution is completed. Going online requires testing the combination of response loss, process restart, and authorization revocation, and checking for repeated outgoing and repeated writes. Event storage, sandbox launch and manual recovery costs should also be factored in, rather than just comparing model call charges or successful demos. Recoverability should also include the conservatorship of the person. If the personnel corrects the business status and the Agent recovers from the old event, errors will be reintroduced. It needs to be clear which system is the true value of the state, who can restart the task and how to verify external actions. Fault injection should not only test process restarts, but also test uncertain commits and concurrent manual modifications after response loss.",
+          "idea": "In order to simulate the work order process, event storage, agent loop and tool execution are separated, and idempotent IDs are written; containers, networks and responses are randomly interrupted, and pending items are manually confirmed. Measure state loss, duplicate writes, recovery seconds, permission revocation and unit completion cost. Verify in the fake data system first, and do not directly access the real business writing. Also check whether recovery after manual takeover reads the new state to avoid re-executing steps that have been completed by the person.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Managed Agents separate sessions, execution loops, and sandboxes so recovery does not depend on one container: related source image",
+            "caption": "Image from the original source page."
+          }
+        },
+        {
+          "type": "Historical project review + code samples + long task handover",
+          "source": "November 26, 2025 | Anthropic",
+          "title": "Long-running coding handoffs need inspectable artifacts; a compressed summary alone cannot prove work is complete",
+          "summary": "The article observes that long-term coding agents tend to leave unfinished functions halfway when they cross context windows, or declare completion after seeing partial progress. The approach is to establish the function list, environment and progress records in the initialization phase, and only advance limited work in each subsequent round and leave checkable handovers. Editorial judgment is that this applies to any multi-day mission: the abstract is responsible for telling the next round where to look for evidence and is not a substitute for the actual artifact. The completion status should be bound to the acceptance result and version; even if the handover text is clear, it must be verified that files, programs and user paths are still consistent with the record to prevent the error status from continuing to propagate. The function list gives a clear starting point for the next round, but the business scope should still be confirmed by the user; omissions in the initial stage may also be inherited by subsequent processes.",
+          "design": "The source adopts two roles: initialization and incremental coding. Progress files and Git history help new session recovery. The function list retains the passed status and emphasizes end-to-end verification. Enterprise permissions, production deployment approval and full failure recovery are not disclosed. The editor's suggestion is that each work item contains requirements, inputs, products, verifications and outstanding issues; the executor can only update the status and not arbitrarily delete the acceptance conditions. The next session examines the environment and completed critical paths before selecting unfinished items. Fall back to a known valid version when a test fails; if requirements change, you need to explicitly reopen the affected items, you can't just rewrite the progress text to keep \"all passed\". Save failed tests and corresponding submissions to facilitate the next round of distinguishing environmental issues and functional issues instead of just reading the success summary.",
+          "evidence": "This is the vendor's internal experience and samples, not a public randomized comparison; the number of tasks, overall completion rate, average cost or independent replication is not provided. The article acknowledges that browser tools and visual limitations may miss some issues. Editorial judgment:  the strong prompt requirement test is still behavioral guidance, requires external acceptance and rules that cannot be modified at will. Passing the unit test does not mean that the user process is normal, and the function list may also miss requirements during initialization. Therefore, the scope should be manually confirmed first, and then cross-session recovery, completion false positives, requirement coverage, and net working hours should be observed; the number of Git commits or record length cannot be used as actual progress. Recovery efficiency should be separated from final quality. A faster handover is not a benefit if it simply skips critical verification; similarly, excessive inspections may negate savings. Keep tasks, models, and budgets consistent when comparing different handover approaches, count all outages rather than just pick out successful recoveries, and have final functionality verified by someone not involved in the implementation.",
+          "idea": "Establish a requirement list, progress file and version check for a three-function small application, and arrange recovery after two active interruptions; personnel confirm the functional scope and end-user path. Measure recovery lead time, duplication of work, omissions, completion false positives, and end-to-end pass, and compare task performance with only summary and with product handover. For one of the requirements to be modified midway, check whether the old passing status is correctly reopened and verified.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Long-running coding handoffs need inspectable artifacts; a compressed summary alone cannot prove work is complete: related source image",
+            "caption": "Image from the original source page."
+          }
+        },
+        {
+          "type": "Historical engineering methods + context management",
+          "source": "September 29, 2025 | Anthropic",
+          "title": "Context engineering calls for evidence on demand and preserved decisions; subtask isolation must be tested for what flows back",
+          "summary": "The article treats context as a limited working resource and discusses reading citations on demand, compression, structured notes, and separated exploration to avoid repeatedly stuffing all historical tool results into the model. Editorial judgment:  this provides a mechanism reference for the interaction of \"temporarily explaining an error in the main task\": the subtask can retain its own discussion, and the main process only receives conclusions and evidence confirmed by the user. Isolation does not mean permanent discarding; when a subtask changes the assumptions of the original plan, the return flow needs to be clear. Otherwise, the pollution reduction interface may also cause important corrections to be lost, allowing the main agent to continue executing solutions that no longer hold water. Supporting temporary explanations without interrupting the main task is an assumption of product interaction; its effectiveness depends on the user's ability to understand and control the flow of conclusions.",
+          "design": "Provenance descriptions load data on demand with lightweight references such as file paths, links, and queries, and support long tasks through compression and note-taking. No complete interaction or performance evaluation of a set of nonlinear conversational interfaces is provided. The editor's suggestion is that the main task saves the goals, decisions, constraints and pending items, and the subtask is read-only by default and does not modify the main state; the user can confirm \"bring back this conclusion\" once. The source, applicable conditions and conflicts of the reflow records are rechecked before execution by the main agent. References and key figures must be retained after compression; the authoritative state must be read before irreversible operations and cannot be based solely on the compressed natural language memory. The branch permissions inherit the read-only scope of the main task, and the content will not automatically increase the authorization; specific differences will be displayed when reflowing changes to the plan.",
+          "evidence": "The article provides engineering principles and trade-offs, but does not prove that a certain feeder UI can reduce errors or improve user efficiency. On-demand exploration may also increase tool calls and latency, and compression may lose details that become important later. Editorial judgment:  the simplicity of the interface and the reliability of information management need to be verified separately; not entering the main context of branch content may reduce interference and may also reduce knowledge sharing. The evaluation should include four types of tasks: side explanation, correction of main hypothesis, irrelevant questions and malicious content, and test main goal retention, key constraint memory and correct reflow. You can’t just look at the reduction of tokens or shorter main task answers. You need to observe the actual completion and user confirmation burden. Real users may forget to confirm a reflow, or mistake an uncertain explanation for a conclusion, and these behaviors must be observed. The measurement should include two scenarios: those that need to be brought back and those that do not need to be brought back, depending on the correctness of the main task and the operational burden. If feeder interfaces force users to make repeated choices, the technical benefits of reducing context pollution may not necessarily translate into a better experience.",
+          "idea": "Make a lightweight branch button: Select the log to open the explanation, the main task remains in its original state, and the user clicks to bring back the conclusion and source. Use debugging tasks to compare linear dialogue and branch interaction, test main target deviation, constraint omission, recovery steps, tokens, user confirmation times and completion time, and clearly test reflow failure. Set up tasks with branch conclusions that conflict with the main plan, and verify that the system prompts for conflicts instead of silent coverage.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Context engineering calls for evidence on demand and preserved decisions; subtask isolation must be tested for what flows back: related source image",
+            "caption": "Image from the original source page."
+          }
+        },
+        {
+          "type": "Review of historical production projects + internal evaluation + cost trade-offs",
+          "source": "June 13, 2025 | Anthropic",
+          "title": "Multi-agent research suits independently explorable tasks; an internal 90.2% gain does not generalize to every task",
+          "summary": "The Anthropic description research system is planned by the main agent, and the sub-agents explore different directions in independent contexts, and then summarize and process references. Internal evaluation said that Opus 4 plus Sonnet 4 sub-Agent improved by 90.2% compared to a single Agent, and pointed out that multi-Agent consumes about 15 times more tokens than ordinary chat. The editor’s judgment is that divisible breadth research can benefit from isolated exploration, but this is not the reason why agents should be added to all tasks; execution tasks with closely shared states and many step dependencies may cause coordination conflicts. Task quality must be compared with incremental costs, not just relative improvements or concurrency numbers. This mechanism is more like a computing and information division of labor strategy, suitable for verification in high-value independent directions before deciding whether it is worth bearing the cost of coordination and review.",
+          "design": "The source uses master-slave orchestration and final reference processing. The master Agent saves the plan, and the sub-tasks return to the discovery before deciding whether to continue exploring. The article discusses issues such as over-deriving and endless searches, but does not disclose all product permissions and exception compensation details. The editor's suggestion is to first clarify the scope, output format, source and budget of sub-tasks that do not cover each other; the aggregator checks for conflicts and repeated claims, and cannot simply splice them together. All research tools remain read-only, and timeout subtasks report gaps to prevent the overall task from claiming to be complete. Stopping conditions are determined by coverage requirements and budget, source disputes are handled manually, and approvals are centralized before writing to external systems. The aggregator must be able to locate each piece of original evidence, and records of subtask failures or conflicts remain visible, and personnel can request follow-up inspections.",
+          "evidence": "90.2% comes from the vendor's internal evaluation, which does not mean that the accuracy of public business tasks has increased by 90.2 percentage points; the baseline of about 15 times the Token is chat, and it cannot be directly compared to the cost of a single Agent task. No reproducible full task set or real labor net savings are given. Editorial judgment:  multi-Agent may simply obtain more computing budget, and it is necessary to compare the budget with the budget to identify the architectural contribution. Retrieval omissions, source support, conflict handling and aggregation errors should also be tested separately to avoid correct sub-agents but wrong final answers. If parallel wall clock time reduction is accompanied by a large number of repeated searches and manual reviews, it may not be economical; high-value tasks also need to report unit qualified result costs. Subtask dependencies and duplication of effort will alter the returns, and the directions cannot be assumed to be truly independent. The evaluation needs to compare the same budget and tool conditions, and include cases of factual conflicts, miscitations and missing sources. If the final summary loses definition or exaggerates claims, correct subtasks will not help business delivery, and errors in the synthesis stage must be counted.",
+          "idea": "Select 20 research tasks that require three independent source directions, compare single agent with fixed budget multi-agent; manually check references and conflicts. Test coverage, factual errors, duplicate searches, wall clock time, review minutes, and cost per qualified report. When the task is highly dependent on shared state, another test is conducted, and the research results cannot be used directly. In addition, it is better to test tasks that cannot be split independently and confirm that the architecture selection is based on actual results rather than preset parallelism.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Multi-agent research suits independently explorable tasks; an internal 90.2% gain does not generalize to every task: related source image",
+            "caption": "Image from the original source page."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Recoverable task ledger",
+          "description": "Save requirements, business events and product versions, inject interruption and repeated responses, test recovery and complete false positives.",
+          "tags": [
+            "task recovery",
+            "event ledger"
+          ]
+        },
+        {
+          "title": "Lightweight subtasks and information flow",
+          "description": "Let users identify which explanations change the main task and evaluate goal retention and key constraints instead of just looking at the token.",
+          "tags": [
+            "context engineering",
+            "Information flow back"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "9b446c259040e38f"
+}

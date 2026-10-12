@@ -1,0 +1,212 @@
+{
+  "issue": "ISSUE 045",
+  "date": "2026.10.12",
+  "thesis": "本期截至编制时已公开材料，关注模型外部控制、跨厂商治理、生产环境验证和专家知识引用。包含当天TCS采访与近期消息复核。明确区分意见、建设计划、设施开放和产品能力；不会把“有治理层”当作已降低事故的证明。",
+  "takeaways": [
+    "Nadella提出模型外部控制与紧急停止：架构原则不是效果实验",
+    "TCS建设跨应用Agent治理层：30亿美元年化AI收入不是客户净收益",
+    "NTT DATA开放慕尼黑AI验证设施：真实机房环境不自动代表真实业务结果",
+    "O’Reilly Expert Intelligence提供作者与日期引用，引用存在仍需验证支持关系"
+  ],
+  "contrarian": "本期四项分别是公开意见、服务商建设、验证设施和知识产品。证据不能混用：原则不等于已实现，收入不等于客户价值，机房不等于业务真值，引用不等于正确。编辑判断：企业应将这些方向转成外部控制、代表性验收包和独立专家审核，再决定自治与投资范围。",
+  "items": [
+    {
+      "type": "高管公开意见＋多家媒体核验",
+      "source": "2026年10月10日美国时间，10月12日复核｜Satya Nadella、Business Insider、The Verge",
+      "title": "Nadella提出模型外部控制与紧急停止：架构原则不是效果实验",
+      "summary": "Nadella公开主张以内部风险视角约束先进模型，强调确定性系统设计、人员控制和任务中途暂停。他认为模型不应自行控制其权限与动作边界。多家媒体核验这项表态，本期未成功读取原始X全文，因此按报道转述，不扩展为微软已部署所有机制。编辑判断是，这一原则适合企业Agent：模型负责语义理解，权限与停止应由外部组件执行。高管倡议可以提示工程方向，却不能代替攻击测试、恢复证据或具体业务效果。需要优先验证的是授权人员是否真能阻断动作，以及停止后是否还有外部请求继续执行，不能只观察模型是否停答。",
+      "design": "报道提及模型与运行框架、动作空间分离，以及外置护栏和人工紧急停止。没有公开一个可复现产品架构。编辑建议是，将身份、资源范围、预算和网络出口配置在Agent不能修改的执行层；停机同时阻断新动作并记录正在进行的提交。人员需看见待处理外发和写入，再确认补偿或恢复。单纯终止模型推理可能无法撤回已发送请求；恢复必须从权威状态开始，不重放未知是否已完成的动作，也不由同一模型自行解除限制。停机与撤权分开记录，外部接口已接受的动作进入待核对队列，不能默认为已经取消。",
+      "evidence": "确认事实是媒体对公开表态的核验；本条不将意见写成生产防护成果。没有任务分母、攻击对照、误停、撤权时延、未完成提交或业务事故数据。原帖未直接读取，也不提供逐字长引用。编辑判断是，“假设模型不可信”应转成可测试控制，而非笼统提高审核频率：测外置规则能否阻止违规动作，人员是否能发现并停止，以及停机后任务是否可恢复。无条件停止还可能阻断必要业务，需评估误阻与人工容量。治理能力不能仅以存在按钮或策略文件判断，要验证实际执行路径。对运行任务执行停止可能需要保持最小恢复权限，因此所有权限清零未必是最佳策略。应预先定义停止、新动作阻断与补偿的区别，并用不同阶段注入测试。人员操作成本及误停后恢复时间都属于系统质量，不宜用未发生事故作为唯一验证依据。",
+      "idea": "为一个沙箱工单Agent设置外部权限和停止按钮，注入越权请求、超时及停机时提交；人员决定补偿。测拦截召回、误停、撤权秒数、停机后新增动作、重复提交与恢复时间。确保模型不能更改这些配置或自行重新启动任务。在写入刚发出而响应未返回时停机，检查最终状态是否被正确核实与恢复。",
+      "url": "https://www.businessinsider.com/microsoft-ceo-satya-nadella-ai-threat-blog-enterprise-companies-corporations-2026-10",
+      "relatedLinks": [
+        {
+          "label": "The Verge报道",
+          "url": "https://www.theverge.com/ai-artificial-intelligence/1009337/satya-nadella-says-we-should-assume-all-ai-models-are-compromised"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct12-1.webp",
+        "alt": "Nadella提出模型外部控制与紧急停止：架构原则不是效果实验相关资料配图",
+        "caption": "原始资料页面的配图。"
+      }
+    },
+    {
+      "type": "当天高管采访＋建设中控制平面",
+      "source": "2026年10月12日｜The Financial Express、TCS受访高管",
+      "title": "TCS建设跨应用Agent治理层：30亿美元年化AI收入不是客户净收益",
+      "summary": "TCS高管在采访中称正在建设企业AI治理层，协调自建、客户及第三方Agent，涉及SAP、ServiceNow和Oracle等应用，关注安全、成本与部署。报道还称AI业务年化收入超过30亿美元。编辑判断是，这说明服务商把集成和运行治理作为交付对象，但年化供应商收入不是客户已实现的净收益，更不能证明控制层降低了事故。建设中的架构应通过具体跨系统任务验证，避免把统一管理界面的覆盖范围等同于实际工具调用受控。不同业务系统的权限和动作语义并不一致，统一层的价值在于真实协调这些差异，而不是只汇总状态面板。",
+      "design": "采访仅披露治理层作为控制平面管理多类Agent，没有具体API、身份映射、日志规范、批准策略和回滚实现。编辑建议是，选两个系统建立共同任务ID和机器身份，统一检查读写范围、预算及外发审批；各连接器仍执行自己的资源权限。调用失败后记录已完成动作与待补偿动作，人工决定是否继续。跨厂商权限撤销和策略更新需验证传播，不允许模型或连接器绕开网关。治理层也应监测自身故障，不能成为失效时默认放行的单点。策略更新先在模拟调用验证，网关不可用时停止高影响写入，人员确认后再恢复任务。",
+      "evidence": "原始采访可支持高管的建设方向及其自报商业数字，但不是第三方技术测试，未公开客户名单、正确完成、越权、时延、费用或稳定运行周期。年化收入属于商业口径，不是全年实际收入，且不能据此推导该治理产品单独收入。编辑判断是，供应商AI项目分类可能包含现代化与咨询，客户收益需逐项目核算；控制平面的作用也要同无统一治理的相同流程比较。验收应包括合法任务误阻、跨系统不一致和人工补偿成本，而不是仅统计接入应用与Agent数量。第三方Agent可能绕过默认接口或自行派生任务，因此需证明所有生产执行路径都经过控制。统一成本面板也可能漏掉外部工具及人员费用。试点应记录接入范围与未覆盖路径，明确什么能阻断、什么只可观察，避免将可见性描述为确定性执行限制。",
+      "idea": "做“工单系统＋日历”双系统试点，治理层记录身份、预算、写入预览和任务ID，由协调员批准安排。模拟一边成功一边失败、授权撤销和重复请求。以完成一致、错误写入、补偿分钟数、策略传播及单位成功成本验收。加入一个不经过默认连接器的请求，验证控制层能够识别未覆盖的执行路径。",
+      "url": "https://www.financialexpress.com/business/news/tcs-bets-on-governance-layer-to-scale-enterprise-ai/4358841/",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/tcs-pharma.jpg",
+        "alt": "TCS建设跨应用Agent治理层：30亿美元年化AI收入不是客户净收益相关资料配图",
+        "caption": "相关既有配图；并非本期产品截图。"
+      }
+    },
+    {
+      "type": "官方设施开放＋生产级基础设施验证",
+      "source": "2026年10月7日，10月12日补录｜NTT DATA",
+      "title": "NTT DATA开放慕尼黑AI验证设施：真实机房环境不自动代表真实业务结果",
+      "summary": "NTT DATA在Munich 2数据中心开放AI Factory Munich，允许企业在扩展部署前，用自己的应用验证计算、数据、安全、治理和运行要求。公告描述结合NVIDIA与Dell的基础设施及服务能力，企业和公共机构可预约使用。编辑判断是，生产级环境有助于发现笔记本原型忽略的容量与集成问题，但机房真实不等于业务流量、人员行为或数据分布真实；验证计划仍需客户提供代表性任务和验收标准，不能只观看供应商演示后决定采购。客户能够用自己的负载测试，是设施价值的关键；这仍要求清楚的任务分母与失败标准，才能支撑扩容决定。",
+      "design": "来源描述实际数据中心、加速计算、网络、存储及软件组合，并提供客户场景测试。未披露每个客户的隔离、数据删除、测试规模、故障注入和结果交付规则。编辑建议是，客户先声明使用负载、数据范围、权限和费用上限，提供匿名历史任务与峰值回放。设施运行模型和工具，人员审查结果与性能；注入容量不足、网络断开和模型超时后检验降级。结束时导出配置、版本与完整日志，确认数据删除，保证结果可在客户环境重复，而非只在服务团队协助下成立。共享测试期间也需隔离客户数据和日志访问，验证结束后按约定留存证据与移除敏感输入。",
+      "evidence": "确认事实是设施开放、所在机房和测试方向。官方引用合作伙伴观点不构成独立部署成效，没有公开测试客户分母、故障率、P95、净成本或项目上线结果。编辑判断是，应分别验证基础设施SLO与模型业务质量；加速硬件可以降低时延，却可能不影响任务错误。人工调优和供应商支持工时也需计入，避免测试环境效果依赖隐形人员。采购前应保留客户可复现的工作负载与退出条件，比较托管、私有云与既有轻量方案，而不能由“生产级”标签直接推出投资合理性。还需检查测试时是否享有生产不会获得的专用资源，短期演示是否代表持续负载。模型限流、外部工具故障与人员支持应同时计入。选择环境时观察单位合格任务成本和数据迁移负担，而非只看GPU速度；退出与复现条件也应写入验收。",
+      "idea": "为小型企业FAQ制作可携带验收包：冻结200题、权限角色、峰值回放和三种故障，在两种环境同测。人员审查严重错误。以正确率、拒答、P95、恢复、总费用和支持工时验收，输出配置与数据版本供重复运行。加入峰值并发与资源不足回放，确认试验没有只使用理想低负载环境作展示。",
+      "url": "https://www.nttdata.com/en-ca/news/2026/ntt-data-opens-ai-factory-munich",
+      "relatedLinks": [
+        {
+          "label": "发布稿转载",
+          "url": "https://www.hpcwire.com/aiwire/2026/10/07/ntt-data-opens-ai-factory-munich-where-clients-can-validate-ai-in-live-environment/"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct12-3.webp",
+        "alt": "NTT DATA开放慕尼黑AI验证设施：真实机房环境不自动代表真实业务结果相关资料配图",
+        "caption": "来源机构的官方标识；用于识别资料出处。"
+      }
+    },
+    {
+      "type": "产品扩展发布＋专家知识MCP＋技能资产",
+      "source": "2026年10月7日｜O’Reilly；此前7月向部分客户开放",
+      "title": "O’Reilly Expert Intelligence提供作者与日期引用，引用存在仍需验证支持关系",
+      "summary": "O’Reilly公开扩展Expert Intelligence，通过Expert MCP与岗位技能把专家知识接入既有AI工具，强调每项指导可追溯到作者和出版日期。公告说明7月已向部分客户开放，10月7日不是从零首次上线。编辑判断是，这为架构决策和威胁建模提供更可检查的知识来源，但作者和日期只是来源元数据，不代表引用支持每条结论。专业建议仍需结合系统版本、业务限制和原文适用条件，不能因为来自专家知识库就自动进入生产执行。更可追溯的来源能够减少核对起点，但仍需独立检查主张和原文关系；知识接入解决不了全部推理错误。",
+      "design": "来源描述MCP提供精选知识，预制技能组织架构决策记录、威胁模型等任务，输出带专家引用的指导。未披露完整检索排序、访问控制、客户上下文保留、无答案和工具超时处理。编辑建议是，技能将建议与证据逐条对应，明确原文版本、反例和适用条件；组织内部约束由人员输入，不能由模型猜测。引用缺失、冲突或文档过期时转专家；工具执行只生成草稿，配置修改与安全处置另行审批。所有外部引用按文档数据处理，不得变成可覆盖系统规则的指令。输出保留引用原文与当前组织假设，专家可逐条接受或否定，未批准建议不能进入执行。",
+      "evidence": "官方公告确认产品、引用方向及既有工具接入。厂商2月60题基准称约五分之一主张缺乏引用支持，样本小且未提供足够独立复现信息，不能据此概括全部AI工具，更不能证明新产品已解决问题。编辑判断是，需要区分有引用、引用可访问、原文支持、当前适用四项指标；具名专家也可能过时或与其他来源分歧。组织级费用机制不代表模型与调用总成本免费。试点应由不参与技能编写的人审核，并记录建议错误、人工修订和实际决策时间，不只统计链接数量。专家材料可能有相互矛盾的建议与不同适用条件，不能只按权威排序选一个答案。需要测系统是否保留分歧、日期和版本，并报告无答案时是否拒绝。引用位置准确也可能支持不了结论，故应由独立审阅者检查支持关系和任务实际适用，而非只数引用。",
+      "idea": "做20项架构决策草稿，每条包含业务约束、候选、取舍及原文引用，工程师逐条审核支持与适用。比较通用模型与专家检索技能，测引用支持、版本错误、关键遗漏、审核分钟数和单位合格决策成本，不自动部署建议。添加两份日期不同且建议冲突的材料，验证系统明确分歧而非合成确定结论。",
+      "url": "https://www.oreilly.com/pub/pr/3487",
+      "relatedLinks": [
+        {
+          "label": "产品与样例",
+          "url": "https://www.oreilly.com/online-learning/expert-intelligence.html"
+        }
+      ],
+      "image": {
+        "src": "/cases/enterprise-rag-constraints.jpg",
+        "alt": "O’Reilly Expert Intelligence提供作者与日期引用，引用存在仍需验证支持关系相关资料配图",
+        "caption": "相关既有配图；并非本期产品截图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "外部控制与跨系统恢复",
+      "description": "在工单排程中验证停机、撤权、幂等和补偿，测真实完成与人工成本。",
+      "tags": [
+        "外部控制",
+        "跨系统恢复"
+      ]
+    },
+    {
+      "title": "可携带验证包与证据审核",
+      "description": "冻结任务、配置、权限和真值，比较环境及知识技能，输出可复现结果。",
+      "tags": [
+        "验证包",
+        "证据审核"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue covers material available when the supplement was prepared: controls outside the model, governance across vendors, validation in production-grade infrastructure, and cited expert knowledge. It includes a TCS interview published today and a review of recent news. Public opinions, plans under construction, facility openings, and product capabilities are different forms of evidence; the existence of a governance layer does not show that incidents have fallen.",
+      "takeaways": [
+        "Nadella calls for controls and emergency stops outside models; the principle is not an outcomes study",
+        "TCS builds governance across applications; $3 billion in annualized AI revenue is not customers' net benefit",
+        "NTT DATA opens a Munich AI validation facility; a real data center does not automatically represent real business outcomes",
+        "O'Reilly Expert Intelligence cites authors and dates, but each citation still needs to support its claim"
+      ],
+      "contrarian": "The four items in this issue are public opinions, service provider construction, verification facilities and knowledge products. Evidence cannot be mixed: principles do not equal realized, revenue does not equal customer value, data center does not equal business ground truth, and quotes do not equal correct. Editorial Judgment: Companies should translate these directions into external controls, representative acceptance packages and independent expert reviews before deciding on autonomy and investment scope.",
+      "items": [
+        {
+          "type": "Public opinions of senior executives + verification by multiple media",
+          "source": "U.S. time on October 10, 2026, reviewed on October 12 | Satya Nadella, Business Insider, The Verge",
+          "title": "Nadella calls for controls and emergency stops outside models; the principle is not an outcomes study",
+          "summary": "Nadella openly advocates constraining advanced models from an internal risk perspective, emphasizing deterministic system design, personnel control, and mission suspension. He believes that models should not control the boundaries of their permissions and actions. Several media outlets have verified this statement, and this issue has not successfully read the full text of the original Editorial judgment:  this principle is suitable for enterprise agents: the model is responsible for semantic understanding, and permissions and stops should be performed by external components. Executive initiative can prompt engineering direction, but it cannot replace attack testing, recovery evidence, or concrete business results. What needs to be verified first is whether the authorized personnel can really block the action, and whether there are external requests to continue to execute after stopping. You cannot just observe whether the model stops responding.",
+          "design": "The report mentioned the separation of the model from the operating frame and action space, as well as external guardrails and manual emergency stops. A reproducible product architecture is not disclosed. The editor's suggestion is to configure the identity, resource scope, budget and network exit at the execution layer that cannot be modified by the Agent; shut down while blocking new actions and recording ongoing submissions. Personnel need to see pending outgoing messages and writes before confirming compensation or recovery. Simply terminating model inference may not be able to withdraw the sent request; recovery must start from the authoritative state, without replaying actions that are not known to have been completed, nor by the same model voluntarily lifting restrictions. Shutdown and deprivation are recorded separately. Actions accepted by the external interface enter the queue for verification and cannot be canceled by default.",
+          "evidence": "Confirmation of facts is the media's verification of public statements; this article does not write opinions as production protection results. There is no task denominator, attack comparison, false stop, deprivation delay, incomplete submission or business incident data. The original post was not read directly, nor is a verbatim long quote provided. Editorial judgment:  \"assuming the model is not trustworthy\" should be converted into testable controls instead of generally increasing the frequency of audits: testing whether external rules can prevent illegal actions, whether personnel can detect and stop them, and whether tasks can be restored after shutdown. An unconditional stop may also block necessary services, so it is necessary to evaluate the miscarriage and manual capacity. Governance capabilities cannot be judged solely by the existence of buttons or policy files, but the actual execution path must be verified. Stopping a running task may require maintaining minimal recovery permissions, so clearing all permissions may not be the best strategy. The differences between stopping, blocking of new actions, and compensation should be defined in advance and tested with different stages of injection. Personnel operating costs and recovery time after an accidental stop belong to the system quality, and it is not appropriate to use the absence of accidents as the only verification basis.",
+          "idea": "Set external permissions and stop button for a sandbox work order agent, inject ultra-privilege requests, timeout and shutdown submission; personnel decide compensation. Measure interception recall, accidental suspension, rights withdrawal seconds, new actions after shutdown, repeated submission and recovery time. Ensure that the model cannot change these configurations or restart the task on its own. Stop when the write has just been sent but no response is returned to check whether the final status has been correctly verified and restored.",
+          "relatedLinks": [
+            {
+              "label": "The Verge reports"
+            }
+          ],
+          "image": {
+            "alt": "Nadella calls for controls and emergency stops outside models; the principle is not an outcomes study: related source image",
+            "caption": "Image from the original source page."
+          }
+        },
+        {
+          "type": "Executive interviews of the day + control plane under construction",
+          "source": "October 12, 2026｜Executives interviewed by The Financial Express and TCS",
+          "title": "TCS builds governance across applications; $3 billion in annualized AI revenue is not customers' net benefit",
+          "summary": "TCS executives said in interviews that they are building an enterprise AI governance layer to coordinate self-built, customer and third-party agents, involving applications such as SAP, ServiceNow and Oracle, and focusing on security, cost and deployment. The report also stated that the annualized revenue of AI business exceeds US$3 billion. Editorial judgment:  this shows that the service provider regards integration and operational governance as the delivery object, but the annualized supplier revenue is not the net benefit realized by the customer, nor can it prove that the control layer has reduced accidents. The architecture under construction should be verified through specific cross-system tasks to avoid equating the coverage of the unified management interface with the actual tool invocation control. The permissions and action semantics of different business systems are not consistent. The value of the unified layer lies in truly coordinating these differences, rather than just summarizing the status panel.",
+          "design": "The interview only disclosed that the governance layer serves as a control plane to manage multiple types of Agents, without specific APIs, identity mapping, log specifications, approval strategies, and rollback implementations. The editor's suggestion is to choose two systems to establish a common task ID and machine identity, and uniformly check the read and write range, budget and outbound approval; each connector still enforces its own resource permissions. After the call fails, the completed actions and actions to be compensated are recorded, and a manual decision is made whether to continue. Cross-vendor permission revocation and policy updates require verification and propagation, and models or connectors are not allowed to bypass the gateway. The governance layer should also monitor its own failures and not become a single point of default release in case of failure. Policy updates are first verified through simulated calls. High-impact writes are stopped when the gateway is unavailable, and the task is resumed after personnel confirmation.",
+          "evidence": "Raw interviews support executives' building direction and their self-reported business numbers, but are not third-party technical testing, undisclosed customer lists, correct completion, override, delays, expenses or stable operating cycles. The annualized income is a commercial basis, not the actual income for the whole year, and the independent income of the treatment product cannot be deduced based on this. Editorial judgment:  the supplier's AI project classification may include modernization and consulting, and customer benefits need to be calculated project by project; the role of the control plane must also be compared with the same process without unified governance. Acceptance should include legitimate task delays, cross-system inconsistencies and labor compensation costs, rather than just counting the number of connected applications and agents. Third-party agents may bypass default interfaces or derive tasks on their own, so it is necessary to prove that all production execution paths are controlled. Unified cost panels may also miss outside tool and personnel expenses. Pilots should document access scope and uncovered paths, clarify what can be blocked and what can only be observed, and avoid describing visibility as a deterministic enforcement limit.",
+          "idea": "Conduct a dual-system pilot of \"work order system + calendar\". The management layer records the identity, budget, write preview and task ID, and the coordinator approves the arrangement. Simulate success and failure, authorization revocation, and repeated requests. To achieve consistency, error writing, compensation minutes, policy propagation and cost-per-success acceptance. Add a request that does not go through the default connector and verify that the control layer recognizes the uncovered execution path.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "TCS builds governance across applications; $3 billion in annualized AI revenue is not customers' net benefit: related source image",
+            "caption": "Related existing illustration; not a screenshot of the product discussed."
+          }
+        },
+        {
+          "type": "Opening of official facilities + verification of production-level infrastructure",
+          "source": "October 7, 2026, supplementary registration on October 12 | NTT DATA",
+          "title": "NTT DATA opens a Munich AI validation facility; a real data center does not automatically represent real business outcomes",
+          "summary": "NTT DATA opens AI Factory Munich in the Munich 2 data center, allowing enterprises to verify computing, data, security, governance and operational requirements with their own applications before expanding deployment. The announcement describes the combination of NVIDIA and Dell's infrastructure and service capabilities, which can be used by enterprises and public institutions by reservation. The editor’s judgment is that a production-grade environment can help discover capacity and integration issues overlooked by the notebook prototype, but the reality of the data center does not mean the reality of business traffic, personnel behavior, or data distribution; the verification plan still requires customers to provide representative tasks and acceptance criteria, and purchase decisions cannot be made after watching supplier demonstrations. The ability for customers to test with their own load is key to the value of the facility; this still requires clear task denominators and failure criteria to support expansion decisions.",
+          "design": "Sources describe actual data centers, accelerated computing, networking, storage and software combinations, and provide customer scenario testing. Per-customer isolation, data deletion, test sizing, fault injection and result delivery rules are not disclosed. The editor's suggestion is that customers first declare the usage load, data range, permissions and cost caps, and provide anonymous historical tasks and peak playback. Facilities run models and tools, and personnel review results and performance; detect degradation after insufficient injection capacity, network disconnections, and model timeouts. At the end, the configuration, version and complete logs are exported to confirm the data deletion, ensuring that the results can be repeated in the customer environment and not only established with the assistance of the service team. Customer data and log access also need to be isolated during shared testing. After verification, evidence is retained and sensitive input is removed as agreed.",
+          "evidence": "Confirm the fact that the facility is open, the data center where it is located, and the test direction. Official quotes from partners do not constitute independent deployment results, and there is no public test customer denominator, failure rate, P95, net cost or project launch results. Editorial judgment:  infrastructure SLO and model service quality should be verified separately; accelerating hardware can reduce latency, but may not affect task errors. Manual tuning and vendor support hours also need to be accounted for to avoid relying on invisible personnel for the effectiveness of the test environment. Before purchasing, the customer's reproducible workloads and exit conditions should be retained, and hosting, private cloud and existing lightweight solutions should be compared, and the rationality of investment cannot be directly derived from the \"production-grade\" label. Also check to see if you have dedicated resources for testing that you won’t get in production, and if the short-term demo represents a sustained load. Model throttling, external tool failures, and personnel support should be accounted for at the same time. When selecting an environment, observe the unit qualified task cost and data migration burden, rather than just looking at the GPU speed; exit and recurrence conditions should also be written into the acceptance.",
+          "idea": "Create a portable acceptance package for small business FAQ: freeze 200 questions, permission roles, peak playback and three types of faults, and test them in two environments. Serious error in personnel review. Based on accuracy, rejection, P95, recovery, total cost and support man-hour acceptance, configuration and data versions are output for repeated runs. Add peak concurrency and insufficient resource replays to confirm that the experiment does not only use an ideal low-load environment for demonstration.",
+          "relatedLinks": [
+            {
+              "label": "Reprinted from press release"
+            }
+          ],
+          "image": {
+            "alt": "NTT DATA opens a Munich AI validation facility; a real data center does not automatically represent real business outcomes: related source image",
+            "caption": "Official organization mark identifying the source."
+          }
+        },
+        {
+          "type": "Product expansion release + expert knowledge MCP + skill assets",
+          "source": "October 7, 2026 | O’Reilly; previously opened to some customers in July",
+          "title": "O'Reilly Expert Intelligence cites authors and dates, but each citation still needs to support its claim",
+          "summary": "O’Reilly has publicly expanded Expert Intelligence, integrating expert knowledge into existing AI tools through Expert MCP and job skills, emphasizing that each guidance can be traced back to the author and publication date. The announcement stated that it had been opened to some customers in July, and October 7 was not the first time it went online from scratch. The editorial judgment is that this provides a more inspectable source of knowledge for architectural decisions and threat modeling, but the author and date are only source metadata and do not imply that the citation supports each conclusion. Professional advice still needs to be combined with the system version, business restrictions and applicable conditions of the original text. It cannot automatically enter production execution just because it comes from the expert knowledge base. More traceable sources can reduce the starting point for checking, but the relationship between claims and original texts still needs to be independently checked; knowledge access cannot solve all reasoning errors.",
+          "design": "Source Description MCP provides selected knowledge, pre-made skills, organizational structure, decision records, threat models and other tasks, and outputs guidance with expert references. Full search ordering, access control, client context preservation, no-answers, and tool timeout handling are not disclosed. The editor's suggestion is that the skills should correspond to the suggestions and evidence one by one, and the original text version, counterexamples and applicable conditions should be clear; internal constraints of the organization should be input by personnel and cannot be guessed by the model. Refer to experts when references are missing, conflicting, or the document is expired; tool execution only generates a draft, and configuration modifications and security handling are subject to separate approval. All external references are treated as document data and must not be turned into instructions that can override system rules. The output retains the reference to the original text and the current organizational assumptions. Experts can accept or deny each item. Unapproved suggestions cannot be implemented.",
+          "evidence": "The official announcement confirms the product, reference direction and access to existing tools. The vendor's February 60-question benchmark stated that about one-fifth of the claims lacked citation support, the sample was small, and insufficient independent reproduction information was provided. This cannot be used to generalize all AI tools, let alone prove that the new product has solved the problem. Editorial judgment requires the distinction of four indicators: presence of citations, accessible citations, original text support, and current application; named experts may also be out of date or disagree with other sources. The organization-level fee mechanism does not mean that the total cost of models and calls is free. Pilots should be reviewed by someone not involved in writing the skill, and suggested errors, manual revisions, and actual decision time should be recorded, not just the number of links. Expert materials may have conflicting advice and different applicable conditions, and you cannot just choose one answer in order of authority. It needs to be tested whether the system retains disagreements, dates and versions, and reports rejections when no answers are available. Accurate citation placement may not support the conclusion, so an independent reviewer should check the supporting relationships and actual applicability of the task, rather than just counting citations.",
+          "idea": "Make 20 drafts of architecture decisions, each including business constraints, candidates, choices and original text citations. Engineers review the support and application one by one. Compare generic models to expert search skills, measuring citation support, version errors, critical omissions, review minutes, and cost per qualified decision without automatically deploying recommendations. By adding two materials with different dates and conflicting suggestions, the verification system clarifies the disagreement rather than synthesizing the final conclusion.",
+          "relatedLinks": [
+            {
+              "label": "Products and samples"
+            }
+          ],
+          "image": {
+            "alt": "O'Reilly Expert Intelligence cites authors and dates, but each citation still needs to support its claim: related source image",
+            "caption": "Related existing illustration; not a screenshot of the product discussed."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "External controls and cross-system recovery",
+          "description": "Verify downtime, deprivation, idempotence, and compensation in work order scheduling to measure true completion and labor costs.",
+          "tags": [
+            "external control",
+            "Cross-system recovery"
+          ]
+        },
+        {
+          "title": "Portable validation pack and evidence review",
+          "description": "Freeze tasks, configurations, permissions and true values, compare environments and knowledge skills, and output reproducible results.",
+          "tags": [
+            "Verification package",
+            "Evidence review"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "bdbefe674aecfe9f"
+}
