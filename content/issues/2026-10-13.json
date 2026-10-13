@@ -1,0 +1,256 @@
+{
+  "issue": "ISSUE 046",
+  "date": "2026.10.13",
+  "thesis": "过去24小时未检索到足够带完整分母的新生产成效材料。本期纳入一项10月12日获独立报道的决策模型发布，以及三组此前未覆盖的流程评测、开放基准和安全研究，均标明原始日期。共同判断是：答案正确、决策分数高、历史状态可恢复，分别只证明系统的一部分能力。企业仍须独立检查执行轨迹、工具接口、数据权限和恢复路径，避免把这些指标合并成“Agent已经可靠”。",
+  "takeaways": [
+    "Microsoft-Decision-1将反馈分类压缩为一次评分，概率仍需业务校准",
+    "IBM流程评测：175次最终数字正确，162次仍检出其他偏差",
+    "Enterprise-Bench把工单与收入关联放入大噪声数据，接口复杂度成为评测变量",
+    "LangGraph记忆存储漏洞提醒：恢复状态也必须验证来源、隔离与反序列化边界"
+  ],
+  "contrarian": "四组材料分别处理决策、执行过程、数据访问和状态恢复。决策模型把评分变成廉价组件，但业务阈值仍需校准；IBM框架证明数值正确不保证轨迹符合要求；Enterprise-Bench说明接口和过滤策略会改变可靠性与成本；LangGraph公告则表明，即使模型行为正常，状态层的传统软件漏洞也可能破坏整个执行边界。 证据强度应保持分层：Microsoft的性能来自厂商实验，媒体报道不构成独立复现；IBM有240次运行和置信区间，但输入与规范范围窄；DevRev开放任务和合成数据，本期未复跑；安全研究有维护者公告支持，却没有普遍事故率。最可迁移的结论是把决策概率、轨迹合规、关联正确和状态安全分别验收，再测量人工负担与业务结果。",
+  "items": [
+    {
+      "type": "新模型发布＋官方API文档＋内部任务评测＋独立产品报道",
+      "source": "2026年10月9日发布；10月12日媒体报道｜Microsoft、Help Net Security",
+      "title": "Microsoft-Decision-1将反馈分类压缩为一次评分，概率仍需业务校准",
+      "summary": "Microsoft-Decision-1针对一个窄需求：输入当前状态、问题和固定选项，直接返回各选项概率，用于工单路由、反馈分类和质量评分。模型基于Qwen3.5‑9B后训练，避免每次判断都生成长篇解释。Xbox内部测试用它整理逾10,000条反馈，厂商称质量接近所比较大模型，速度超过14倍、成本为二百分之一。值得关注的是将高频、有限选项的判断单独建模；但概率只是控制流程的输入，不能直接变成权限或高影响动作的批准。",
+      "design": "应用提供文本或JSON状态，并定义二元判断、单选分类或有序评分问题；API返回数值结果，不提供书面理由。开发者以业务留出集选择阈值，低置信请求转人员或其他模型，高置信结果进入已限定的路由流程。Foundry支持Entra ID或API Key认证，部署可选择区域数据区或全球容量，二者数据处理位置不同。官方要求评估措辞敏感性和分布变化；超时、返回格式异常、选项缺失及恢复策略仍由应用实现。编辑建议是在模型之外验证身份、允许动作和成本上限，并保留人工纠正入口。",
+      "evidence": "厂商实验： 36个基准、近150,000题，称训练时保持盲测；八种输入扰动下平均决策翻转率1.3%，安全测试含11个基准、5,250条请求。当前标价为每百万输入Token 0.042美元，输出免费。独立证据： Help Net Security核实发布与用途，但性能数字仍来自Microsoft，未独立复现。局限： 内部反馈分类未公开逐类准确率、人工工时、线上错误或置信区间；速度倍率不能替代应用端P95。官方明确熟悉任务上的校准更强、措辞会影响评分，且不应单独决定针对个人的事项。分数稳定不能证明判断正确，低API费用也不等于低业务总成本。",
+      "idea": "为客服团队做三分类路由器，只区分账单、技术故障和使用咨询，保留“需人工判断”；以同一冻结集比较规则、生成模型与决策模型，人员复核低分及随机高分样本。用宏F1、错派率、概率校准、人工纠正、P95时延和每个正确路由总成本验收。",
+      "url": "https://commandline.microsoft.com/microsoft-decision-1-model-foundry/",
+      "relatedLinks": [
+        {
+          "label": "API、权限与风险文档",
+          "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/how-to/use-foundry-models-microsoft-decision"
+        },
+        {
+          "label": "10月12日独立报道",
+          "url": "https://www.helpnetsecurity.com/2026/10/12/microsoft-decision-1-model/"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct13-1.webp",
+        "alt": "Microsoft-Decision-1 原始发布页配图",
+        "caption": "Microsoft 原始发布页配图。"
+      }
+    },
+    {
+      "type": "新预印本＋企业技能轨迹评测＋Workshop录用＋有限人工审计",
+      "source": "2026年10月1日｜IBM、Georgia Institute of Technology；NeurIPS 2026 CLEA Workshop",
+      "title": "IBM流程评测：175次最终数字正确，162次仍检出其他偏差",
+      "summary": "研究评估企业韧性系统中的业务价值分摊技能：Agent读取应用利用率，计算收入或生产力分配，再把结果写入数据库供后续模块使用。作者发现，只验收最终金额会漏掉错误工具范围、缺失读回、执行顺序和数据库状态问题。240次运行中，175次通过全部适用的最终数值检查，其中162次仍有其他评测偏差。该数字不是生产事故率，而是提醒团队：相同最终值可能由不同过程产生，业务必须明确哪些路径必要、哪些替代路径同样有效。",
+      "design": "两项技能经Claude Code或Codex运行，通过两个MCP服务器读取观测数据并管理SQLite状态。评测器保存输入与工具轨迹，独立调用API计算每次真值，把运行时值填入可复用测试模板；确定性检查负责工具、参数、顺序、数值和数据库一致性，LLM仅判断不适合精确匹配的语义参数。依赖图把级联失败归并到根因。该框架诊断问题而不自动修复，身份权限、人工批准和异常事务补偿未构成实证。编辑建议是严重轨迹错误阻止后续消费结果，冻结响应快照后交业务负责人复核。",
+      "evidence": "作者实验： 两技能、两规格、两Harness、三模型共240次；162/175为92.6%，Wilson 95%CI为87.7%—95.6%。扩展七项最终状态检查后，仍有151/164通过运行违反轨迹检查。失败数归因后由每次6.34项降至2.65个根因；作者抽审60个LLM判断，57个一致。重要限制： 每技能只有一组组合输入，重复次数不能代替业务多样性；部分零值、工具白名单和顺序要求是作者规范，偏差未必有害。评委也是被测模型之一，原始API状态可能漂移。实验没有真实API升级的纵向验证，也不能把92.6%解释为实际损失或越权比例。",
+      "idea": "为费用分摊Agent建立20个可检查任务，同时验证金额、读取范围、写入表、版本和写后读回；允许经业务批准的等价轨迹。严重偏差转财务负责人，禁止下游直接取用。以数值正确率、轨迹违规、误报、根因数、修复时间和每个合格结果成本验收。",
+      "url": "https://arxiv.org/abs/2610.01833",
+      "relatedLinks": [
+        {
+          "label": "完整HTML与局限",
+          "url": "https://arxiv.org/html/2610.01833v1"
+        },
+        {
+          "label": "PDF",
+          "url": "https://arxiv.org/pdf/2610.01833"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct13-2.webp",
+        "alt": "arXiv 论文页面标识",
+        "caption": "arXiv 论文页面标识；非实验结果图。"
+      }
+    },
+    {
+      "type": "开放基准＋合成企业数据＋多层工具接口＋可复用评测仓库",
+      "source": "2026年7月｜DevRev Office of the CTO；本期核验当前公开仓库",
+      "title": "Enterprise-Bench把工单与收入关联放入大噪声数据，接口复杂度成为评测变量",
+      "summary": "Enterprise-Bench把企业Agent评测缩到14项具体任务：找出高优先级工单影响的客户、计算风险收入、核对销售承诺及检查SLA逾期。它保留少量决定答案的事实，再加入大量已关闭工单和历史商机，测试Agent能否先过滤、再关联，而不是把整库塞入上下文。基准同时提供专用工具和接近Salesforce、Jira、Drive的协议接口，区分模型推理与数据访问设计的影响。数据全部合成，规模模仿生产历史，不应写成真实客户部署。",
+      "design": "模拟支付企业包含客户、工单、工程问题、产品组件、商机和通话材料，通过共享组件标识建立跨系统关系。任务进入Docker评测环境，Agent可使用整理好的领域工具或协议式API；结果由独立LLM评委按必需条件作二元通过判断，诊断指标辅助定位问题。每配置运行14题、每题10次。基准关注权限忠实、路径和成本，但不能替代真实连接器的身份与行级授权测试；也没有生产写入或恢复流程。编辑建议是把确定性关联结果单独计算，发现越权或预算耗尽即停止，并将歧义结果送业务人员。",
+      "evidence": "开放事实： 当前语料含32,768张工单、8,448个工程问题、8,704个商机、42个客户和40个产品部分，但知识材料仅3段通话、22篇文章。作者称约0.16%的数据与单题相关，并报告协议式接口相较专用工具准确率下降18—19点、Token成本翻倍。局限： 这是作者基准结果，本期未复现；总体宣称不能替代逐配置成绩及方差。答案保持不变的噪声主要模拟过滤压力，未覆盖真实权限漂移、矛盾记录或持续业务更新。语义评委也可能漏掉连接关系错误。14题、140次运行只能检验有限任务，不能证明长期自治、客户采纳或净业务价值。",
+      "idea": "为售后团队制作“工单影响客户”只读助手：用产品组件关联工单、工程问题和客户，再计算去重后的风险收入；展示每条连接的来源。比较专用工具与通用API，以关系精确率、漏客户、重复计收入、权限违规、Token、P95时延和人工核对分钟数验收。",
+      "url": "https://github.com/devrev/enterprise-bench",
+      "relatedLinks": [
+        {
+          "label": "数据Schema",
+          "url": "https://github.com/devrev/enterprise-bench/blob/main/docs/data-schema.md"
+        },
+        {
+          "label": "结果提交要求",
+          "url": "https://github.com/devrev/enterprise-bench/blob/main/docs/submit-results.md"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct13-3.webp",
+        "alt": "Enterprise-Bench 开源仓库预览图",
+        "caption": "Enterprise-Bench 开源仓库预览图。"
+      }
+    },
+    {
+      "type": "已修复安全研究＋维护者公告＋代码级修复证据",
+      "source": "2026年6月11日研究；关联公告2025年12月9日、2026年2—3月发布｜Check Point Research、LangChain维护者",
+      "title": "LangGraph记忆存储漏洞提醒：恢复状态也必须验证来源、隔离与反序列化边界",
+      "summary": "这组此前未覆盖的历史材料已修复，值得作为部署检查而非新事故报道。研究围绕Agent保存和恢复状态的Checkpointer：不可信过滤输入可能改变SQL或Redis查询，绕过历史隔离；若攻击者还能修改持久化字节，危险对象重建可能把存储权限扩展为运行时执行能力。其意义在于区分两种信任：一段记忆内容可供模型参考，不代表其来源、租户边界和加载过程安全。权限检查不能仅放在业务工具前，还必须覆盖状态查询与恢复。",
+      "design": "应用将线程状态和元数据保存到SQLite、Redis等后端，历史查询接受过滤条件，恢复时反序列化Checkpoint。维护者修复SQLite过滤键构造和JavaScript Redis查询转义，并为Python Msgpack引入严格模式与允许列表。恢复流程应先验证调用者、线程归属、记录完整性和允许类型，异常数据停止加载并转安全人员。注意部分Checkpointer不支持允许列表传播，自定义解包Hook也可能绕过默认保护；升级后仍须验证实际配置。凭证撤销、状态清理和安全恢复属于部署方责任，公告未提供通用自动恢复方案。",
+      "evidence": "确认事实： SQLite包`langgraph-checkpoint-sqlite`的CVE‑2025‑67644修复于3.0.1；Python `langgraph`的CVE‑2026‑28277公告列出1.0.10为修复版本；npm包`@langchain/langgraph-checkpoint-redis`的CVE‑2026‑27022修复于1.0.2，不能误写为Python Redis包。交叉证据： 研究方描述组合风险，维护者公告明确各自条件与修复。限制： Msgpack公告称需要攻击者已能篡改存储字节，且无野外利用证据；不能概括成任意公网请求都能执行代码。过滤漏洞也取决于应用是否接受不可信输入。以上是对应漏洞最低修复点，不是推荐冻结的最新版本，更不能证明升级后全部状态路径安全。",
+      "idea": "为一个状态化客服Agent检查历史查询和恢复：服务端固定租户与线程，过滤键采用允许列表，使用安全反序列化配置；损坏状态禁止继续，人工确认后从可信快照恢复。以跨线程读取、异常状态接受、未固定依赖、恢复失败、凭证暴露和恢复分钟数验收。",
+      "url": "https://blog.checkpoint.com/research/when-your-ai-agents-memory-becomes-a-security-liability/",
+      "relatedLinks": [
+        {
+          "label": "SQLite过滤键公告",
+          "url": "https://github.com/langchain-ai/langgraph/security/advisories/GHSA-9rwj-6rc7-p77c"
+        },
+        {
+          "label": "Msgpack反序列化公告",
+          "url": "https://github.com/advisories/GHSA-g48c-2wqr-h844"
+        },
+        {
+          "label": "JavaScript Redis过滤公告",
+          "url": "https://github.com/advisories/GHSA-5mx2-w598-339m"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct13-4.webp",
+        "alt": "Check Point Research 官方标识",
+        "caption": "Check Point Research 官方标识；非漏洞示意图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "工单路由与影响分析的双层验收",
+      "description": "先用有限选项模型分流，再通过只读工具关联客户与工程问题。分别测分类校准、关系准确、重复计收入、权限违规、人工修订与单位合格结果成本，低置信或证据冲突时转人。",
+      "tags": [
+        "工单路由",
+        "影响分析的双层验收"
+      ]
+    },
+    {
+      "title": "状态化Agent的回归与恢复门",
+      "description": "固定一组业务任务，同时检查输出、工具参数、数据库读回、线程隔离和安全恢复；模型、Skill、接口或依赖变化后重跑。严重偏差阻止发布，异常状态须从可信快照恢复并保留审计记录。",
+      "tags": [
+        "状态化Agent的回归",
+        "恢复门"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "takeaways": [
+        "Microsoft-Decision-1 compresses feedback classification into one score, and the probability still needs business calibration",
+        "IBM process evaluation: 175 times the final number was correct, 162 times other deviations were still detected",
+        "Enterprise-Bench puts the relationship between work orders and revenue into big noise data, and the interface complexity becomes the evaluation variable",
+        "LangGraph memory storage vulnerability reminder: Restoring state must also verify source, isolation and deserialization boundaries"
+      ],
+      "items": [
+        {
+          "relatedLinks": [
+            {
+              "label": "API, permissions and risk documentation"
+            },
+            {
+              "label": "Independent report on October 12"
+            }
+          ],
+          "image": {
+            "caption": "Image from Microsoft's original release page.",
+            "alt": "Microsoft-Decision-1 original release page with image"
+          },
+          "title": "Microsoft-Decision-1 compresses feedback classification into one score, and the probability still needs business calibration",
+          "summary": "Microsoft-Decision-1 targets a narrow requirement: input the current status, problem and fixed options, and directly return the probability of each option for ticket routing, feedback classification and quality scoring. The model is trained based on Qwen3.5-9B to avoid generating long explanations for each judgment. Xbox used it in internal testing to sort out more than 10,000 responses, and the vendor says the quality was close to that of larger models, more than 14 times faster, and 1/200th the cost. It is worth noting that high-frequency, limited-option judgments are modeled separately; but probabilities are only inputs to the control process and cannot directly become permissions or approvals of high-impact actions.",
+          "type": "New model release + official API documentation + internal task evaluation + independent product reports",
+          "source": "Released on October 9, 2026; media reports on October 12 | Microsoft, Help Net Security",
+          "idea": "Create a three-category router for the customer service team, only distinguishing between billing, technical faults and usage consultation, and retaining \"requires manual judgment\"; use the same frozen set to compare rules, generation models and decision-making models, and personnel review low-scoring and random high-scoring samples. Use macro F1, misrouting rate, probability calibration, manual correction, P95 latency and total cost acceptance of each correct route.",
+          "design": "The application provides text or JSON status and defines binary judgment, single-choice classification, or ordinal scoring questions; the API returns numerical results without providing written justification. Developers select thresholds based on the business set aside, low-confidence requests are forwarded to personnel or other models, and high-confidence results enter the defined routing process. Foundry supports Entra ID or API Key authentication, and you can choose regional data area or global capacity for deployment. The data processing locations of the two are different. Official requirements evaluate wording sensitivity and distribution changes; timeouts, return format exceptions, missing options, and recovery strategies are still implemented by the application. Editor's recommendation is to verify identities outside of the model, cap allowed actions and costs, and retain manual correction entry.",
+          "evidence": "Manufacturer's experiment: 36 benchmarks and nearly 150,000 questions. Blind testing was maintained during training; the average decision flip rate under eight input disturbances was 1.3%. The security test included 11 benchmarks and 5,250 requests. The current price is $0.042 per million input tokens, and outputs are free. Independent evidence: Help Net Security verified release and usage, but performance numbers still come from Microsoft and have not been independently reproduced. Limitations: Internal feedback classification does not disclose class-by-class accuracy, manual hours, online errors or confidence intervals; speed multiplier cannot replace application-side P95. Officials clarified that calibration on familiarity tasks is stronger, wording affects scoring, and matters should not be decided individually on an individual basis. Stable scores do not prove correct judgment, and low API fees do not equal low total business costs."
+        },
+        {
+          "relatedLinks": [
+            {
+              "label": "Full HTML and limitations"
+            },
+            {
+              "label": "PDF"
+            }
+          ],
+          "image": {
+            "caption": "arXiv paper page identifier; non-experimental results figure.",
+            "alt": "arXiv paper page identifier"
+          },
+          "title": "IBM process evaluation: 175 times the final number was correct, 162 times other deviations were still detected",
+          "type": "New preprint + enterprise skill trajectory evaluation + workshop acceptance + limited manual audit",
+          "source": "October 1, 2026｜IBM, Georgia Institute of Technology; NeurIPS 2026 CLEA Workshop",
+          "design": "Both skills are run via Claude Code or Codex, reading observation data and managing SQLite status through two MCP servers. The evaluator saves the input and tool trajectories, independently calls the API to calculate each true value, and fills the runtime values ​​into the reusable test template; the deterministic check is responsible for the consistency of tools, parameters, sequences, values, and databases, and the LLM only determines semantic parameters that are not suitable for exact matching. Dependency graphs reduce cascading failures to root causes. The framework diagnoses problems without automatically fixing them, and identity permissions, manual approvals, and compensation for abnormal transactions do not constitute empirical evidence. The editor's suggestion is that serious trajectory errors prevent subsequent consumption of results, freeze the response snapshot and submit it to the business person in charge for review.",
+          "summary": "Research and evaluate business value apportionment skills in enterprise resilience systems: Agent reads application utilization, calculates revenue or productivity distribution, and then writes the results to the database for use by subsequent modules. The authors found that only accepting final amounts missed incorrect tool ranges, missing readbacks, execution order, and database state issues. Of the 240 runs, 175 passed all applicable final numerical checks, of which 162 still had other evaluation deviations. This number is not a production incident rate, but a reminder to the team that the same end value may be produced by different processes, and the business must understand which paths are necessary and which alternative paths are equally effective.",
+          "idea": "Create 20 checkable tasks for the chargeback agent, simultaneously verifying the amount, read range, write table, version and read-after-write; allowing business-approved equivalent trajectories. Serious deviations will be transferred to the finance owner, and direct access by downstream parties is prohibited. Acceptance based on numerical accuracy, trajectory violations, false positives, root causes, time to repair, and cost per qualified result.",
+          "evidence": "Author's experiment: Two skills, two specifications, two Harness, three models, a total of 240 times; 162/175 is 92.6%, Wilson 95%CI is 87.7%-95.6%. After extending the seven final status checks, there were still 151/164 passing run violation trajectory checks. After attribution, the number of failures dropped from 6.34 to 2.65 root causes per time; the author randomly reviewed 60 LLM judgments, and 57 were consistent. Important limitations: There is only one set of combined inputs per skill, and the number of repetitions cannot replace business diversity; partial zero values, tool whitelists, and order requirements are author specifications, and deviations are not necessarily harmful. The judge is also one of the models under test, and the original API state may drift. The experiment does not have longitudinal verification of real API upgrades, and it cannot interpret 92.6% as an actual loss or override ratio."
+        },
+        {
+          "relatedLinks": [
+            {
+              "label": "Data Schema"
+            },
+            {
+              "label": "Results submission requirements"
+            }
+          ],
+          "image": {
+            "caption": "Enterprise-Bench open source warehouse preview.",
+            "alt": "Enterprise-Bench open source warehouse preview"
+          },
+          "source": "July 2026 | DevRev Office of the CTO; public repository checked for this issue",
+          "type": "Open benchmark + synthetic enterprise data + layered tool interfaces + reusable evaluation repository",
+          "title": "Enterprise-Bench puts the relationship between tickets and revenue into big noise data, and the interface complexity becomes the evaluation variable",
+          "design": "The simulated payment enterprise includes customers, tickets, engineering issues, product components, opportunities, and call materials, establishing cross-system relationships through shared component identifiers. When the task enters the Docker evaluation environment, the Agent can use organized domain tools or protocol-based APIs; the results are judged by independent LLM judges based on necessary conditions to make a binary pass judgment, and diagnostic indicators assist in locating problems. Each configuration runs 14 questions, each question 10 times. The benchmark focuses on permission fidelity, paths, and costs, but is not a substitute for identity and row-level authorization testing of real connectors; there is no production write or recovery process. The editor's suggestion is to calculate the deterministic correlation results separately, stop immediately if authority is exceeded or the budget is exhausted, and send the ambiguous results to the business staff.",
+          "idea": "Create a \"ticket affecting customers\" read-only assistant for the after-sales team: use product components to associate tickets, engineering issues and customers, and then calculate the revenue at risk after deduplication; display the source of each connection. Compare dedicated tools with general APIs, and check for acceptance based on relationship accuracy, missing customers, double counting of revenue, permission violations, tokens, P95 latency and manual verification minutes.",
+          "evidence": "Open facts: The current corpus contains 32,768 tickets, 8,448 engineering problems, 8,704 sales opportunities, 42 customers and 40 product parts, but the knowledge materials only include 3 phone calls and 22 articles. The author claims that about 0.16% of the data is related to a single question, and reports that the accuracy of the protocol-based interface is 18-19 points lower than that of special tools, and the token cost is doubled. Limitations: This is the author's benchmark result and has not been reproduced in this issue; overall claims cannot replace configuration-by-configuration scores and variances. Noise where the answer remains the same primarily simulates filtering pressure and does not cover real permission drift, conflicting records, or ongoing business updates. Semantic judges may also miss connection errors. 14 questions and 140 runs can only test limited tasks and cannot prove long-term autonomy, customer adoption, or net business value.",
+          "summary": "Enterprise-Bench narrowed the enterprise Agent evaluation to 14 specific tasks: identifying customers affected by high-priority tickets, calculating revenue at risk, checking sales commitments, and checking SLA overdues. It retains a small number of facts that determine the answer, and then adds a large number of closed tickets and historical sales opportunities to test whether the Agent can first filter and then correlate, rather than stuffing the entire database into context. The benchmark also provides dedicated tools and protocol interfaces close to Salesforce, Jira, and Drive to distinguish the impact of model reasoning and data access design. The data is all synthesized and scaled to simulate production history, and should not be written as real customer deployments."
+        },
+        {
+          "relatedLinks": [
+            {
+              "label": "SQLite filter key announcement"
+            },
+            {
+              "label": "Msgpack Deserialization Announcement"
+            },
+            {
+              "label": "JavaScript Redis filtering announcement"
+            }
+          ],
+          "image": {
+            "alt": "Check Point Research official logo",
+            "caption": "Check Point Research official logo; not vulnerability diagram."
+          },
+          "type": "Fixed security research + maintainer announcement + code-level fix evidence",
+          "title": "LangGraph memory storage vulnerability reminder: Restoring state must also verify source, isolation and deserialization boundaries",
+          "source": "Researched on June 11, 2026; related announcements released on December 9, 2025, February-March 2026 | Check Point Research, LangChain maintainer",
+          "design": "The application saves thread status and metadata to backends such as SQLite and Redis. Historical queries accept filter conditions and checkpoints are deserialized during recovery. The maintainer fixes SQLite filter key construction and JavaScript Redis query escaping, and introduces strict mode and allow lists for Python Msgpack. The recovery process should first verify the caller, thread ownership, record integrity, and allowed types. Abnormal data should stop loading and be forwarded to security personnel. Note that some Checkpointers do not support allow list propagation, and custom unpacking Hooks may also bypass default protection; the actual configuration must still be verified after upgrading. Credential revocation, status cleanup and security recovery are the responsibility of the deployer, and the announcement does not provide a general automatic recovery solution.",
+          "summary": "This previously uncovered set of historical material has been patched and deserves to be reported as a deployment check rather than a new incident. The research examines the Checkpointer used for Agent saving and restoring state: untrusted filtered input may change SQL or Redis queries, bypassing historical isolation; if the attacker can also modify the persistence bytes, dangerous object reconstruction may extend storage permissions to runtime execution capabilities. The significance is to distinguish between two types of trust: a piece of memory content is available for model reference, but does not represent its source, tenant boundaries, and loading process security. Permission checks cannot only be placed in front of business tools, but must also cover status query and recovery.",
+          "evidence": "Confirm the facts: CVE-2025-67644 of the SQLite package `langgraph-checkpoint-sqlite` is fixed in 3.0.1; the CVE-2026-28277 announcement of Python `langgraph` lists 1.0.10 as the fixed version; CVE-2026-27022 of the npm package `@langchain/langgraph-checkpoint-redis` is fixed in 1.0.2 and cannot be mistakenly written as Python Redis package. Cross-evidence: The researcher describes the combined risks, and the maintainer announces the respective conditions and fixes. Limitations: The Msgpack announcement states that the attacker needs to be able to tamper with the storage bytes, and there is no evidence of wild use; it cannot be generalized to the fact that any public network request can execute code. Filtering vulnerabilities also depend on whether the application accepts untrusted input. The above is the minimum fix point for the corresponding vulnerability. It is not the latest version recommended for freezing, nor can it prove that all state paths after the upgrade are safe.",
+          "idea": "Check historical queries and recovery for a stateful customer service agent: the server binds the tenant and thread, uses the allow list as the filter key, and uses safe deserialization configuration; the damaged state prohibits continuation, and restores from trusted snapshots after manual confirmation. Acceptance with cross-thread read, abnormal state acceptance, unpinned dependencies, recovery failure, credential exposure and recovery minutes."
+        }
+      ],
+      "projectIdeas": [
+        {
+          "tags": [
+            "Ticket routing",
+            "Impact analysis"
+          ],
+          "title": "Two-layer evaluation for ticket routing and impact analysis",
+          "description": "First use limited options model routing, then use read-only tools to correlate customer and engineering issues. Separately measure classification calibration, relationship accuracy, double counting of income, permission violations, manual revisions and cost per qualified result, and transfer when confidence is low or evidence conflicts."
+        },
+        {
+          "tags": [
+            "Stateful agents",
+            "Recovery gate"
+          ],
+          "title": "Regression and recovery gate for stateful agents",
+          "description": "Fix a set of business tasks while checking output, tool parameters, database readback, thread isolation and safe recovery; rerun after changes in model, skill, interface or dependency. Serious deviations prevent release, and corrupt states must be restored from trusted snapshots and audit records retained."
+        }
+      ],
+      "thesis": "Not enough new production performance materials with complete denominators were retrieved in the past 24 hours. This issue includes a decision-making model release that was independently reported on October 12, as well as three previously uncovered groups of process evaluations, open benchmarks, and security studies, all with the original date marked. The common judgments are: the answer is correct, the decision score is high, and the historical state is recoverable, each of which only proves part of the system's capabilities. Enterprises must still independently check execution traces, tool interfaces, data permissions, and recovery paths to avoid merging these indicators into \"the agent is reliable.\"",
+      "contrarian": "The four groups of materials deal with decision-making, execution process, data access and state recovery respectively. The decision model turns scoring into cheap components, but business thresholds still need to be calibrated; the IBM framework proves that the values ​​are correct but does not guarantee that the trajectory meets the requirements; Enterprise-Bench shows that interfaces and filtering strategies will change reliability and cost; the LangGraph announcement shows that even if the model behaves normally, traditional software vulnerabilities in the state layer may destroy the entire execution boundary. The strength of the evidence should be kept hierarchical: Microsoft's performance comes from manufacturer experiments, and media reports do not constitute independent recurrence; IBM has 240 runs and confidence intervals, but the input and specification ranges are narrow; DevRev open tasks and synthetic data are not rerun in this issue; security research is supported by maintainer announcements, but there is no general accident rate. The most transferable conclusion is to separately check the decision probability, trajectory compliance, correct association and state security, and then measure the manual burden and business results."
+    }
+  },
+  "contentHash": "b905b18c231ce76a"
+}
