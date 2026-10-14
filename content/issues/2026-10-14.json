@@ -1,0 +1,249 @@
+{
+  "issue": "ISSUE 047",
+  "date": "2026.10.14",
+  "thesis": "本期包含两项10月13日的新调查或监管报道，以及两项此前未覆盖、具有生产轨迹或线上对照的研究。共同问题是：发现异常之后，系统能否及时阻止动作，并从可信状态恢复？调查自评、生产检测精确率、攻击召回和业务采用率回答的是不同问题；本期分别保留其分母与局限，不把“看见风险”直接解释为“已经控制风险”。",
+  "takeaways": [
+    "Salt调查：49.8%受访者确认或怀疑Agent异常，只有17.5%具备自动停止能力",
+    "银行监管把Agent审批与恢复纳入询问，欧洲行动计划截止10月31日",
+    "Uber ADR每天观察逾万次Agent会话，凭证检测精确率97.2%仍不代表全攻击覆盖",
+    "R3只改视频广告中的违规文本，三天A/B采用率相对提高21%"
+  ],
+  "contrarian": "四组材料把控制拆成了三个可检查阶段。Salt调查关注是否能发现资产并重建动作；Uber ADR提供具体采集与检测机制，同时显示即时阻断仍须独立实现；银行监管材料要求在预防失效后证明恢复能力；R3则把控制落实到业务产物的限定修改和用户采用。监测、阻断、恢复和业务验收需要不同责任人与证据。 数字口径尤其重要：49.8%合并确认与疑似，不能当作事故率；97.2%是凭证命中精确率，不能当作攻击召回；提交行动计划不等于恢复成功；采用率提高21%也不是增加21个百分点或广告收入提高21%。本期最稳健的项目原则是：限制执行范围，保留人工批准，抽审放行结果，并实际演练异常后的停止与恢复。",
+  "items": [
+    {
+      "type": "新企业调查＋厂商生产遥测＋运行路径与遏制能力评估",
+      "source": "2026年10月13日｜Salt Security、Salt Labs",
+      "title": "Salt调查：49.8%受访者确认或怀疑Agent异常，只有17.5%具备自动停止能力",
+      "summary": "Salt Security新调查将Agent治理问题具体化到动作路径：49.8%的受访者确认或怀疑，过去一年组织内Agent做过非预期或未授权动作；只有12.5%能持续重建所有Agent从指令、工具、API到结果的完整链路，17.5%能够自动停止异常Agent。材料同时报告MCP相关基础设施在客户环境中的可见比例增加。值得关注的是，资产登记、轨迹重建和执行阻断并非同一能力；不过“确认或怀疑”的合并比例不能当作经过审计的事故发生率。",
+      "design": "调查涉及调用其他Agent、工具和API的多步工作流，但未公开具体部署架构；生产遥测用于观察MCP相关基础设施和API活动，也未说明全部采集与归因规则。编辑建议为一个业务Agent记录调用者、目标对象、委派关系、工具参数、审批和实际结果，并从业务系统日志反查遗漏路径。执行层在异常时冻结新任务、撤销短期凭证、阻止外部写入，由责任人检查已发生动作后批准恢复。日志和暂停按钮均须继承组织权限；来源未证明自动停止能覆盖缓存Token、旁路调用和在途事务。",
+      "evidence": "调查证据： 逾380份分析回答，技术行业占35%、金融保险16.7%；86.4%称有Agent运行，76.8%称存在Agent／工具调用链。厂商遥测： MCP相关设施检出比例由1月16.7%升至8月21.6%。局限： 调查依赖受访者理解、记忆和可见范围；“确认”与“怀疑”未在公开摘要中拆分，遥测也来自厂商客户，不能视为独立证据或行业随机样本。检测覆盖变化可能影响趋势。完整报告入口要求表单，本期仅核验公开摘要，未取得原始问卷、逐题分母及事故裁决。材料支持治理缺口的调查信号，不能证明近半企业发生了已确认越权，更不能验证某产品的控制效果。",
+      "idea": "为采购Agent选取50次只读查询和草稿生成任务，逐条对账指令、工具、审批及业务结果，并演练撤权和队列冻结。异常由采购负责人复核后恢复。以完整路径比例、未登记调用、错误阻断、P95撤权时间、在途动作残留和人工重建分钟数验收。",
+      "url": "https://salt.security/press-releases/state-of-agentic-ai-and-api-security-2h-2026",
+      "relatedLinks": [
+        {
+          "label": "研究解读",
+          "url": "https://salt.security/blog/agents-are-acting-most-organizations-cannot-stop-them"
+        },
+        {
+          "label": "完整报告获取入口",
+          "url": "https://content.salt.security/StateofAIAPI2H2026_LP.html"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct14-1.webp",
+        "alt": "Salt Security 官方标识",
+        "caption": "Salt Security 官方标识；非调查结果图。"
+      }
+    },
+    {
+      "type": "新独立监管报道＋监管原始信函＋历史恢复演练方法",
+      "source": "报道2026年10月13日；ECB信函7月7日｜Reuters、欧洲央行银行监管",
+      "title": "银行监管把Agent审批与恢复纳入询问，欧洲行动计划截止10月31日",
+      "summary": "Reuters新报道指出，美国银行监管者正在询问Agent的动作限制、审批、审计和停止能力，相关机构未公开确认具体询问内容。可直接核验的欧洲材料是ECB七月信函：重要机构须在10月31日前提交应对AI网络威胁的行动计划，包含漏洞修复、监测、第三方风险及响应恢复。其项目意义是把“部署安全工具”推进到“证明关键业务能够恢复”；这并非新颁布的统一Agent规则，人员责任、演练范围和完成证据仍须落实到机构自身。",
+      "design": "ECB信函要求银行在既有网络风险战略上形成具体措施、资源、责任人和实施时间，由联合监管团队跟踪；AI防御工具应先评估风险与收益，并保留治理、验证和人工监督。作为可复用方法，2024年演练直接假设预防失效、核心数据库受损，再测试应急与恢复。编辑建议将银行内部Agent限制为调查建议和修复草稿，实际隔离、补丁或账户变更分别批准；异常后先停执行，再恢复可信数据并核对未完成事务。监管材料未规定统一模型、检索组件、停机接口或自动恢复实现。",
+      "evidence": "确认事实： ECB信函明确行动计划截止2026年10月31日，并要求加强供应链、补丁、备份、故障转移及恢复安排。历史实证： 2024年压力测试中81家银行提供标准材料，28家另做实际IT恢复测试及现场质量核验。独立报道局限： 最新美国询问内容依赖匿名消息源，不能写成已发布强制要求；历史演练也不是Agent专门评测。尚未证明： 没有公开AI导致的银行损失分母、Agent停机效果或各机构恢复成绩。编辑判断是，提交计划、配置开关和完成恢复演练属于三个不同阶段；任何阶段都不能单独证明真实攻击下业务连续性。",
+      "idea": "为财务对账助手做一次故障演练：Agent只有只读权限，人工批准修正草稿；假设主数据库不可用，从可信快照恢复并检查重复记录。以恢复时间、数据丢失窗口、重复写入、凭证撤销、人工批准记录及恢复后账目一致性验收，形成可审阅证据。",
+      "url": "https://www.reuters.com/legal/litigation/banking-watchdogs-ramp-up-ai-scrutiny-stability-fears-mount-sources-say-2026-10-13/",
+      "relatedLinks": [
+        {
+          "label": "ECB原始行动计划信函",
+          "url": "https://www.bankingsupervision.europa.eu/press/letterstobanks/shared/pdf/2026/ssm.2026_letter_on_AI_enabled_cybersecurity_threats.en.pdf"
+        },
+        {
+          "label": "2024年恢复压力测试方法",
+          "url": "https://www.bankingsupervision.europa.eu/press/other-publications/publications/html/ssm.faq_cyber_resilience_stresstest~3a948c6d73.en.html"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct14-2.webp",
+        "alt": "欧洲央行银行监管网页配图",
+        "caption": "欧洲央行银行监管资料的官方配图。"
+      }
+    },
+    {
+      "type": "生产部署预印本＋开放检测代码与基准＋会议演示材料",
+      "source": "2026年5月17日论文；MLSys 2026演示｜Uber",
+      "title": "Uber ADR每天观察逾万次Agent会话，凭证检测精确率97.2%仍不代表全攻击覆盖",
+      "summary": "ADR针对企业Coding Agent的可观测性缺口：传统端点工具能看到文件和进程，却难以把用户目标、工具参数与结果连接起来。Uber通过端点Sensor重建会话，轻量模型先筛疑点，第二层结合工具代码、威胁情报和公司政策分析；离线红队再补充难例。作者报告十个月以上部署、覆盖逾7,200台主机、每日逾10,000次会话，并以执行前Hook阻止部分凭证外发。其可复制价值是将事后分析与即时阻断分开，不让一个检测分数承担所有安全职责。",
+      "design": "Sensor读取Cursor、Cline、Claude Code本地SQLite或JSONL缓存，关联提示、可用推理记录、MCP调用和环境；每小时采集一次，送后台两级检测。疑点升级后，分析Agent读取可信工具实现、威胁情报和政策；离线Explorer在沙箱生成攻击变体。实时凭证保护另用预提示Hook及正则、熵阈值，在发送前阻断。遥测尽可能脱敏、保存13个月，仅安全人员按最小权限访问。小时采集不能即时阻止一般危险动作；来源未完整披露检测失败默认策略、在途终止和人工恢复流程。",
+      "evidence": "部署方证据： 凭证Hook命中212个去重候选，其中206个真阳性、6个误报，精确率97.2%。开放评测： ADR-Bench含302任务、42恶意、260正常、133个MCP服务器和17种技术；检测约67%攻击，正常任务零误报。关键区分： 97.2%是凭证命中精确率，不是全部风险召回；零误报也只针对260个正常任务。局限： 生产指标由Uber自报，缺少已放行流量的漏检抽审、实际损失、长期成本和独立复现；基准受作者威胁分类与样本选择影响。约三分之一基准攻击未被检出，因此不能凭高精确率批准高权限自治，也不能把遥测中的模型解释当作可靠意图证据。",
+      "idea": "为一个代码维护团队记录完整工具轨迹，先只检测凭证外发与任务外目录访问；凭证规则执行前阻断，语义异常交安全人员。随机抽审已放行样本，以精确率、攻击召回、漏检、人工告警分钟数、阻断时延、采集覆盖和每千会话成本验收。",
+      "url": "https://arxiv.org/abs/2605.17380",
+      "relatedLinks": [
+        {
+          "label": "完整HTML、架构与生产指标",
+          "url": "https://arxiv.org/html/2605.17380"
+        },
+        {
+          "label": "开放仓库",
+          "url": "https://github.com/uber/ADR"
+        },
+        {
+          "label": "MLSys演示PDF",
+          "url": "https://mlsys.org/media/mlsys-2026/Slides/3853_k9cXWDE.pdf"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct14-3.webp",
+        "alt": "Uber ADR 开源仓库预览图",
+        "caption": "Uber ADR 开源仓库预览图。"
+      }
+    },
+    {
+      "type": "ACL同行评审行业论文＋生产视频改写＋线上A/B与训练消融",
+      "source": "2026年7月｜ACL 2026 Industry Track",
+      "title": "R3只改视频广告中的违规文本，三天A/B采用率相对提高21%",
+      "summary": "R3解决被拒视频广告的具体返工：修改口播和画面中的数量、绝对化、夸大及最高级表述，同时尽量保留广告原意。系统以Qwen3‑8B进行监督微调和分阶段强化学习，先学会合规，再约束编辑量与语义连贯，输出可定位的替换列表而非重写整片。三天线上A/B中，合规率由83.91%升至86.53%，广告主采用率相对提高21%。值得关注的是把“符合审核”与“客户愿意用”同时验收；短期采用结果仍不能证明广告效果或法律合规。",
+      "design": "视频先分离音轨和画面，ASR提取口播、OCR提取文字及坐标；违规检测器提供政策标签，改写模型输出源句与替换句的结构化列表，校验源句必须真实存在。重渲染以语音合成、时长和响度调整恢复音轨，再按OCR位置替换文字。训练奖励分别检查格式、合规、修改数量及语义一致性，未合规时不奖励次要目标。广告主采用构成业务介入，但论文未说明是否必须逐句批准；模型失败、声画不同步、低置信与超时回退未披露。声音克隆授权、素材访问和发布权限也未完整说明。",
+      "evidence": "同行评审实验： 私有训练集11,000例、留出集1,000例，覆盖四类政策；相对SFT，离线合规率82.58%升至85.50%，合规且连贯比例72.23%升至81.02%，平均修改句数7.70降至7.49。生产证据： 三天A/B采用率从标准化1.00升至1.21，但绝对流量与采用人数保密。局限： 合规由平台检测器、连贯由Gemini3‑Flash评价，训练与评价可能共享偏差；数据、成本、置信区间、点击和转化结果均未公开。模型固定于特定政策，规则变化仍需重新对齐。现有证据支持该平台短期返工改善，不能证明长期广告收益或适用于其他审核标准。",
+      "idea": "为电商视频做字幕修改助手，只覆盖两类绝对化宣传，展示原句、替换句和政策依据，广告主逐条接受后才生成版本；不自动克隆声音或发布。以合规率、原意保留、人工接受率、修改句数、声画错误、复核分钟数及每个可用版本成本验收。",
+      "url": "https://aclanthology.org/2026.acl-industry.24/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF、生产流程与实验表",
+          "url": "https://aclanthology.org/2026.acl-industry.24.pdf"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct14-4.webp",
+        "alt": "R3 论文缩略图",
+        "caption": "ACL 论文缩略图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "可对账的Agent停止与恢复演练",
+      "description": "选择采购、财务或代码维护中的单一流程，对账任务、工具和业务结果；异常时撤权、冻结队列、恢复可信快照并核对部分完成动作。以路径覆盖、真实阻断、残留会话、数据一致性和恢复工时验收。",
+      "tags": [
+        "Agent停止",
+        "恢复演练"
+      ]
+    },
+    {
+      "title": "有限修改的业务产物助手",
+      "description": "选择广告字幕、产品描述或客服回复，仅提出可定位、带依据的修改；人员批准后才生成最终版本。将规则符合、原意保留、人工采用和实际返工分别测量，使用单位合格产物总成本决定是否扩大范围。",
+      "tags": [
+        "有限修改",
+        "业务产物"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "takeaways": [
+        "Salt survey: 49.8% of respondents confirmed or suspected that the Agent was abnormal, and only 17.5% had the ability to automatically stop",
+        "Banking supervision includes Agent approval and recovery in inquiries, and the European action plan ends on October 31",
+        "Uber ADR observes more than 10,000 Agent sessions every day, and the credential detection accuracy rate of 97.2% still does not mean full attack coverage.",
+        "R3 only changed the illegal text in video ads, and the A/B adoption rate increased by 21% in three days."
+      ],
+      "items": [
+        {
+          "relatedLinks": [
+            {
+              "label": "Research interpretation"
+            },
+            {
+              "label": "Access to the complete report"
+            }
+          ],
+          "image": {
+            "caption": "Official Salt Security logo; not a survey result image.",
+            "alt": "Salt Security official logo"
+          },
+          "title": "Salt survey: 49.8% confirm or suspect unexpected agent actions; only 17.5% can stop them automatically",
+          "type": "New enterprise survey + vendor production telemetry + execution-path and containment assessment",
+          "source": "October 13, 2026｜Salt Security, Salt Labs",
+          "summary": "Salt Security's new survey crystallizes Agent governance issues into action paths: 49.8% of respondents confirmed or suspected that agents in the organization had taken unexpected or unauthorized actions in the past year; only 12.5% ​​were able to continuously reconstruct the complete paths of all agents from instructions, tools, APIs to results, and 17.5% were able to automatically stop abnormal agents. The material also reports an increase in the visible proportion of MCP-related infrastructure in customer environments. It is worth noting that asset registration, trajectory reconstruction and execution blocking are not the same capabilities; however, the \"confirmed or suspected\" combined ratio cannot be regarded as an audited incident rate.",
+          "idea": "Select 50 read-only queries and draft generation tasks for the Procurement Agent, reconcile instructions, tools, approvals and business results one by one, and rehearse credential revocation and queue freezing. The procurement owner reviews anomalies before recovery. Acceptance is based on complete path ratio, unregistered calls, error blocking, P95 revocation time, residual in-flight actions and manual reconstruction minutes.",
+          "design": "The investigation involves a multi-step workflow that calls other agents, tools, and APIs, but the specific deployment architecture is not disclosed; production telemetry is used to observe MCP-related infrastructure and API activities, and all collection and attribution rules are not explained. The editor recommends recording the caller, target object, delegation relationship, tool parameters, approval and actual results for a business agent, and checking the missing paths from the business system log. The execution layer freezes new tasks, revokes short-term credentials, and prevents external writes when exceptions occur. The responsible person checks the actions that have taken place and then approves the recovery. Both the log and the pause button must inherit organizational permissions; the source has not proven that automatic stop can cover cached tokens, bypass calls, and in-transit transactions.",
+          "evidence": "Survey evidence: More than 380 analyzed responses, of which 35% were from the technology industry and 16.7% were from the financial and insurance industries; 86.4% said there was an Agent running, and 76.8% said there was an Agent/tool ​​call chain. Vendor telemetry: The detection rate of MCP-related facilities increased from 16.7% in January to 21.6% in August. Limitations: The survey relies on respondent understanding, memory, and visibility; \"confirmation\" and \"suspect\" are not separated in the public summary, and telemetry also comes from the vendor’s customers and cannot be considered independent evidence or a random sample of the industry. Changes in detection coverage may affect the trend. The full report requires a form; this issue verified only the public summary and did not obtain the questionnaire, per-question denominators, or incident adjudications. The materials indicate a survey signal of governance gaps, not proof that nearly half of companies experienced confirmed unauthorized actions or that any product controls them."
+        },
+        {
+          "relatedLinks": [
+            {
+              "label": "ECB original action plan letter"
+            },
+            {
+              "label": "2024 Recovery Stress Testing Methodology"
+            }
+          ],
+          "image": {
+            "alt": "Image from the European Central Bank’s banking supervision webpage",
+            "caption": "Official illustration of the European Central Bank's banking supervisory information."
+          },
+          "title": "Banking supervisors ask about agent approvals and recovery; European action plans are due October 31",
+          "source": "Report October 13, 2026; ECB letter July 7 | Reuters, ECB banking supervision",
+          "type": "New independent regulatory reports + original regulatory letters + historical recovery drill methods",
+          "idea": "Conduct a failure drill for the Financial Reconciliation Assistant: the Agent has only read-only permissions and a person approves any proposed correction; assume the primary database is unavailable, restores from a trusted snapshot and checks for duplicate records. Reviewable evidence is formed based on recovery time, data loss window, repeated writing, credential revocation, manual approval records and post-recovery ledger consistency.",
+          "evidence": "Confirmed facts: The ECB letter sets the action-plan deadline at October 31, 2026, and requires strengthening supply chain, patching, backup, failover and recovery arrangements. Historical evidence: In the 2024 stress test, 81 banks provided standard materials, and 28 banks conducted actual IT recovery tests and on-site quality inspections. Limitations of independent reporting: The latest U.S. inquiry content relies on anonymous sources and cannot be written as issued mandatory requirements; historical exercises are not Agent-specific evaluations. Not yet proven: There is no disclosure of the denominator of bank losses caused by AI, the effects of agent shutdowns, or the recovery performance of each institution. The editor's judgment is that submitting the plan, configuring a control, and completing the recovery drill belong to three different stages; no stage alone can prove business continuity under a real attack.",
+          "design": "The ECB letter requires banks to formulate specific measures, resources, responsible persons and implementation time on the existing cyber risk strategy, which will be tracked by the Joint Supervisory Teams; AI defense tools should first assess risks and benefits, and retain governance, verification and human oversight. As a reusable method, the 2024 drill directly assumes preventive controls fail and a core database is damaged, and then tests emergency response and recovery. The editor recommends limiting the bank's internal agents to investigation suggestions and repair drafts, and approving actual isolation, patches, or account changes separately; first stop execution after an exception, then restore trusted data and check unfinished transactions. Regulatory materials do not specify a unified model, retrieval component, shutdown interface, or automatic recovery implementation.",
+          "summary": "A new Reuters report pointed out that U.S. bank regulators are asking about Agent's action restrictions, approvals, audits and suspension capabilities. Relevant agencies have not publicly confirmed the specific inquiry content. The European material that can be directly verified is the ECB's July letter: Significant institutions must submit action plans to deal with AI cyber threats before October 31, including vulnerability repairs, monitoring, third-party risks and incident response and recovery. The significance of the practical significance is moving from \"deployment of security tools\" to \"prove that key services can be restored\"; this is not a newly promulgated unified agent rule. Human accountability, drill scope and completion evidence must still be implemented by the organization itself."
+        },
+        {
+          "relatedLinks": [
+            {
+              "label": "Full HTML, architecture and production metrics"
+            },
+            {
+              "label": "open warehouse"
+            },
+            {
+              "label": "MLSys demo PDF"
+            }
+          ],
+          "image": {
+            "alt": "Uber ADR open source warehouse preview",
+            "caption": "Preview of Uber ADR open source warehouse."
+          },
+          "type": "Production deployment preprint + open detection code and benchmark + conference presentation materials",
+          "source": "Paper May 17, 2026; MLSys 2026 Demo | Uber",
+          "title": "Uber ADR observes over 10,000 agent sessions daily; 97.2% credential-alert precision does not mean full attack coverage",
+          "evidence": "Deployer’s evidence: Credential Hook hit 212 deduplicated candidates, including 206 true positives and 6 false positives, with an precision of 97.2%. Open evaluation: ADR-Bench contains 302 tasks, 42 malicious, 260 normal, 133 MCP servers and 17 technologies; it detects about 67% of attacks and zero false positives for normal tasks. Key distinction: 97.2% is the credential-alert precision, not the recall of all risks; zero false positives are only for 260 normal tasks. Limitations: Production indicators are self-reported by Uber and lack random inspections of allowed traffic, actual losses, long-term costs and independent replication; the benchmark is affected by the author's threat classification and sample selection. About one-third of benchmark attacks are not detected, so high-privilege autonomy cannot be approved with high accuracy, nor can model interpretation in telemetry be relied upon as reliable evidence of intent.",
+          "design": "Sensor reads the local SQLite or JSONL cache of Cursor, Cline, and Claude Code, links prompts, available inference records, MCP calls, and environment; it is collected once an hour and sent to the background for two-level detection. When a suspicious case is escalated, the analysis agent reads the trusted tool implementation, threat intelligence, and policies; the offline explorer generates attack variants in the sandbox. Real-time credential protection also uses pre-prompt hooks and regex and entropy thresholds to block before sending. Telemetry is redacted as much as possible and stored for 13 months, with only security personnel having least-privilege access. Hourly collection cannot immediately prevent common dangerous actions; the source does not fully disclose the default policy for detection failure, termination in transit, and manual recovery process.",
+          "idea": "Record the complete tool trace for a code maintenance team. First, only detect credential exfiltration and access to directories outside the task; block matching credential exfiltration before execution, and report semantic anomalies to security personnel. Randomly audit allowed samples and evaluate precision, attack recall, missed detections, analyst minutes per alert, blocking delay, collection coverage, and cost per thousand sessions.",
+          "summary": "ADR targets the observability gap of enterprise coding agents: traditional endpoint tools can see files and processes, but it is difficult to connect user goals, tool parameters and results. Uber reconstructs the session through the endpoint Sensor. The lightweight model first flags suspicious cases. The second layer combines tool code, threat intelligence and company policy analysis; the offline red team then adds difficult cases. The authors report that it has been deployed for more than ten months, covering more than 7,200 hosts, with more than 10,000 sessions per day, and uses pre-execution hooks to prevent some credentials from being sent out. Its replicable value is to separate post-analysis from immediate blocking and not let one detection score bear all security responsibilities."
+        },
+        {
+          "relatedLinks": [
+            {
+              "label": "Complete PDF, production process and experimental table"
+            }
+          ],
+          "image": {
+            "alt": "R3 paper thumbnail",
+            "caption": "ACL paper thumbnail."
+          },
+          "title": "R3 edits only noncompliant text in video ads; advertiser adoption rose 21% relatively in a three-day A/B test",
+          "source": "July 2026｜ACL 2026 Industry Track",
+          "design": "The video is first separated from the audio track and the picture, ASR extracts the spoken words, and OCR extracts the text and coordinates; the violation detector provides policy labels, and the rewrite model outputs a structured list of source sentences and replacement sentences, and verifies that the source sentences must actually exist. Re-render to restore the audio track with speech synthesis, duration and loudness adjustments, and then replace text by OCR position. Training rewards are checked for format, compliance, number of modifications, and semantic consistency respectively. If compliance is not met, secondary goals will not be rewarded. The advertiser's adoption constitutes business intervention, but the paper does not explain whether it must be approved sentence by sentence; model failure, audio and video out of sync, low confidence, and timeout fallback were not disclosed. Voice-cloning consent, material access and publishing rights are also not fully explained.",
+          "type": "ACL peer-reviewed industry papers + production video rewriting + online A/B and training ablation",
+          "summary": "R3 addresses rework for rejected video ads: modifying the numbers, absolute claims, exaggerations, and superlatives in speech and on-screen text, while trying to retain the original meaning of the advertisement. The system uses Qwen3‑8B for supervised fine-tuning and staged reinforcement learning. It first learns compliance, then restricts the amount of editing and semantic coherence, and outputs a locatable list of replacements instead of rewriting the entire film. In the three-day online A/B test, the compliance rate increased from 83.91% to 86.53%, and the advertiser adoption rate increased by 21%. What deserves attention is the simultaneous acceptance of \"compliance with audit\" and \"customer willingness to use\"; short-term adoption results still cannot prove advertising effectiveness or legal compliance.",
+          "evidence": "Peer review experiment: 11,000 private training examples and 1,000 held-out examples, covering four types of policies; compared with SFT, the offline compliance rate increased from 82.58% to 85.50%, the compliant-and-coherent rate increased from 72.23% to 81.02%, and the average number of revised sentences dropped from 7.70 to 7.49. Production evidence: The three-day A/B adoption rate increased from a normalized 1.00 to 1.21, but the absolute traffic and number of adopters are kept confidential. Limitations: Compliance is evaluated by the platform detector, and consistency is evaluated by Gemini3‑Flash. Training and evaluation may share biases; data, costs, confidence intervals, clicks, and conversion results are not made public. The model is fixed to a specific policy, and changes in rules still require realignment. Existing evidence supports short-term rework improvements on the platform and does not demonstrate long-term advertising benefits or apply to other review criteria.",
+          "idea": "A subtitle modification assistant for e-commerce videos. It only covers two types of absolute claims, showing the original sentence, replacement sentences and policy basis. The advertiser will only generate a version after accepting each clause; it will not automatically clone voices or publish it. Acceptance is based on compliance rate, original meaning retention, manual acceptance rate, number of revised sentences, audio and video errors, review minutes and cost of each usable version."
+        }
+      ],
+      "projectIdeas": [
+        {
+          "tags": [
+            "Agent stop",
+            "Recovery drill"
+          ],
+          "description": "Select a single process in procurement, finance or code maintenance to reconcile tasks, tools and business results; revoke credentials, freeze queues, restore trusted snapshots and verify partially completed actions when anomalies occur. Evaluate path coverage, true blocking, residual sessions, data consistency and recovery time.",
+          "title": "Auditable agent stop-and-recovery drill"
+        },
+        {
+          "tags": [
+            "Limited edits",
+            "Business output"
+          ],
+          "title": "Business-output assistant for bounded edits",
+          "description": "Select advertising subtitles, product descriptions or customer service replies, and only propose modifications that are locatable and evidence-based; the final version will be generated only after approval. Measure compliance with rules, retention of original meaning, manual adoption and actual rework respectively, and use the total cost per unit of qualified outputs to decide whether to expand the scope."
+        }
+      ],
+      "thesis": "This issue contains two new investigative or regulatory reports on October 13, as well as two previously not covered studies with production trajectories or online controls. The common question is: after an anomaly is discovered, can the system prevent the action in time and recover from a trusted state? The survey self-evaluation, production detection accuracy, attack recall and business adoption rate answer different questions; this issue retains their denominators and limitations respectively, and does not directly interpret \"seeing risks\" as \"having controlled risks\".",
+      "contrarian": "Four sets of materials break down control into three inspectable stages. Salt investigation focuses on whether assets can be discovered and actions reconstructed; Uber ADR provides specific collection and detection mechanisms, while showing that immediate blocking must still be implemented independently; bank regulatory materials require proof of recovery capabilities after prevention failure; R3 implements control into the limited modification and user adoption of business products. Monitoring, blocking, recovery and service acceptance require different responsible persons and evidence. The numerical caliber is particularly important: 49.8% combines confirmed and suspected, which cannot be regarded as an incident rate; 97.2% is the credential hit accuracy rate, which cannot be regarded as an attack recall; submitting an action plan does not mean recovery success; a 21% increase in adoption rate does not mean a 21 percentage point increase or a 21% increase in advertising revenue. The most robust project principles in this period are: limiting the scope of execution, retaining manual approval, randomly reviewing release results, and actually practicing stopping and recovery after exceptions."
+    }
+  },
+  "contentHash": "c39458bd88c0f3d3"
+}
