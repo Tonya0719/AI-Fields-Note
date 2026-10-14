@@ -1,0 +1,267 @@
+{
+  "issue": "ISSUE 048",
+  "date": "2026.09.15",
+  "thesis": "本期纳入两项9月14日的新发布，以及三项此前未覆盖、但具有生产实验或开放评测资产的研究。跨来源信号是：接入更多数据、工具和决策环节，并不会自然形成可靠工作流。企业需要分别验证资料可见范围、全部约束是否同时满足、版本更新能否回滚，以及系统在真实协作者和市场参与者变化后是否仍然有效。",
+  "takeaways": [
+    "Claude接入财富管理系统，但投资建议和客户沟通仍须人工批准",
+    "Morgan & Morgan的MX2已有近5,000名月度用户，但曾产出虚假判例",
+    "LinkedIn让客服Agent版本化自我改进，随机实验中问答自助率提高9个百分点",
+    "EnterpriseRAG：单项约束满足83.8%，全部同时满足仅26.8%"
+  ],
+  "contrarian": "五组材料揭示了四层不同的可靠性问题。Claude和MX2说明，连接权威业务系统、积累大量用户或投入巨额资金，都不能替代动作级批准与引用核验；LinkedIn则展示了较完整的版本化改进、灰度和回滚闭环。EnterpriseRAG证明逐项看似合格的回答，组合起来可能大面积失效；ERPBench进一步说明，即使同一任务与评分器不变，协作者或竞争者改变也会重排模型表现。 目前证据最强的是LinkedIn的用户随机实验，但它仍只有两周且不能拆分组件贡献。两个9月14日发布提供真实集成或使用规模，却没有业务对照；EnterpriseRAG与ERPBench开放了更严格的评估问题，但仍属于受控模拟。企业验收因此至少要同时覆盖：数据与动作权限、全部约束的端到端通过率、变更相对旧版本的增益，以及环境或参与者变化后的最坏结果。",
+  "items": [
+    {
+      "type": "新产品发布＋独立新闻核验＋金融工作流集成",
+      "source": "2026年9月14日｜Anthropic、Reuters、Charles Schwab",
+      "title": "Claude接入财富管理系统，但投资建议和客户沟通仍须人工批准",
+      "summary": "Claude for Financial Advisors把托管账户、投资分析、CRM、财务规划、遗产规划和会议记录工具接入同一工作区，提供会前准备、组合复核、客户跟进、潜客录入及另类投资摘要等预制流程。它可读取余额、持仓、交易、成本基础和资金移动状态，但定位仍是顾问助手：投资建议、合规判断与对客材料必须由持牌人员复核，行政写入也先进入待批准状态。",
+      "design": "顾问提交客户或组合任务后，Claude通过已启用的连接器读取BlackRock、Schwab、Addepar、Envestnet、iCapital、Orion、Wealthbox等系统中的授权数据；Skills负责按固定步骤整理会议包、再平衡分析、税务或遗产摘要，并可依据SEC Marketing Rule筛查表述。CRM更新和通信草稿只暂存，关键决定由顾问批准。企业版提供审计日志，但公开材料未说明字段级权限、证据过期提示、错误交易状态处理、连接器超时恢复及撤权传播时延。",
+      "evidence": "确认事实： Reuters独立确认产品已经发布及主要合作方、连接器和工作流范围；Anthropic明确把投资建议、客户通信和合规结论保留给人。厂商主张： 集成可减少跨系统查找、加快会前准备与后续记录。尚未证明： 没有公开顾问人数、任务样本、节省分钟数、引用准确率、错误持仓率、合规漏报、客户结果或单位成本，也没有生产对照。连接器能够读取权威系统不代表模型能正确解释税务、产品限制或客户适当性，因此当前证据只支持“工作流已集成”，不能支持“建议可靠或产生投资价值”。",
+      "idea": "为财富顾问做单一客户的“会前证据包”：只读取持仓、最近交易和会议记录，输出来源时间、异常变化及待确认问题，不生成买卖建议。顾问逐项签字后归档；以资料遗漏率、数值一致率、过期证据数、修改率、准备分钟数和每份成本验收。",
+      "url": "https://www.reuters.com/business/anthropic-targets-financial-advisers-with-new-claude-tool-2026-09-14/",
+      "relatedLinks": [
+        {
+          "label": "Claude for Financial Advisors产品说明",
+          "url": "https://claude.com/blog/claude-for-financial-advisors"
+        },
+        {
+          "label": "Charles Schwab合作说明",
+          "url": "https://pressroom.aboutschwab.com/press-releases/default.aspx"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep15-1.webp",
+        "alt": "Claude for Financial Advisors 发布页配图",
+        "caption": "Anthropic 原始产品页面配图。"
+      }
+    },
+    {
+      "type": "独立新闻＋真实法律部署＋已确认失败事件",
+      "source": "2026年9月14日｜Reuters；Morgan & Morgan",
+      "title": "Morgan & Morgan的MX2已有近5,000名月度用户，但曾产出虚假判例",
+      "summary": "美国人身伤害律所Morgan & Morgan称已投入3亿美元建设内部AI平台MX2，用于提取医疗信息、生成案件文件和准备庭审，现有近5,000名月度用户，并计划未来十年再投入至少10亿美元，最晚于2027年底邀请其他律所使用。规模说明法律AI已进入日常生产，但同一机构曾有律师把内部AI生成的虚假判例写入法院文件，形成可核查的质量反例。",
+      "design": "公开报道仅披露MX2的三类用途，没有说明底层模型、医疗文档解析、法律检索、引用绑定、客户隔离或权限架构。合理且必要的边界并非已确认事实：医疗抽取应保留页码与原文，判例须通过权威法律数据库确定性核验，诉状和庭审材料只能生成草稿，由经办律师批准后提交。律所称已加强培训和输出复核，但未披露系统是否会阻止不存在的判例、如何记录审阅人，以及低置信度、超时、数据冲突和误提交后的撤回流程。",
+      "evidence": "确认事实： Reuters核实了3亿美元既有投入、近5,000名月度用户、1,100多名律师及对外销售计划。2025年联邦法官因三名律师引用虚假AI判例合计罚款5,000美元，其中一人被移出案件；该律师称内容来自内部AI程序。机构主张： MX2能帮助医疗抽取、文件生成和庭审准备，新增投资还将覆盖安全与培训。局限： 没有活跃任务数、正确率、处理时长、节省费用、案件结果或事故分母，也不能确认当年的程序是否为当前MX2版本。投入和用户数证明采用规模，不能证明质量提升。",
+      "idea": "为诉讼团队做“医疗记录引用检查器”：只抽取五类损伤、日期和治疗费用，每项必须绑定页码与原文；冲突或缺页即转律师，不自动写入诉状。以字段准确率、引用可追溯率、漏项率、律师修改分钟数、错误提交数和每案成本验收。",
+      "url": "https://www.reuters.com/legal/legalindustry/us-personal-injury-law-firm-morgan-morgan-touts-1-billion-ai-investment-plans-2026-09-14/",
+      "relatedLinks": [
+        {
+          "label": "2025年虚假判例制裁事件",
+          "url": "https://www.reuters.com/legal/government/judge-fines-lawyers-walmart-lawsuit-over-fake-ai-generated-cases-2025-02-25/"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep15-2.webp",
+        "alt": "Morgan & Morgan 官方标识",
+        "caption": "Morgan & Morgan 官方标识；非 MX2 界面截图。"
+      }
+    },
+    {
+      "type": "企业预印本＋两周生产随机A/B＋版本化RAG与回滚",
+      "source": "2026年8月10日｜LinkedIn",
+      "title": "LinkedIn让客服Agent版本化自我改进，随机实验中问答自助率提高9个百分点",
+      "summary": "LinkedIn公开一个自我演进客服系统：Agent按需调用RAG，评估器持续检查依据、完整性、路由和多语言质量，外层优化器再修改Prompt与检索配置。改进不会直接写入隐式长期记忆，而是形成版本化Artifact，经离线回归、小流量部署和监控后晋级。两周用户随机实验中，产品问答自助率由33.7%升至42.7%，取消流程自助率由61.9%升至66.6%。",
+      "design": "线上GPT‑4o-mini接收对话并决定是否调用混合检索，稠密与稀疏召回后重排带来源、语言和版本的帮助内容；任务内状态维持对话连续性，长期知识只能通过版本库更新。GPT‑4.1评估器分别检查Groundedness、相关性、完整性和翻译，遗传式优化对Prompt做选择、交叉和变异，业务硬规则过滤候选。候选先回放历史及合成边界案例，再灰度上线；指标退化即回滚。索引污染时可把查询切回安全内容池，将恢复从数小时缩至数分钟。",
+      "evidence": "生产实验： 用户固定50/50随机分组，原生产Agent为对照；实验原计划四周，在两周时因功效超过99.9%且校正后显著而结束。问答自助率提升9.0个百分点，95%CI为8.4–9.6；取消自助率提升4.8点，路由准确率由38.2%升至68.8%，三项均经Holm校正。离线证据： 完整系统幻觉率低于0.1%，但该结果依赖GPT‑4.1评委。局限： 未公布用户量、绝对投诉、人工成本和长期保持效果；实验同时改变Prompt、RAG和评估闭环，不能归因于单一组件，作者与部署方也相同。",
+      "idea": "为内部IT问答建立版本化改进闭环：只覆盖VPN和账号解锁，每次Prompt或索引变化生成候选版本，冻结集回放后仅向10%流量开放；质量下降自动回滚。以自助解决率、无支持主张率、正确路由、回滚时延、人工分钟数和版本负增益率验收。",
+      "url": "https://arxiv.org/abs/2608.10224",
+      "relatedLinks": [
+        {
+          "label": "完整PDF与生产实验",
+          "url": "https://arxiv.org/pdf/2608.10224"
+        }
+      ],
+      "image": {
+        "src": "/cases/customer-service-rag.png",
+        "alt": "客服 RAG 工作流相关示意图",
+        "caption": "相关既有配图；非 LinkedIn 原论文图。"
+      }
+    },
+    {
+      "type": "新预印本＋企业日志派生评测＋多约束RAG基准",
+      "source": "2026年8月12日｜华为、复旦大学等",
+      "title": "EnterpriseRAG：单项约束满足83.8%，全部同时满足仅26.8%",
+      "summary": "EnterpriseRAG从真实企业查询出发，构造983个经专家验证的文本RAG案例，覆盖能源、医疗、法律、金融等六个领域，并分别注入40%–60%无关资料、知识缺口和事实冲突。它不只检查答案内容，还要求模型同时遵守身份、输出、知识使用和交互协议。13个模型中，最佳单项约束满足率达到83.8%，但完整回答全部合规的比例仅26.8%，形成57个百分点的编排断层。",
+      "design": "每个案例由用户问题、多约束指令和检索文档包组成；原始日志先去敏，491个真实查询扩展成983个受控实例。混合BM25与稠密检索生成文档，再注入无关材料、无法回答的问题或相互矛盾的证据；规则和推理模型分别评估Faithfulness、答案覆盖、宽松／严格指令遵循、拒答和冲突识别。它是离线测试而非部署架构，没有用户身份、工具写入或人工接管。生产RAG应把证据充分性与冲突状态转成显式门，失败时停止回答并交资料所有者。",
+      "evidence": "预印本证据： 13个模型中，Qwen3‑235B Thinking的宽松遵循率83.8%、严格遵循率26.8%；知识缺口下最佳拒答准确率仅42.7%，Qwen3‑30B Instruct有93.4%的不可回答案例仍继续作答。事实冲突识别最高为DeepSeek‑R1的44.3%，GPT‑4.1仅18.5%。局限： 约束和非理想情境经过LLM辅助生成，最终评估也依赖推理模型；严格指标为全有或全无，可能放大轻微格式错误。原始日志不能公开，去敏基准与生成流水线仍是计划发布，当前外部复现能力有限；这些数字不能直接推算生产事故率。",
+      "idea": "为合规问答制作50题“非理想检索集”：每题加入无关文档、缺失答案或冲突版本，并定义必须引用、拒答和升级的协议。模型仅在证据充分且版本一致时输出；以严格全约束通过率、错误作答率、冲突识别率、转人工率和复核分钟数验收。",
+      "url": "https://arxiv.org/abs/2608.11584",
+      "relatedLinks": [
+        {
+          "label": "完整PDF与评测明细",
+          "url": "https://arxiv.org/pdf/2608.11584"
+        }
+      ],
+      "image": {
+        "src": "/cases/enterprise-rag-constraints.jpg",
+        "alt": "企业 RAG 约束相关示意图",
+        "caption": "相关既有配图；非本期论文原图。"
+      }
+    },
+    {
+      "type": "新开放基准＋多Agent ERP仿真＋可执行状态评估",
+      "source": "2026年9月4日｜GAIR、上海交通大学",
+      "title": "ERPBench中模型冠军随竞争环境改变，100题仅21题保持同一赢家",
+      "summary": "ERPBench让Agent在六轮企业经营仿真中同时决定定价、生产、采购、库存和融资，并受共享市场竞争影响。同样100个问题分别运行于两种环境：Solo模式让单个模型对抗固定规则对手，Arena模式让六类LLM彼此竞争。DeepSeek在Solo领先，Gemini却在Arena领先；两种环境仅21题选出同一赢家，说明静态基准排名很可能无法外推到会响应和适应的真实组织生态。",
+      "design": "每题初始化企业资产、需求、供应及财务约束，Agent逐轮提交经营决策，ERP执行器确定性更新库存、现金、销售和估值并保留轨迹。Solo中的其他企业遵循固定规则，便于控制变量；Arena让六个被测Agent共享市场，某一方调价或扩产会改变其他方下一轮输入。评分比较最终估值、名次、垫底率和执行干预。代码与基准已公开，但环境没有真实员工审批、供应商谈判、法规权限、异常交易补偿或人工接管；模型超时与非法动作的恢复细节也不足。",
+      "evidence": "确认数据： 六个模型家族在100题、两种生态中形成1,200条模型轨迹和7,200轮决策。DeepSeek在Solo平均估值2.5229亿、平均名次1.67；Gemini在Arena为2.6395亿、平均名次1.76，其垫底率由Solo的22%降至Arena的0%。编辑判断： 排名翻转证明评估结果依赖对手行为，不证明Arena更接近任何具体产业。局限： 估值由仿真规则定义，任务只有六轮，需求、竞争者和信息结构均为预设；没有真实价格、人员拒绝、执行成本或长期风险，因此不能用结果选择生产经营Agent，更不能证明自动决策优于管理团队。",
+      "idea": "为库存团队建立双环境Shadow评测：同一补货Agent先对固定历史需求运行，再加入会改变价格和交期的模拟供应商；所有订单只生成预览，由采购批准。比较两环境的缺货率、库存成本、非法动作、排名稳定性、人工修改率和最坏情境损失。",
+      "url": "https://arxiv.org/abs/2609.04667",
+      "relatedLinks": [
+        {
+          "label": "ERPBench代码与运行资源",
+          "url": "https://github.com/GAIR-NLP/erp-bench"
+        }
+      ],
+      "image": {
+        "src": "/cases/erp-schema-selector.jpg",
+        "alt": "ERP 数据结构相关示意图",
+        "caption": "相关既有配图；非 ERPBench 原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "Evidence-Bound Professional Drafting",
+      "description": "面向法律、财富管理或合规团队，只让Agent生成带原始页码、系统时间和字段来源的内部草稿；任何缺证据、冲突或外部发送都转人工。用引用一致率、错误事实、人工修改率、批准时间和错误提交数验收。",
+      "tags": [
+        "Evidence",
+        "Bound"
+      ]
+    },
+    {
+      "title": "Environment-Sensitive Release Gate",
+      "description": "同一Agent版本先在固定历史案例中成对测试，再加入会响应其动作的用户、供应商或协作角色仿真；只有全约束通过且最坏损失未扩大才灰度发布。以版本增益、严格通过率、排名翻转率、回滚时延和尾部损失形成发布门。",
+      "tags": [
+        "Environment",
+        "Sensitive"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue includes two new releases on September 14, as well as three previously uncovered studies that have production experiments or open evaluation assets. The cross-source signal is that adding more data, tools, and decision-making links will not automatically form a reliable workflow. Enterprises need to separately verify the data visibility range, whether all constraints are met at the same time, whether version updates can be rolled back, and whether the system is still effective after changes in real collaborators and market participants.",
+      "takeaways": [
+        "Claude is connected to the wealth management system, but investment advice and client communications still require human approval.",
+        "Morgan & Morgan's MX2 has nearly 5,000 monthly users but has produced false precedents",
+        "LinkedIn allows customer service agents to version and improve themselves, increasing the Q&A self-service rate by 9 percentage points in a random experiment",
+        "EnterpriseRAG: 83.8% of individual constraints are met, and only 26.8% of all constraints are met at the same time."
+      ],
+      "contrarian": "Five sets of materials revealed four different layers of reliability issues. Claude and MX2 showed that connecting to authoritative business systems, accumulating a large number of users, or investing huge amounts of money cannot replace action-level approval and reference verification; LinkedIn demonstrated a more complete versioning improvement, grayscale, and rollback closed loop. EnterpriseRAG proves that answers that appear to be qualified one by one may fail in large areas when combined; ERPBench further explains that even if the same task and scorer remain unchanged, changes in collaborators or competitors will rearrange model performance. The strongest evidence currently is LinkedIn's user randomized experiment, but it is still only two weeks long and cannot split component contributions. The two September 14 releases provide real integration or usage scale, but no business comparison; EnterpriseRAG and ERPBench open up more rigorous evaluation questions, but are still controlled simulations. Enterprise acceptance must therefore at least cover both: data and action permissions, end-to-end pass rate of all constraints, the gain of the change compared to the old version, and the worst-case consequences of changes in the environment or participants.",
+      "items": [
+        {
+          "type": "New product launch + independent news verification + financial workflow integration",
+          "source": "September 14, 2026｜Anthropic, Reuters, Charles Schwab",
+          "title": "Claude is connected to the wealth management system, but investment advice and client communications still require human approval.",
+          "summary": "Claude for Financial Advisors integrates managed accounts, investment analysis, CRM, financial planning, estate planning and meeting recording tools into the same workspace, providing pre-built processes such as pre-meeting preparation, portfolio review, client follow-up, lead entry and alternative investment summaries. It can read balances, positions, transactions, cost basis and fund movement status, but it is still positioned as an advisory assistant: investment suggestions, compliance judgments and client materials must be reviewed by licensed personnel, and administrative writing also enters the pending approval state.",
+          "design": "After an advisor submits a client or portfolio task, Claude reads authorized data from BlackRock, Schwab, Addepar, Envestnet, iCapital, Orion, Wealthbox and other systems through enabled connectors; Skills is responsible for organizing meeting packages, rebalancing analysis, tax or estate summaries in fixed steps, and can screen representations according to SEC Marketing Rules. CRM updates and draft communications are only staged and key decisions are approved by the consultant. The enterprise version provides audit logs, but the public materials do not describe field-level permissions, evidence expiration prompts, error transaction status processing, connector timeout recovery, and rights revocation propagation delays.",
+          "evidence": "Confirmed facts: Reuters independently confirmed that the product has been released and the main partners, connectors and workflow scope; Anthropic clearly reserves investment advice, customer communications and compliance conclusions to others. Vendor claims: Integration reduces cross-system searches and speeds up pre-meeting preparation and follow-up recording. Not yet proven: There is no disclosure of consultant headcount, task samples, minutes saved, citation accuracy, false holding rates, compliance misses, client results or unit costs, and no production controls. The ability of a connector to read authoritative systems does not mean that the model correctly interprets tax, product restrictions or customer suitability, so the current evidence only supports \"workflows are integrated\", not \"recommendations are reliable or generate investment value\".",
+          "idea": "Create a \"pre-meeting evidence package\" for a single client for wealth advisors: only read positions, recent transactions and meeting records, output source timestamps, abnormal changes and pending issues, and do not generate buying and selling recommendations. The consultant signs each item and files it; the acceptance is based on the data omission rate, numerical consistency rate, number of expired evidence, modification rate, preparation minutes and cost of each document.",
+          "relatedLinks": [
+            {
+              "label": "Claude for Financial Advisors Product Description"
+            },
+            {
+              "label": "Charles Schwab Cooperation Instructions"
+            }
+          ],
+          "image": {
+            "alt": "Image of Claude for Financial Advisors release page",
+            "caption": "Image from Anthropic's original product page."
+          }
+        },
+        {
+          "type": "Independent news + real legal deployment + confirmed failures",
+          "source": "September 14, 2026 | Reuters; Morgan & Morgan",
+          "title": "Morgan & Morgan's MX2 has nearly 5,000 monthly users but has produced false precedents",
+          "summary": "American personal injury law firm Morgan & Morgan said it has invested US$300 million to build its internal AI platform MX2, which is used to extract medical information, generate case documents and prepare for court hearings. It currently has nearly 5,000 monthly users, and plans to invest at least another US$1 billion in the next ten years and invite other law firms to use it by the end of 2027 at the latest. The scale shows that legal AI has entered daily production, but a lawyer in the same institution once wrote false precedents generated by internal AI into court documents, forming a verifiable quality counterexample.",
+          "design": "Public reports only disclose three types of uses of MX2, without describing the underlying model, medical document parsing, legal retrieval, reference binding, customer isolation or permission structure. Reasonable and necessary boundaries are not confirmed facts: medical extractions should retain page numbers and original texts, precedents must be deterministically verified through authoritative legal databases, and pleadings and trial materials can only be generated in drafts and submitted after approval by the handling lawyer. The law firm said it had strengthened training and output review, but did not disclose whether the system would block non-existent precedents, how reviewers were recorded, or the retraction process after low confidence, timeouts, data conflicts and missubmissions.",
+          "evidence": "Confirmed facts: Reuters verified $300 million in existing investment, nearly 5,000 monthly users, more than 1,100 lawyers and external sales plans. In 2025, a federal judge fined three lawyers a total of $5,000 for citing false AI precedents, and one of them was removed from the case; the lawyer said the content came from an internal AI program. Agency claims: MX2 can help with medical extractions, document generation and court trial preparation, and new investments will also cover safety and training. Limitations: There is no number of active tasks, accuracy rate, processing time, cost savings, case results or incident denominators, and it is impossible to confirm whether the current year's program is the current MX2 version. Investment and number of users prove adoption scale, but cannot prove quality improvement.",
+          "idea": "Create a \"medical record citation checker\" for the litigation team: only five types of injuries, dates and treatment costs are extracted, and each item must be bound to the page number and the original text; conflicts or missing pages will be transferred to the lawyer and will not be automatically written into the complaint. Acceptance based on field accuracy rate, citation traceability rate, missing item rate, lawyer revision minutes, number of incorrect submissions and cost per case.",
+          "relatedLinks": [
+            {
+              "label": "False Jurisprudence Sanctions Incident in 2025"
+            }
+          ],
+          "image": {
+            "alt": "Morgan & Morgan official logo",
+            "caption": "Official Morgan & Morgan logo; non-MX2 interface screenshot."
+          }
+        },
+        {
+          "type": "Enterprise preprint + two-week production random A/B + versioned RAG and rollback",
+          "source": "August 10, 2026 | LinkedIn",
+          "title": "LinkedIn allows customer service agents to version and improve themselves, increasing the Q&A self-service rate by 9 percentage points in a random experiment",
+          "summary": "LinkedIn discloses a self-evolving customer service system: the agent calls RAG on demand, the evaluator continuously checks the basis, integrity, routing and multi-language quality, and the outer optimizer then modifies the prompt and retrieval configuration. Improvements will not be written directly into implicit long-term memory, but will form versioned artifacts, which will be upgraded after offline regression, low-traffic deployment, and monitoring. In the two-week user random experiment, the self-service rate of product Q&A increased from 33.7% to 42.7%, and the self-service rate of cancellation process increased from 61.9% to 66.6%.",
+          "design": "Online GPT‑4o-mini receives the conversation and decides whether to call hybrid retrieval. After dense and sparse recall, it rearranges the help content with source, language and version; the state within the task maintains the continuity of the conversation, and long-term knowledge can only be updated through the version library. The GPT‑4.1 evaluator checks Groundedness, relevance, completeness and translation respectively, genetic optimization performs selection, crossover and mutation on Prompt, and business hard rules filter candidates. Candidates first replay historical and synthetic boundary cases, and then go online to a small share of traffic; when indicators degrade, they are rolled back. In the event of index contamination, queries can be switched back to the secure content pool, reducing recovery from hours to minutes.",
+          "evidence": "Production experiment: Users were randomly divided into fixed 50/50 groups, and the original production Agent was used as the control; the experiment was originally planned for four weeks, but ended after two weeks because statistical power exceeded 99.9% and was significant after correction. The Q&A self-service rate increased by 9.0 percentage points, with a 95% CI of 8.4–9.6; the self-service cancellation rate increased by 4.8 points, and the routing accuracy rate increased from 38.2% to 68.8%. All three items were corrected by Holm. Offline evidence: The complete system hallucination rate is less than 0.1%, but this result relies on GPT‑4.1 judges. Limitations: The number of users, absolute complaints, labor costs and long-term maintenance effects are not announced; the experiment changes Prompt, RAG and evaluation closed loop at the same time, which cannot be attributed to a single component, and the author and deployer are also the same.",
+          "idea": "Establish a versioned improvement closed loop for internal IT Q&A: only covering VPN and account unlocking, candidate versions are generated for each prompt or index change, and only open to 10% of traffic after frozen set playback; automatic rollback when quality deteriorates. Acceptance is based on self-service resolution rate, unsupported claim rate, correct routing, rollback delay, labor minutes and version negative gain rate.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF with production experiments"
+            }
+          ],
+          "image": {
+            "alt": "Schematic diagram of customer service RAG workflow",
+            "caption": "Relevant existing accompanying figures; not LinkedIn original paper figures."
+          }
+        },
+        {
+          "type": "New preprint + enterprise log derived evaluation + multi-constraint RAG benchmark",
+          "source": "August 12, 2026｜Huawei, Fudan University, etc.",
+          "title": "EnterpriseRAG: 83.8% of individual constraints are met, and only 26.8% of all constraints are met at the same time.",
+          "summary": "Starting from real enterprise inquiries, EnterpriseRAG constructed 983 expert-verified text RAG cases, covering six fields including energy, medical care, law, and finance, and injected 40%–60% of irrelevant information, knowledge gaps, and factual conflicts respectively. It goes beyond checking answer content and requires the model to simultaneously adhere to identity, output, knowledge usage, and interaction protocols. Among the 13 models, the best single constraint satisfaction rate reached 83.8%, but the proportion of complete answers and all compliances was only 26.8%, forming an orchestration fault of 57 percentage points.",
+          "design": "Each case consists of user questions, multi-constraint instructions and retrieval document packages; the original logs are first desensitized, and 491 real queries are expanded into 983 controlled instances. Mix BM25 and dense retrieval to generate documents, and then inject irrelevant materials, unanswerable questions, or conflicting evidence; rules and reasoning models evaluate Faithfulness, answer coverage, loose/strict instruction following, refusal to answer, and conflict identification respectively. It is an offline test rather than a deployment architecture, with no user identity, tool writing, or manual takeover. The production RAG should turn the evidence sufficiency and conflict status into explicit gates, and stop answering when it fails and hand it over to the data owner.",
+          "evidence": "Preprint evidence: Among the 13 models, Qwen3‑235B Thinking has a loose compliance rate of 83.8% and a strict compliance rate of 26.8%; the best rejection accuracy under knowledge gaps is only 42.7%, and Qwen3‑30B Instruct continues to answer 93.4% of unanswerable cases. The highest fact conflict identification is 44.3% for DeepSeek‑R1 and only 18.5% for GPT‑4.1. Limitations: Constraints and non-ideal scenarios are generated with the assistance of LLM, and the final evaluation also relies on the inference model; strict indicators are all or nothing, which may amplify minor formatting errors. The original logs cannot be made public, the desensitization benchmark and generation pipeline are still planned to be released, and the current external reproduction capability is limited; these figures cannot directly calculate the production accident rate.",
+          "idea": "Create a \"non-ideal search set\" of 50 questions for compliance Q&A: add irrelevant documents, missing answers or conflicting versions to each question, and define protocols that must be quoted, rejected and upgraded. The model will only be output when the evidence is sufficient and the versions are consistent; acceptance will be strictly constrained by the pass rate, incorrect answer rate, conflict identification rate, manual transfer rate and review minutes.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF and review details"
+            }
+          ],
+          "image": {
+            "alt": "Schematic diagram related to enterprise RAG constraints",
+            "caption": "Relevant existing images; not original images for this issue."
+          }
+        },
+        {
+          "type": "New open benchmark + multi-Agent ERP simulation + executable status evaluation",
+          "source": "September 4, 2026｜GAIR, Shanghai Jiao Tong University",
+          "title": "The model champion in ERPBench changes with the competitive environment, and only 21 out of 100 questions remain the same winner.",
+          "summary": "ERPBench allows the Agent to simultaneously decide pricing, production, procurement, inventory and financing in six rounds of business operation simulation, and is affected by shared market competition. The same 100 questions are run in two environments: Solo mode allows a single model to compete against fixed-rule opponents, and Arena mode allows six types of LLMs to compete with each other. DeepSeek leads in Solo, but Gemini leads in Arena; the same winner was selected for only 21 questions in both environments, indicating that static benchmark rankings may not be extrapolated to the real organizational ecology that will respond and adapt.",
+          "design": "Each question initializes enterprise assets, demand, supply and financial constraints, the Agent submits operating decisions round by round, and the ERP executor deterministically updates inventory, cash, sales and valuation and retains the track. Other companies in Solo follow fixed rules to facilitate control of variables; Arena allows six tested Agents to share the market, and price adjustments or production expansions by one party will change the next round of inputs from other parties. Scoring compares final valuation, ranking, last place rate and execution intervention. The code and benchmarks are public, but the environment does not have real employee approvals, supplier negotiations, regulatory permissions, abnormal transaction compensation, or manual takeover; there is also insufficient recovery detail for model timeouts and illegal actions.",
+          "evidence": "Confirmed data: Six model families formed 1,200 model trajectories and 7,200 decision rounds in 100 questions and two ecologies. DeepSeek's average valuation in Solo is 252.29 million, and its average ranking is 1.67; Gemini's valuation in Arena is 263.95 million, and its average ranking is 1.76. Its bottom-place rate has dropped from 22% in Solo to 0% in Arena. Editorial Judgment: The ranking flip proves that the evaluation results are dependent on the opponent's behavior and does not prove that Arena is closer to any specific industry. Limitations: Valuation is defined by simulation rules, the simulation covers only six rounds, and demand, competitors, and information structures are all preset; there are no real prices, personnel rejections, execution costs, or long-term risks, so the results cannot be used to select production and operation agents, let alone prove that automated decision-making is better than the management team.",
+          "idea": "Establish a dual-environment Shadow evaluation for the inventory team: the same replenishment agent first runs on fixed historical demand, and then adds simulated suppliers that will change prices and delivery dates; only previews are generated for all orders, which are approved by procurement. Compare the out-of-stock rate, inventory cost, illegal actions, ranking stability, manual modification rate and worst-case loss of the two environments.",
+          "relatedLinks": [
+            {
+              "label": "ERPBench code and running resources"
+            }
+          ],
+          "image": {
+            "alt": "Schematic diagram related to ERP data structure",
+            "caption": "Related existing images; not original ERPBench images."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Evidence-Bound Professional Drafting",
+          "description": "For legal, wealth management or compliance teams, only let the Agent generate internal drafts with original page numbers, system time and field sources; any missing evidence, conflicts or external transmission will be transferred to manual work. Use citation consistency rate, factual errors, manual modification rate, approval time and number of erroneous external actions for acceptance.",
+          "tags": [
+            "Evidence",
+            "Bound"
+          ]
+        },
+        {
+          "title": "Environment-Sensitive Release Gate",
+          "description": "The same Agent version is first tested in pairs in fixed historical cases, and then users, suppliers or collaborative role simulations that respond to its actions are added; it is released to a small share of traffic only when all constraints are passed and the worst loss is not expanded. The release gate is formed by version gain, strict pass rate, ranking flip rate, rollback delay and tail loss.",
+          "tags": [
+            "Environment",
+            "Sensitive"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "d552f5e9c9b96d22"
+}

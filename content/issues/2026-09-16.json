@@ -1,0 +1,249 @@
+{
+  "issue": "ISSUE 049",
+  "date": "2026.09.16",
+  "thesis": "过去24小时最具体的新增材料来自真实事故：西班牙监管机构收到首份由AI Agent执行多阶段攻击的个人数据泄露报告，韩国则开始为Agent与Physical AI补写安全清单。另三项此前未覆盖的研究分别处理Agent配置供应链、选择性人工复核和SOP自动化。共同判断是：可靠性必须被放在正确层级——权限与依赖在安装前拦截，边界案例在线升级，流程歧义在执行前由专家消除，任何模型都不能同时替代这些控制。",
+  "takeaways": [
+    "西班牙首报Agent数据泄露，韩国开始制定自主系统安全清单",
+    "3,171个公开Agent配置中，16%带有已确认安全缺陷",
+    "Pinterest只让VLM处理灰区，人工复核效率提高25.7%",
+    "Amazon把模糊SOP先交专家补齐，电商案件处理由30分钟降至5分钟"
+  ],
+  "contrarian": "四组材料覆盖了Agent生命周期中容易被混在一起的四道门：西班牙事故要求在运行时识别凭证后的异常行为；Harness研究要求在安装和合并前检查依赖及权限；PinSieve把模型限制在灰区并用抽审弥补选择性反馈；Agent-Ops则在执行前把人类SOP中的隐含假设编译成可核查规格。它们不是互相替代的安全方案，而是分别控制供应链、运行、学习和业务语义。 证据强度也不同：AEPD通报是真实事件但仍在调查；Harness研究开放了语料、工具和逐项裁决，却只能证明危险配置；PinSieve给出线上运营指标并严格区分生产与离线证据；Agent-Ops经过同行评审且有三个月部署，但关键分母保密。最可复制的方向不是增加一个“监督Agent”，而是让每层只做窄动作，并以确定性规则、抽样审计、专家Diff或外部日志确认结果。",
+  "items": [
+    {
+      "type": "监管事故通报＋独立新闻核验＋安全指南计划",
+      "source": "2026年9月15日｜西班牙AEPD、韩国KISA、Reuters",
+      "title": "西班牙首报Agent数据泄露，韩国开始制定自主系统安全清单",
+      "summary": "西班牙数据保护局收到首份“攻击由AI Agent执行”的个人数据泄露通知：第三方使用知名LLM驱动Agent，成功登录后搜索应用弱点、利用漏洞修改个人资料并查看账单，过程中人工介入有限。韩国互联网振兴院同日确认正在修订《AI Security Guide》，将加入Agent服务风险清单，并考虑可操作设备和机器的Physical AI。两项材料表明监管重点正从模型回答转向实际身份、工具链与机器速度下的事件响应。",
+      "design": "现有信息只能重建攻击轮廓：Agent获得有效登录路径，扫描通用文件和应用表面，发现弱点后修改数据并读取账单；具体模型、凭证来源、工具、权限提升、持久化和停止条件均未披露。AEPD强调使用某模型不代表模型或供应商基础设施被攻破。KISA的新指南尚未发布，仅确认将覆盖Agent与现实设备控制。企业对应设计应把Agent身份、会话凭证、读写方法和对象写入独立日志；首次异常写入即撤权隔离，由安全与数据保护人员决定恢复和通知。",
+      "evidence": "确认事实： AEPD确认收到受影响机构提交的正式泄露通知，Reuters核实其内容；KISA确认正在更新2025版指南并计划提供风险清单。仍属指称： 攻击链来自报送机构，监管审查尚未完成，不能断言全部动作确由Agent自主完成。未披露： 机构名称、模型、事件时间、受影响人数、数据修改范围、损失、发现时延和人工指令均未知；韩国也未给出指南文本、测试方法或发布日期。单一事故不能证明普遍趋势，但足以证明传统“登录成功即信任”无法覆盖机器化的多阶段行动。",
+      "idea": "为一个可写CRM的内部Agent建立“异常写入熔断器”：记录身份、对象、字段、旧值、新值和调用来源；首次批量修改、读取账单或访问新对象立即暂停，由安全人员恢复。以异常拦截率、误报率、撤权时延、日志完整率、受影响记录数和通知时间验收。",
+      "url": "https://www.aepd.es/prensa-y-comunicacion/blog/primera-notiviacion-brecha-datos-personales-causada-por-ataque-ejecutado-mediante-agente-ia",
+      "relatedLinks": [
+        {
+          "label": "Reuters西班牙事故报道",
+          "url": "https://www.reuters.com/business/spanish-data-watchdog-publicises-first-ai-agent-linked-data-breach-report-2026-09-15/"
+        },
+        {
+          "label": "Reuters韩国指南报道",
+          "url": "https://www.reuters.com/legal/litigation/south-korea-develop-new-security-guidelines-autonomous-ai-agents-2026-09-15/"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep16-1.webp",
+        "alt": "西班牙 AEPD 原始通报配图",
+        "caption": "AEPD 原始通报页面配图。"
+      }
+    },
+    {
+      "type": "新预印本＋开源静态扫描器＋公开仓库实证研究",
+      "source": "2026年9月7日｜Kapner等",
+      "title": "3,171个公开Agent配置中，16%带有已确认安全缺陷",
+      "summary": "研究把AGENTS.md、Skills、Hooks、子Agent、权限声明和MCP服务器配置视为Coding Agent的“Harness供应链”，而不是普通提示词。团队扫描3,171个公开GitHub仓库后发现，16.0%的已组装配置含确认安全缺陷：9.8%使用未固定版本的MCP包，3.1%以看似收窄的权限允许任意执行，3.8%安装会预先放行Shell的Skill。问题通常不在模型，而在配置组件携带开发者权限却缺少锁文件和安装检查。",
+      "design": "开源扫描器识别Claude Code、Cursor、Copilot、Gemini CLI、OpenCode、Windsurf、Cline和Codex目录，将上下文文件、Skill、Hook、子Agent及MCP声明解析为类型化组件图。31条确定性规则离线检查单文件、周边文件系统及跨文件关系，输出终端、JSON或SARIF结果；不调用模型，可在毫秒级CI中阻止未固定依赖、任意执行授权和Shell预批准。争议结果由独立实现重算，再用公开Prompt裁决。它不执行组件，无法判断运行时是否恶意；例外仍需维护者审阅。",
+      "evidence": "开放证据： 语料含2,660个多组件Setup和511个Skill Collection；每项计入结果的发现都在固定Commit上由第二实现复核。安全缺陷率为16.0%，95%CI为14.6%–17.4%；原始扫描器会报25.5%，说明未经验证的告警会明显高估问题。121个仓库携带可任意执行的Skill授权，复核后121个均成立。局限： 样本来自主题搜索、推荐列表和市场，偏向主动公开Agent配置的项目，不能代表私有企业仓库；静态规则的召回率未知，也没有确认凭证外泄路径。结果证明危险前置条件存在，不能证明它们已被利用或造成事故。",
+      "idea": "为团队的Agent仓库增加Harness CI：只检查MCP版本、Shell授权、Hook文件存在性和跨助手配置漂移；严重项阻止合并，例外必须由安全负责人签字并设到期日。以缺陷检出数、误报率、修复时间、未固定依赖比例、例外存续天数和每次扫描时延验收。",
+      "url": "https://arxiv.org/abs/2609.07360",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://arxiv.org/pdf/2609.07360"
+        },
+        {
+          "label": "harness-eval扫描器",
+          "url": "https://github.com/redhat-community-ai-tools/harness-eval"
+        },
+        {
+          "label": "语料清单、验证记录与复现脚本",
+          "url": "https://github.com/Benkapner/harness-eval-experiments"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep16-2.webp",
+        "alt": "harness-eval 开源仓库预览图",
+        "caption": "harness-eval 开源仓库预览图。"
+      }
+    },
+    {
+      "type": "生产案例预印本＋KDD 2026 Workshop论文＋Human-in-the-loop模型刷新",
+      "source": "2026年8月25日｜Pinterest",
+      "title": "Pinterest只让VLM处理灰区，人工复核效率提高25.7%",
+      "summary": "PinSieve没有用大型视觉语言模型重做整条内容质量流水线，而只处理轻量模型无法判断的“灰区”图片与文本。线上Agent仅输出一个分数，以固定阈值决定自动放行或升级人工；放行样本仍抽样审计。相较旧模块，自动放行率由20.48%升至41.99%，估计漏报率反而由13.62%降至13.18%；复核生产率提高25.7%，标准化运营成本下降16.2%，信号由次日变为当日送达。",
+      "design": "上游规则和小模型先解决明确案例，Serving Agent只读取灰区项目、模型版本和阈值，输出标量风险分；超过阈值进入人工队列，低于阈值自动放行并按概率审计。Feedback Memory保存分数、路由、人工或审计标签来源及抽样概率。离线Teacher生成理由，Review Agent决定保留、修复或删除，Data Curation Agent组合代表性、不确定性和近期样本；正例率或分数分布越界即拒绝批次。候选模型须通过下一月评估和Shadow测试，人员批准后才发布，并可回滚。",
+      "evidence": "生产证据： 新模块先并行Shadow三周再上线；灰区自动放行能力提高2.05倍，成本由1.000降至0.838，最终信号从次日提前至当日。离线证据： 六个月按月链式刷新中，受约束回放把FNR@50%由随机代表性回放的17.73%降至13.29%。论文明确没有把离线记忆飞轮效果冒充线上收益。局限： 只评估一个匿名二分类质量信号，流量、样本量、绝对人工小时和严重漏报后果未公开；指标由Pinterest团队自报，放行区标签还依赖抽样与逆概率估计。扩展到其他内部信号属于部署方陈述，尚无独立复现。",
+      "idea": "为商品图片审核做“灰区VLM路由器”：规则先过滤明确合格与违规项，VLM只评分中间10%–20%，高风险转人工、低风险按比例抽审。固定月度冻结集和回滚版本；以自动放行率、抽审漏报、复核件／小时、P95时延、单位成本和回滚次数验收。",
+      "url": "https://arxiv.org/abs/2608.24040",
+      "relatedLinks": [
+        {
+          "label": "完整PDF与生产指标",
+          "url": "https://arxiv.org/pdf/2608.24040"
+        },
+        {
+          "label": "KDD企业Agent Workshop论文集",
+          "url": "https://sites.google.com/view/kdd-2026-workshop-ai-agents/papers"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep16-3.webp",
+        "alt": "Pinterest 官方网站配图",
+        "caption": "Pinterest 官方网站配图；非 PinSieve 系统截图。"
+      }
+    },
+    {
+      "type": "ACL同行评审行业论文＋三个月生产部署＋多Agent SOP自动化",
+      "source": "2026年7月｜Amazon；ACL 2026 Industry Track",
+      "title": "Amazon把模糊SOP先交专家补齐，电商案件处理由30分钟降至5分钟",
+      "summary": "Agent-Ops处理商品因质量、知识产权或真实性问题被下架后的复核流程。它没有直接让Agent阅读模糊SOP并操作，而先把步骤、字段、判断标准和预期结果编译成自动化规格，再协调浏览器、文档和供应链核验Agent访问15个以上内部及外部系统。系统在三个匿名地区、七类SOP中供100名客户经理使用三个月，端到端准确率为85%–97%，单案平均处理时间由约30分钟降至5分钟。",
+      "design": "SOP Groomer先分解原始流程，并用RAG针对缺失字段和标准生成澄清问题；PDF、培训材料、截图和浏览器回放用于补全答案，自动合并后由领域专家通过Diff批准。Orchestrator再调用Playwright WebAgent、AWS Textract、多语言分类、模糊匹配和供应链核验工具，检查税票日期、数量、商品、卖家和授权链。网页定位综合XPath与语义特征，单步30秒超时、指数退避重试三次。论文没有说明最终恢复或下架决定是否必须人工批准，也未披露越权、连续失败及部分写入后的补偿机制。",
+      "evidence": "同行评审与生产证据： WebAgent任务完成率91.3%、重复执行一致性86.5%，文档验证准确率94.2%；补齐后的SOP相较原文执行由74.9%升至88.1%。去掉三阶段元素定位后，一致性由86.5%降至58.3%；单一通用Agent替代专用Agent时准确率由88.1%降至78.6%。局限： 各地区只报告区间或匿名类别，没有案件总量、错误严重度、人工接管率、成本和置信区间；底层模型与数据未公开，全部作者来自Amazon。三个月结果证明特定电商流程可提速，不能证明长期界面漂移下仍稳定，也不能外推到其他行业SOP。",
+      "idea": "为供应商发票复核制作三步原型：先把一份SOP转成字段、阈值和异常分支，由财务确认；Agent只抓取页面并核对日期、金额和供应商，任何缺项停止。以规格Diff接受率、字段准确率、重复执行一致性、单案分钟数、接管率和错误写入数验收。",
+      "url": "https://aclanthology.org/2026.acl-industry.29/",
+      "relatedLinks": [
+        {
+          "label": "完整PDF与消融实验",
+          "url": "https://aclanthology.org/2026.acl-industry.29.pdf"
+        }
+      ],
+      "image": {
+        "src": "/cases/agent-ops.png",
+        "alt": "Amazon Agent-Ops 系统图",
+        "caption": "Agent-Ops 相关既有配图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "Agent Harness Admission Gate",
+      "description": "为一个Coding Agent项目扫描MCP版本、Skill工具授权、Hook和跨文件依赖；严重项阻止安装，批准例外须限时。随后在沙箱运行五个代表任务，形成“静态安全＋实际增益”双门槛。",
+      "tags": [
+        "Agent",
+        "Harness"
+      ]
+    },
+    {
+      "title": "Selective Review Flywheel",
+      "description": "选择图片审核、票据核验或工单分类中的灰区切片，模型只输出分数和路由；升级项全量人工处理，自动项随机抽审并记录抽样概率。以自动覆盖率、估计漏报率、人工吞吐、成本及月度回归验收。",
+      "tags": [
+        "Selective",
+        "Review"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "The most concrete new material in the past 24 hours comes from real incidents: Spanish regulators received the first report of a personal data leak involving a multi-stage attack performed by an AI Agent, and South Korea began to fill in the security checklist for Agent and Physical AI. The other three studies not previously covered dealt with Agent configuration supply chain, selective manual review and SOP automation respectively. The common refrain is: reliability must be placed at the right level - permissions and dependencies are intercepted before installation, edge cases are escalated online, process ambiguities are eliminated by experts before execution, and no model can simultaneously replace these controls.",
+      "takeaways": [
+        "Spain reports first Agent data leak, South Korea begins formulating autonomous system security list",
+        "Of the 3,171 public Agent configurations, 16% have confirmed security flaws.",
+        "Pinterest only lets VLM handle gray areas, and manual review efficiency increases by 25.7%",
+        "Amazon hands over vague SOPs to experts to complete first, reducing e-commerce case processing from 30 minutes to 5 minutes"
+      ],
+      "contrarian": "The four groups of materials cover the four gates in the Agent life cycle that are easily confused: the Spanish incident requires identifying abnormal behavior after credentials at runtime; the Harness study requires checking dependencies and permissions before installation and merging; PinSieve limits the model to the gray area and uses spot checks to make up for selective feedback; Agent-Ops compiles the implicit assumptions in human SOPs into verifiable specifications before execution. They are not security solutions that replace each other, but control supply chain, operations, learning and business semantics respectively. The strength of the evidence is also different: the AEPD report is a real incident but is still under investigation; the Harness study opened up the corpus, tools and item-by-item rulings, but can only prove dangerous configurations; PinSieve gives online operation indicators and strictly distinguishes production and offline evidence; Agent-Ops has been peer-reviewed and has been deployed for three months, but the key denominator is kept confidential. The most replicable direction is not to add a \"supervisory agent\", but to let each layer only perform narrow actions and confirm the results with deterministic rules, sampling audits, expert Diff, or external logs.",
+      "items": [
+        {
+          "type": "Regulatory Incident Reporting + Independent News Verification + Safety Guidelines Program",
+          "source": "September 15, 2026｜Spain AEPD, South Korea KISA, Reuters",
+          "title": "Spain reports first Agent data leak, South Korea begins formulating autonomous system security list",
+          "summary": "The Spanish Data Protection Authority received the first personal data leak notification in which \"the attack was performed by an AI Agent\": a third party used a well-known LLM driver agent to search for application weaknesses after successfully logging in, use the vulnerabilities to modify personal information and view bills, with limited human intervention in the process. On the same day, the Korea Internet Agency confirmed that it is revising the \"AI Security Guide\" and will add it to the Agent service risk list and consider Physical AI that can operate devices and machines. Two materials illustrate the shift in regulatory focus from model answers to actual identities, tool chains, and incident response at machine speeds.",
+          "design": "Existing information can only reconstruct the attack outline: the agent obtains a valid login path, scans common files and application surfaces, modifies data after discovering weaknesses, and reads bills; the specific model, credential source, tools, privilege escalation, persistence, and stop conditions have not been disclosed. AEPD emphasizes that using a certain model does not mean that the model or the supplier's infrastructure has been compromised. KISA's new guidelines have not yet been released, but it is only confirmed that they will cover Agent and real device control. The enterprise's corresponding design should write the Agent identity, session credentials, read and write methods and objects into independent logs; the first abnormal write will be revoked and isolated, and security and data protection personnel will decide to restore and notify.",
+          "evidence": "Confirmed facts: AEPD confirmed receipt of the formal breach notification submitted by the affected agency, and Reuters verified its content; KISA confirmed that it is updating the 2025 version of the guidance and plans to provide a risk list. It is still an allegation: The attack chain comes from the reporting agency, and the regulatory review has not yet been completed. It cannot be concluded that all actions were completed independently by the Agent. Undisclosed: The name of the organization, model, time of the incident, number of people affected, scope of data modification, loss, discovery delay, and manual instructions are unknown; South Korea has not given guidance text, test methods, or release date. A single incident cannot prove a general trend, but it is enough to prove that the traditional \"login success means trust\" cannot cover the multi-stage actions of the machine.",
+          "idea": "Establish an \"abnormal write circuit breaker\" for an internal Agent that can write to CRM: record the identity, object, field, old value, new value and call source; the first batch modification, reading of bills or access to new objects are immediately suspended and restored by security personnel. Acceptance is based on abnormal interception rate, false positive rate, revocation delay, log completeness rate, number of affected records and notification time.",
+          "relatedLinks": [
+            {
+              "label": "Reuters Spanish accident report"
+            },
+            {
+              "label": "Reuters Korea Guide Report"
+            }
+          ],
+          "image": {
+            "alt": "Spanish AEPD original notification with pictures",
+            "caption": "AEPD original notification page with image."
+          }
+        },
+        {
+          "type": "New preprint + open source static scanner + empirical research on public repository",
+          "source": "September 7, 2026｜Kapner et al.",
+          "title": "Of the 3,171 public Agent configurations, 16% have confirmed security flaws.",
+          "summary": "The study regards AGENTS.md, Skills, Hooks, sub-Agents, permission statements and MCP server configuration as the \"Harness supply chain\" of Coding Agent, rather than ordinary prompt words. After scanning 3,171 public GitHub repositories, the team found that 16.0% of the assembled configurations contained confirmed security flaws: 9.8% used unfixed versions of MCP packages, 3.1% allowed arbitrary execution with seemingly narrowed permissions, and 3.8% installed skills that would pre-approve shell execution. The problem is usually not with the model, but with the configuration component carrying developer permissions but missing lock files and installation checks.",
+          "design": "The open source scanner identifies Claude Code, Cursor, Copilot, Gemini CLI, OpenCode, Windsurf, Cline, and Codex directories, and parses context files, Skills, Hooks, sub-Agents, and MCP declarations into typed component graphs. 31 deterministic rules check single files, surrounding file systems and cross-file relationships offline, and output terminal, JSON or SARIF results; without calling the model, unfixed dependencies, arbitrary execution authorization and Shell pre-approval can be prevented in millisecond-level CI. Disputed findings will be recalculated by an independent implementation and then decided using publicly documented criteria. It does not execute components and cannot determine whether the runtime is malicious; exceptions still need to be reviewed by the maintainer.",
+          "evidence": "Open evidence: The corpus contains 2,660 multi-component Setups and 511 Skill Collections; each finding included in the results is reviewed by the second implementation on a fixed Commit. The security defect rate is 16.0%, and the 95%CI is 14.6%–17.4%; the original scanner will report 25.5%, indicating that unverified alarms will significantly overestimate the problem. 121 repositorys carry Skill authorizations that can be executed at will, and 121 of them were established after review. Limitations: The samples come from topic searches, recommendation lists, and markets, and tend to be projects that proactively disclose Agent configurations. They cannot represent private enterprise repositorys; the recall rate of static rules is unknown, and the credentials leakage path has not been confirmed. The results prove that dangerous preconditions exist, but cannot prove that they have been exploited or caused an accident.",
+          "idea": "Add Harness CI to the team's Agent repository: only check the MCP version, Shell authorization, Hook file existence and cross-assistant configuration drift; serious items prevent merging, exceptions must be signed by the security leader and have an expiration date. Acceptance is based on the number of defects detected, false alarm rate, repair time, unfixed dependency ratio, exception duration days and each scan delay.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            },
+            {
+              "label": "harness-eval scanner"
+            },
+            {
+              "label": "Corpus list, verification records and reproduction scripts"
+            }
+          ],
+          "image": {
+            "alt": "harness-eval open source repository preview",
+            "caption": "Preview of harness-eval open source repository."
+          }
+        },
+        {
+          "type": "Preprint of production case + KDD 2026 Workshop paper + Human-in-the-loop model refresh",
+          "source": "August 25, 2026 | Pinterest",
+          "title": "Pinterest only lets VLM handle gray areas, and manual review efficiency increases by 25.7%",
+          "summary": "PinSieve did not redo the entire content quality pipeline with a large visual language model, but only processed the \"grey area\" images and text that the lightweight model could not judge. The online agent only outputs a score, and determines automatic clearance or manual upgrade based on a fixed threshold; release samples are still sampled and audited. Compared with the old module, the automatic clearance rate increased from 20.48% to 41.99%, and the estimated false negative rate dropped from 13.62% to 13.18%; review productivity increased by 25.7%, standardized operating costs decreased by 16.2%, and signals were delivered on the same day instead of the next day.",
+          "design": "Upstream rules and small models first solve clear cases. Serving Agent only reads gray area projects, model versions and thresholds, and outputs scalar risk scores. If the threshold exceeds the threshold, it enters the manual queue, and if the threshold falls below the threshold, it is automatically released and audited based on probability. Feedback Memory stores scores, routing, manual or audit tag sources, and sampling probabilities. Reasons for offline Teacher generation, Review Agent decides to retain, repair or delete, Data Curation Agent combines representativeness, uncertainty and recent samples; the positive rate or score distribution crosses the boundary and rejects the batch. Candidate models must pass the next month's evaluation and Shadow testing, and will be released after approval by staff and can be rolled back.",
+          "evidence": "Production evidence: The new module runs Shadow in parallel for three weeks before going online; the automatic clearance capability in gray areas is increased by 2.05 times, the cost is reduced from 1.000 to 0.838, and the final signal is advanced from the next day to the same day. Offline evidence: In the six-month monthly chain refresh, constrained replay reduced FNR@50% from 17.73% in random representative replay to 13.29%. The paper clearly does not pass off the offline memory flywheel effect as online income. Limitations: Only an anonymous two-class quality signal is evaluated. Traffic, sample size, absolute man-hours, and consequences of serious underreporting are not disclosed; indicators are self-reported by the Pinterest team, and release zone labels also rely on sampling and inverse probability estimation. Extension to other internal signals is a deployer statement and has not been independently reproduced.",
+          "idea": "Create a \"grey area VLM router\" for product image review: the rules first filter out qualified and illegal items, and VLM only scores the middle 10%–20%. High-risk products will be manually reviewed, and low-risk products will be randomly reviewed in proportion. Fixed monthly frozen set and rollback version; acceptance based on automatic clearance rate, missed violations, reviews per hour, P95 delay, unit cost and number of rollbacks.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF with production metrics"
+            },
+            {
+              "label": "KDD Enterprise Agent Workshop Proceedings"
+            }
+          ],
+          "image": {
+            "alt": "Pinterest official website with pictures",
+            "caption": "Picture from Pinterest official website; screenshot from non-PinSieve system."
+          }
+        },
+        {
+          "type": "ACL peer-reviewed industry papers + three-month production deployment + multi-Agent SOP automation",
+          "source": "July 2026｜Amazon; ACL 2026 Industry Track",
+          "title": "Amazon hands over vague SOPs to experts to complete first, reducing e-commerce case processing from 30 minutes to 5 minutes",
+          "summary": "Agent-Ops handles the review process after products are removed from the shelves due to quality, intellectual property or authenticity issues. It does not directly let the agent read and operate the fuzzy SOP, but first compiles the steps, fields, judgment criteria and expected results into automated specifications, and then coordinates the browser, document and supply chain verification agent to access more than 15 internal and external systems. The system was used by 100 account managers in three anonymous regions and seven types of SOPs for three months. The end-to-end accuracy rate was 85%–97%, and the average processing time of a single case was reduced from about 30 minutes to 5 minutes.",
+          "design": "SOP Groomer first decomposes the original process and uses RAG to generate clarification questions for missing fields and standards; PDFs, training materials, screenshots and browser playbacks are used to complete the answers, which are automatically merged and approved by domain experts through Diff. Orchestrator then calls Playwright WebAgent, AWS Textract, multi-language classification, fuzzy matching and supply chain verification tools to check the tax stamp date, quantity, commodity, seller and authorization chain. Web page positioning integrates XPath and semantic features, with a single step timeout of 30 seconds and exponential backoff retries three times. The paper does not explain whether the final decision to restore or remove the product must be manually approved, nor does it disclose the compensation mechanism for overstepping authority, continuous failures, and partial writing.",
+          "evidence": "Peer review and production evidence: WebAgent task completion rate is 91.3%, repeat execution consistency is 86.5%, and document verification accuracy is 94.2%; the completed SOP execution increased from 74.9% to 88.1% compared to the original text. After removing the three-stage element positioning, the consistency dropped from 86.5% to 58.3%; when a single general agent replaced the dedicated agent, the accuracy dropped from 88.1% to 78.6%. Limitations: Each region only reports intervals or anonymous categories, without the total number of cases, error severity, manual takeover rate, cost and confidence interval; the underlying model and data are not public, and all authors are from Amazon. The three-month results prove that specific e-commerce processes can be accelerated, but they cannot prove that the interface is still stable despite long-term interface drift, nor can they be extrapolated to other industry SOPs.",
+          "idea": "Create a three-step prototype for supplier invoice review: first convert an SOP into fields, thresholds and exception branches, which are confirmed by finance; the agent only fetches the page and checks the date, amount and supplier, stopping any missing items. Acceptance is based on specification Diff acceptance rate, field accuracy rate, repeated execution consistency, single case minutes, takeover rate and number of incorrect writes.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF with ablation experiments"
+            }
+          ],
+          "image": {
+            "alt": "Amazon Agent-Ops system diagram",
+            "caption": "Agent-Ops related existing images."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Agent Harness Admission Gate",
+          "description": "Scan the MCP version, Skill tool authorization, Hook and cross-file dependencies for a Coding Agent project; critical items prevent installation, and exceptions must be approved for a limited time. Then five representative tasks were run in the sandbox to form a double threshold of \"static safety + actual gain\".",
+          "tags": [
+            "Agent",
+            "Harness"
+          ]
+        },
+        {
+          "title": "Selective Review Flywheel",
+          "description": "Select the gray area slice in image review, bill verification or work order classification, and the model only outputs scores and routes; all upgrade items are processed manually, and automatic items are randomly selected and reviewed and the sampling probability is recorded. Take automatic coverage, estimated false negative rate, manual throughput, cost and monthly regression acceptance.",
+          "tags": [
+            "Selective",
+            "Review"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "7e6340d7b694228c"
+}
