@@ -1,0 +1,256 @@
+{
+  "issue": "ISSUE 050",
+  "date": "2026.10.15",
+  "thesis": "本期纳入一项10月14日发布的企业调查，以及三组此前未覆盖的研究与工程资料。共同问题是：Agent的收益与安全，必须在实际工作流中重新测量。审核工时不能从成本表消失，政策决策不能只测一次准确率，注入检测器不能沿用公开榜单排名，仿真通过也不能直接等同生产批准。本期材料以原始调查、预印本、工程文档和代码为主；尚未获得独立生产复现的结论均明确保留。",
+  "takeaways": [
+    "G2调查：45%的买家称审核与返工消耗超过四分之一预期收益",
+    "企业政策决策：熟悉规则可以快速分类，陌生边界仍需要推理",
+    "注入检测排名难迁移：公开基准领先者在工具输出上只检出2%",
+    "NVIDIA把基础设施变更先放进数字孪生，明确区分配置验证与性能预测"
+  ],
+  "contrarian": "四组材料要求把评测对象放回实际执行位置。G2测量的是买家感知的监督负担，不是经审计的净收益；政策研究测量动作选择，不是最终业务事务；注入研究测量工具返回值的分类，不是整条攻击链的阻断；数字孪生验证配置与接口，也不自动保证生产性能。把这些指标写成“Agent可靠”会丢掉最重要的边界。 证据的可检查程度也不同。两项预印本披露了对照和失败条件，但分别受到构造政策、静态攻击与私有材料限制；G2有样本和时间窗口，却依赖采购者自报；NVIDIA提供工程入口，却没有效果分母。当前最稳健的编辑判断是：每道门都需要自己的留出集、人工抽审与真实业务结果，不能借用相邻组件的高分作为放行依据。",
+  "items": [
+    {
+      "type": "企业买家调查＋公开方法说明＋Agent运营成本分析",
+      "source": "2026年10月14日｜G2；调查实施于2026年7月",
+      "title": "G2调查：45%的买家称审核与返工消耗超过四分之一预期收益",
+      "summary": "G2的新调查把Agent成本从模型账单扩展到输出审阅、错误修正、动作批准和异常恢复。31%的买家称员工每周至少花六小时监督Agent，45%认为这些工作消耗超过四分之一预期生产率收益，46%报告运行成本超出预期。值得关注的不是笼统的“信任不足”，而是自动化之后仍需有人完成的具体工作。对工单分类、订单处理或报告生成，业务团队应按最终合格结果核算成本，不能把模型已生成、员工仍需修正的产物全部记为效率收益。",
+      "design": "这是一项跨组织调查，不是可重建的单一Agent系统。公开资料把生产定义为进入真实数据、系统和业务规则下的工作流，但不意味着完全自治；没有披露各受访系统的模型、检索、工具、身份继承或恢复实现。编辑建议据此建立“结果成本账本”：输入任务ID与验收条件，关联模型调用、人工审阅、修正和异常处理记录，由业务负责人确认结果是否合格。涉及写入仍单独审批；超时、重复失败或成本越界暂停任务，保留状态后转人员，不能用重新生成覆盖失败记录。",
+      "evidence": "调查证据： 样本为1,019名影响或负责B2B采购的决策者，覆盖北美、EMEA与APAC；另引用2026年3—8月超过2,500条软件评论说明用例。机构判断： G2将额外监督成本称为“Distrust Tax”。独立证据： 发布稿与报告同源，不构成交叉验证。局限： 数据是买家自报，未提供任务日志、实际工时、成本审计或随机对照；“预期收益”本身不是统一基线，子群样本量与抽样权重也未在方法说明中列出。六小时不能解释为每名员工的平均值，45%也不能换算为全行业净损失。G2同时推广Agent评估服务，存在商业利益关联；现有结果支持调查隐性成本，不证明Agent总体没有净收益。",
+      "idea": "为一个客服团队做两周“合格工单成本”试点，只覆盖分类和答复草稿，不自动关闭工单。坐席确认正确性，并记录审阅、修改与接管分钟数；与同类人工工单比较解决时间、返工率、错误关闭、每个合格结果总成本及队列积压，避免只统计生成速度。",
+      "url": "https://sell.g2.com/g2-2026-ai-agents-insight-report",
+      "relatedLinks": [
+        {
+          "label": "发布公告",
+          "url": "https://www.prnewswire.com/news-releases/new-g2-research-ai-agents-have-moved-from-pilot-to-production-but-oversight-comes-at-a-cost-302908654.html"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct15-1.webp",
+        "alt": "G2 2026 AI Agents Insight Report 报告封面",
+        "caption": "G2 原始报告页面配图。"
+      }
+    },
+    {
+      "type": "新预印本＋受控决策实验＋模型与评测材料发布声明",
+      "source": "2026年10月13日｜ThakiCloud、Korea University",
+      "title": "企业政策决策：熟悉规则可以快速分类，陌生边界仍需要推理",
+      "summary": "研究把企业助手的第一步独立出来：在回答之前，先决定应直接答复、补问信息、请求确认、调用工具、转人工还是拒绝。作者固定一个27B韩语企业模型，比较生成JSON与受限单Token决策，并另行控制是否推理。在熟悉的政策分布中，两条部署路径未检出准确率差异，但重启后的动作变化率明显不同；换到未见政策边界，推理带来显著增益。它提醒团队，压缩输出格式与删除推理是两个不同优化，不能凭一次同分布测试同时取消两者。",
+      "design": "模型接收书面政策、工具签名、当前会话已确认事实和用户请求，再从七种动作中选择一项。JSON路径生成动作对象；受限Token路径只在指定动作词表中评分；另有适配器与分类头对照。评测端用隐藏的可执行政策产生金标准和证明，再独立渲染自然语言，减少模型直接编写答案标签的自证。论文测的是决策，不证明工具参数、身份授权或业务事务已正确执行。生产中应由外部权限层再次批准工具调用，缺信息或副作用确认交给用户；解析失败、规则冲突和超时停止，保存决策依据后转人工。",
+      "evidence": "预印本证据： 2,800题上两条路径准确率为93.46%与94.14%，动作翻转率为3.00%与0.29%；两者同时改变推理与格式，不能把稳定性差异归因于Token接口。300题隐藏政策集上，单Token路径启用推理提高17.3个百分点，区间为12.3—23.0点。开放性： 作者声明发布模型与重渲染材料；本次数据集入口返回401，未核查下载内容。局限： 只有一个模型及构造政策家族，原始确认集和训练语料不公开；公开重渲染仅保留248个共同样本，较难场景被不均匀排除。部分训练—推理交互未在重渲染中复现，没有真实错误写入、接管率或ROI，不能推出推理普遍可被训练替代。",
+      "idea": "为费用报销助手构建100题动作门，只判断答复、补字段、确认、查记录和转财务，不执行付款。分别测试熟悉政策与新阈值，独立开关推理和输出格式；财务复核所有边界错误。以动作准确率、抢先调用、重复运行翻转率、P95时延及每次正确决策成本验收。",
+      "url": "https://arxiv.org/abs/2610.17643",
+      "relatedLinks": [
+        {
+          "label": "全文与测量附录",
+          "url": "https://arxiv.org/html/2610.17643v1"
+        },
+        {
+          "label": "作者声明的数据集入口",
+          "url": "https://huggingface.co/datasets/ThakiCloud/EnterpriseOps-Blind-A"
+        },
+        {
+          "label": "模型入口",
+          "url": "https://huggingface.co/ThakiCloud/Qwen3.8-27B-Human-KO-Enterprise-Boundary"
+        }
+      ],
+      "image": {
+        "src": "/cases/policy-executable-decisions.jpg",
+        "alt": "企业政策决策相关示意图",
+        "caption": "相关既有配图；非本期论文原图。"
+      }
+    },
+    {
+      "type": "安全预印本＋开放代码与结果＋跨基准训练数据审计",
+      "source": "2026年10月2日｜Japan Advanced Institute of Science and Technology",
+      "title": "注入检测排名难迁移：公开基准领先者在工具输出上只检出2%",
+      "summary": "研究没有继续比较孤立攻击句子，而是回放Agent实际会读取的邮件、日历、商品记录和交易工具输出，检查十五种注入检测器与两种LLM评委。固定误报率为1%后，BIPIA上的领先检测器仅检出2%的AgentDojo注入；另一检测器在AgentDojo检出72%，换到零售与航空工具输出只剩15%。这对企业很具体：检测器如果把正常确认消息当攻击，任务会被错误阻断；如果只认识训练时的攻击格式，真实业务记录中的指令又可能被放行。",
+      "design": "实验在没有LLM参与的情况下执行金标准工具调用，取得可确认无注入的输出；随后改动第三方可控字段，用相同调用回放并比较差异标注攻击。检测器位于工具返回值进入Agent上下文之前，按各自模板、长度和分段配置运行；一个正常输出被标记，也会计入任务级阻断。研究不提出新防御，LLM评委仅用于诊断。企业接入时仍须继承调用者权限，命中内容隔离并转安全人员，检测超时不得悄悄放行；人员确认后应从可信检查点恢复，不把被隔离指令重新拼入上下文。",
+      "evidence": "开放研究证据： AgentDojo干净集包含97项任务、339个工具输出；τ-bench回放675项任务，产生1,533个正常输出，并构造584个注入输出。作者提供代码、结果与训练数据审计，支持复查排名迁移问题。关键限制： 1%误报阈值在同一正常集上选择和评估，对检测器有利；部署应另设校准集。攻击为固定模板，不是针对检测器自适应优化，实验也没有运行完整Agent测最终损害或恢复。训练重叠审计只查可见语料和逐字匹配，无法排除未公开或改写数据。编辑判断： 应在本系统工具输出上重新选型；这些结果不能证明某个检测器在所有业务中最佳，更不能让检测层取代工具权限。",
+      "idea": "为邮件检索Agent收集300条正常工具返回和50条植入攻击，按任务而非文本随机切分校准与留出集。先观察运行，命中只隔离，不删除邮件；安全人员审核冲突。比较1%误报下召回、正常任务阻断率、分格式漏检、检测时延和人工复核量，再决定上线阈值。",
+      "url": "https://arxiv.org/abs/2610.03448",
+      "relatedLinks": [
+        {
+          "label": "全文与样本表",
+          "url": "https://arxiv.org/html/2610.03448v1"
+        },
+        {
+          "label": "复现实验仓库",
+          "url": "https://github.com/lzwhehe/benign-instruction-bench"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep29-memophish-agent.jpg",
+        "alt": "Agent 提示注入风险相关示意图",
+        "caption": "相关既有配图；非本期论文原图。"
+      }
+    },
+    {
+      "type": "工程博客＋仿真平台文档＋关联视频RAG开源实现",
+      "source": "2026年10月7日｜NVIDIA；关联工作流文章发布于7月16日，并非本日更新",
+      "title": "NVIDIA把基础设施变更先放进数字孪生，明确区分配置验证与性能预测",
+      "summary": "这组此前未覆盖的资料提出一个窄用法：让Agent验证待上线的网络或软件配置，而不是直接操作生产设施。DSX Air提供可执行的逻辑数字孪生，Agent在其中检查受支持的配置、接口和组织规则，再给出放行建议或修复任务。文章特别区分配置与集成验证、容量与性能预测，后者需要其他模型或真实测量。关联实现将视频证据、SOP检索和报告接入工单，说明如何保留发现依据；但不能把一次演示扩展成真实机房可靠性的证明。",
+      "design": "输入来自CI/CD或变更管理中的候选配置。Agent选择包含拓扑、租户策略和约束的孪生环境，调用配置与健康检查工具，从获准文档检索规则，再输出证据报告、整改任务或人工审批请求。Brev提供实际GPU计算，不能与孪生中的模拟节点混为一谈；关联VSS链路以视觉模型处理视频、RAG检索并重排文档、LLM融合引用报告。生产权限与实验权限应分离，文章明确保留人工门。具体身份映射、超时、低置信停止和部分部署回滚未披露；因此试点只能提交建议，失败转变更负责人，不自动晋级生产。",
+      "evidence": "确认事实： 平台文档提供仿真、拓扑及API入口，关联VSS仓库可访问；这证明存在工程组件，不证明整条验证链已在客户生产有效。厂商主张： 提前验证可减少实验室准备与变更时间。独立证据： 本次未获得独立部署评测。局限： 10月文章没有变更数量、故障注入集、缺陷召回、误放行、耗时或成本对照，也未量化模拟与真实设备的偏差。7月关联案例中的伙伴效果仍是厂商转述，不能替代当前方案的结果分母。编辑推断： 最先适用的是配置、接口与隔离规则回归，而不是温度、功耗或吞吐承诺；模拟通过后仍需小流量上线、真实遥测和可执行回滚。",
+      "idea": "为平台团队做单一网络变更验证器，只覆盖两个租户的路由、ACL和服务连通性。Agent可修改孪生，不能取得生产凭证；负责人审阅证据后决定上线。用十项已知故障验证检出率，并记录误放行、仿真—实测差异、审批分钟数、验证时延及回滚成功率。",
+      "url": "https://developer.nvidia.com/blog/validate-ai-factory-changes-with-digital-twins-and-ai-agents/",
+      "relatedLinks": [
+        {
+          "label": "DSX Air用户文档",
+          "url": "https://docs.nvidia.com/dsx-air/"
+        },
+        {
+          "label": "视频证据到业务工单的关联实现",
+          "url": "https://developer.nvidia.com/blog/integrating-context-aware-video-ai-agents-into-enterprise-workflows/"
+        },
+        {
+          "label": "VSS代码仓库",
+          "url": "https://github.com/NVIDIA-AI-Blueprints/video-search-and-summarization"
+        }
+      ],
+      "image": {
+        "src": "/cases/oct15-4.webp",
+        "alt": "NVIDIA 数字孪生变更验证文章配图",
+        "caption": "NVIDIA 原始工程文章配图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "Outcome Cost Ledger",
+      "description": "选择工单答复或费用报销，逐任务记录模型费用、审阅、返工、审批和恢复时间，只有业务人员确认合格才计入完成量。以每个合格结果成本、端到端周期、错误率与积压决定是否扩容。",
+      "tags": [
+        "结果成本",
+        "人工审核"
+      ]
+    },
+    {
+      "title": "Workflow-Specific Release Gate",
+      "description": "把动作选择、工具输出检测和配置验证分别测试；校准集与留出集分离，权限与生产批准保持确定性控制。任何未知政策、检测异常或仿真—实测冲突都转人员，以严重漏报、正常任务阻断、动作稳定性和恢复时间验收。",
+      "tags": [
+        "工作流验证",
+        "发布门禁"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue covers an enterprise survey released on October 14 and three previously unfeatured research and engineering sources. The common question is whether an agent’s benefits and safety hold up when measured in the actual workflow. Review time must remain in the cost ledger; policy decisions cannot be judged by a single accuracy test; injection detectors cannot rely on public benchmark rankings; and passing a simulation is not production approval. The sources are primarily an original survey, preprints, engineering documentation, and code. Claims without independent production replication remain explicitly qualified.",
+      "takeaways": [
+        "G2 survey: 45% of buyers said review and rework consume more than a quarter of expected revenue",
+        "Corporate policy decisions: Familiar rules can be quickly classified, but unfamiliar boundaries still require reasoning",
+        "Injection detection rankings are difficult to migrate: the public benchmark leader only detects 2% on tool output",
+        "NVIDIA puts infrastructure changes into the digital twin first, clearly distinguishing between configuration verification and performance prediction"
+      ],
+      "contrarian": "The four sources put each evaluation back at its actual point of execution. G2 measures buyers’ perceived oversight burden, not audited net benefit; the policy study measures action selection, not completed business transactions; the injection study measures classification of tool responses, not prevention of an entire attack chain; and digital twins validate configurations and interfaces without guaranteeing production performance. Collapsing these measures into “agent reliability” erases the key boundaries. The evidence is also inspectable to different degrees. Both preprints disclose comparisons and failure conditions, but are limited by constructed policies, static attacks, and private materials. G2 provides a sample and time window but relies on buyer self-reports. NVIDIA provides engineering entry points without outcome denominators. The most defensible conclusion is that each gate needs its own hold-out set, human spot checks, and real business outcomes; a high score in an adjacent component cannot authorize release.",
+      "items": [
+        {
+          "type": "Corporate buyer survey + disclosure method description + Agent operating cost analysis",
+          "source": "October 14, 2026 | G2; survey conducted in July 2026",
+          "title": "G2 survey: 45% of buyers say review and rework consume more than a quarter of expected gains",
+          "summary": "G2's new survey extends agent costs beyond model billing to output review, error correction, action approval and exception recovery. Thirty-one percent of buyers said employees spend at least six hours a week supervising agents, 45% believed these tasks consumed more than a quarter of expected productivity gains, and 46% reported operating costs exceeding expectations. What deserves attention is not a vague “lack of trust”, but the specific tasks that still need to be completed by people after automation. For work order classification, order processing or report generation, the business team should calculate costs based on the final qualified results. They cannot record all outputs generated by a model but still needing employee correction as efficiency gains.",
+          "design": "This is a cross-organization investigation, not a single agent system that can be reconstructed. Publicly available information defines production as entering workflows under real data, systems, and business rules, but does not imply complete autonomy; the models, retrieval, tools, identity inheritance, or recovery implementations of each interviewed system are not disclosed. The editor recommends establishing a \"result cost ledger\" based on this: input the task ID and acceptance conditions, associate the model call, manual review, correction and exception handling records, and have the business leader confirm whether the results are qualified. Write actions still require separate approval. Timeouts, repeated failures, or cost overruns should pause the task and preserve its state before human handoff. Failure records cannot be overwritten by regeneration.",
+          "evidence": "Survey evidence: The sample is 1,019 decision-makers who influence or are responsible for B2B procurement, covering North America, EMEA and APAC; more than 2,500 software reviews from March to August 2026 are also cited to illustrate use cases. G2’s characterization: G2 refers to the cost of additional oversight as the “Distrust Tax.” Independent evidence: The release and the report have the same origin and do not constitute cross-validation. Limitations: The data is self-reported by buyers, and no task logs, actual working hours, cost audits or random controls are provided; the “expected gains” itself is not a unified baseline, and the subgroup sample size and sampling weight are not listed in the method description. Six hours cannot be interpreted as an average per employee, nor can 45% be converted into an industry-wide net loss. G2 also promotes Agent evaluation services, and there is a commercial interest relationship; the existing results support the survey signal of hidden costs, but do not prove that Agent has no net benefits overall.",
+          "idea": "Conduct a two-week \"qualified ticket cost\" pilot for a customer service team, which only covers classification and response drafts, and does not automatically close tickets. A human service representative confirms correctness and records the minutes of review, modification and takeover; compares the resolution time, rework rate, incorrect closures, total cost of each qualified result and queue backlog with similar manual work orders to avoid counting only the generation speed.",
+          "relatedLinks": [
+            {
+              "label": "Make an announcement"
+            }
+          ],
+          "image": {
+            "alt": "Cover image for G2’s 2026 AI Agents Insight Report",
+            "caption": "Image from the original G2 report page."
+          }
+        },
+        {
+          "type": "New preprint + controlled decision-making experiment + model and evaluation material release announcement",
+          "source": "October 13, 2026｜ThakiCloud, Korea University",
+          "title": "Corporate policy decisions: Familiar rules can be quickly classified, but unfamiliar boundaries still require reasoning",
+          "summary": "The research separates the first step of the enterprise assistant: before answering, decide whether to reply directly, ask for additional information, seek confirmation, call a tool, hand off to a human or reject. The author fixed a 27B Korean enterprise model, compared the generated JSON and restricted single Token decisions, and separately controlled whether to reason. In the familiar policy distribution, no difference in accuracy was detected between the two deployment paths, but the action change rate after restart was significantly different; switching to unseen policy boundaries, reasoning brought significant gains. It reminds the team that compressed output format and removing reasoning are two different optimizations, and they cannot be canceled at the same time with one in-distribution test.",
+          "design": "The model receives the written policy, tool signature, confirmed facts about the current session, and user request, and then selects one of seven actions. The JSON path generates action objects; the restricted Token path is only scored in the specified action vocabulary; there is also an adapter to compare with the classification head. The evaluation end uses hidden executable policies to generate gold standards and proofs, and then independently renders natural language to reduce the circular validation from having a model write its own answer labels. The paper tests decision-making and does not prove that tool parameters, identity authorization, or business transactions were executed correctly. In production, an external authorization layer should separately approve tool calls, and missing information or confirmation of side effects should be requested from the user; parsing failure, rule conflict, and timeout stop, the decision-making basis should be saved and transferred to manual work.",
+          "evidence": "Preprint evidence: The accuracy of the two paths on 2,800 questions is 93.46% and 94.14%, and the action flip rate is 3.00% and 0.29%; both change the reasoning and format at the same time, and the stability difference cannot be attributed to the Token interface. On the 300-question hidden policy set, the single-Token path enabled reasoning increased by 17.3 percentage points, with a range of 12.3-23.0 points. Openness: The authors state that they have released the model and re-rendering materials; this data set entry returns 401, and the download content is not verified. Limitations: There is only one model and family of constructed policies, the original confirmation set and training corpus are not made public; only 248 common samples are retained for public re-rendering, and more difficult scenes are unevenly excluded. Part of the training-inference interaction is not reproduced in re-rendering, and there is no real error write, takeover rate or ROI, and it cannot be concluded that reasoning can generally be replaced by training.",
+          "idea": "Build a 100-question action gate for the expense reimbursement assistant, which only determines answers, fills in fields, confirms, checks records, and transfers to finance, but does not perform payments. Test familiar policies versus new thresholds separately, vary reasoning and output format independently; have finance review every boundary error. Acceptance is based on action accuracy, preemptive calling, repeated run flip rate, P95 delay and cost of each correct decision.",
+          "relatedLinks": [
+            {
+              "label": "Full text and measurement appendix"
+            },
+            {
+              "label": "Dataset entry declared by the author"
+            },
+            {
+              "label": "Model entrance"
+            }
+          ],
+          "image": {
+            "alt": "Schematic diagram related to corporate policy decisions",
+            "caption": "Relevant existing illustration; not a figure from this paper."
+          }
+        },
+        {
+          "type": "Secure preprint + open code and results + cross-benchmark training data audit",
+          "source": "October 2, 2026｜Japan Advanced Institute of Science and Technology",
+          "title": "Injection-detector rankings do not transfer well: a public-benchmark leader detects only 2% in tool outputs",
+          "summary": "The study did not continue to compare isolated attack sentences, but replayed the emails, calendars, commodity records and transaction tool outputs that the agent actually read, and checked fifteen injection detectors and two LLM judges. After fixing the false positive rate at 1%, the leading detector on BIPIA detected only 2% of AgentDojo injections; another detector found 72% in AgentDojo, but only 15% in retail and airline tool outputs. This is very specific for enterprises: if the detector regards normal confirmation messages as attacks, the task will be blocked by mistake; if it only recognizes the attack format during training, the instructions in the real business records may be allowed.",
+          "design": "The experiment executes the gold standard tool call without an LLM, and obtains output that can confirm that there is no injection; then changes the third-party controllable fields, replays the same call and labels attacks by comparing the differences. The detector is located before the tool return value enters the Agent context and runs according to the respective template, length and segmentation configuration; a normal output is marked and will also be included in the task-level blocking. The study does not propose new defenses, and the LLM review is for diagnostic purposes only. Enterprises must still inherit the caller's permissions when accessing, isolate the hit content and transfer it to security personnel. When the detection times out, they must not let it go quietly; after personnel confirm it, they should recover from the trusted checkpoint and do not re-assemble the quarantined instructions into the context.",
+          "evidence": "Open research evidence: AgentDojo clean set contains 97 tasks and 339 tool outputs; τ-bench replays 675 tasks, generates 1,533 normal outputs, and constructs 584 injected outputs. The author provides code, results and training data audits to support review of ranking migration issues. Key limitations: The 1% false alarm threshold is chosen and evaluated on the same normal set to the advantage of the detector; deployment should have a separate calibration set. The attack is a fixed template and is not adaptively optimized for the detector. The experiment did not run a complete agent to test the final damage or recovery. Training overlap audit only checks visible corpus and word-for-word matches, and cannot exclude undisclosed or rewritten data. Editor's judgment: Detector selection should be repeated on this system’s own tool outputs; these results cannot prove that a certain detector is the best in all businesses, let alone allow the detection layer to replace tool permissions.",
+          "idea": "Collect 300 normal tool returns and 50 implanted attacks for the email retrieval agent, and randomly split the calibration and hold-out sets by task rather than text. Observe the operation first. Hits will only be isolated and emails will not be deleted; security personnel will review conflicts. Compare the recall under 1% false alarm, normal task blocking rate, missed detection of different formats, detection delay and manual review amount, and then determine the online threshold.",
+          "relatedLinks": [
+            {
+              "label": "Full text and sample sheet"
+            },
+            {
+              "label": "Reproduction experiment warehouse"
+            }
+          ],
+          "image": {
+            "alt": "Illustration related to prompt-injection risk for agents",
+            "caption": "Relevant existing illustration; not a figure from this paper."
+          }
+        },
+        {
+          "type": "Engineering blog + simulation platform documentation + associated video RAG open source implementation",
+          "source": "October 7, 2026 | NVIDIA; The associated workflow article was published on July 16 and is not updated today.",
+          "title": "NVIDIA puts infrastructure changes into the digital twin first, clearly distinguishing between configuration verification and performance prediction",
+          "summary": "This previously uncovered set of materials suggests a narrow usage: letting Agents verify network or software configurations proposed for release, rather than directly operating production facilities. DSX Air provides an executable logical digital twin, in which the agent checks the supported configurations, interfaces and organizational rules, and then gives release recommendations or repair tasks. The article specifically distinguishes between configuration and integration verification, and capacity and performance prediction, the latter of which requires additional models or real measurements. A related implementation integrates video evidence, SOP retrieval and reports into the work order to explain how to retain the discovery basis; however, it cannot extend a demonstration into a proof of reliability in a real data center.",
+          "design": "Input candidate configurations from CI/CD or change management. The agent selects a twin environment containing topology, tenant policies and constraints, calls configuration and health check tools, retrieves rules from approved documents, and then outputs evidence reports, rectification tasks or manual approval requests. Brev provides actual GPU computing and cannot be confused with simulation nodes in the twin; associated VSS links to process video with visual models, RAG retrieval and rearrangement of documents, and LLM fusion citation reporting. Production authority and experimental authority should be separated, and the article explicitly retains a human approval gate. Specific identity mapping, timeouts, low-confidence stops, and partial deployment rollbacks are not disclosed; therefore, a pilot should submit recommendations only; failures go to the change owner rather than automatically advancing to production.",
+          "evidence": "Confirmed facts: The platform document provides simulation, topology and API entrances, and the associated VSS repository is accessible; this proves the existence of engineering components, but does not prove that the entire verification chain has been effective in customer production. Manufacturer's Claim: Advance validation reduces laboratory preparation and change time. Independent Evidence: No independent deployment review was obtained for this time. Limitations: The October article did not compare the number of changes, fault injection sets, defect recalls, misreleases, time consumption or costs, nor did it quantify the deviation between simulation and real equipment. The partner effects in the July related cases are still reported by the manufacturer and cannot replace the result denominator of the current plan. Editor's inference: The first suitable use is regression testing of configuration, interface, and isolation rules, not temperature, power consumption or throughput commitments; after the simulation is passed, limited rollout, real telemetry and executable rollback are still required.",
+          "idea": "Make a single network change validator for the platform team, covering routing, ACLs and service connectivity for only two tenants. The agent can modify the twin but cannot obtain the production credentials; the person in charge decides to go online after reviewing the evidence. Use ten known faults to verify the detection rate, and record incorrect approvals, simulation-versus-measurement differences, approval minutes, verification delay and rollback success rate.",
+          "relatedLinks": [
+            {
+              "label": "DSX Air User Documentation"
+            },
+            {
+              "label": "Implementation of association between video evidence and business work orders"
+            },
+            {
+              "label": "VSS code repository"
+            }
+          ],
+          "image": {
+            "alt": "Image from NVIDIA’s article on digital-twin change validation",
+            "caption": "Image from NVIDIA’s original engineering article."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Outcome Cost Ledger",
+          "description": "Choose ticket responses or expense reimbursement and record model cost, review, rework, approval, and recovery time for each task. Count it as completed only when a business reviewer confirms an acceptable result. Decide whether to scale using cost per acceptable result, end-to-end cycle time, error rate, and backlog.",
+          "tags": [
+            "Outcome cost",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Workflow-Specific Release Gate",
+          "description": "Test action selection, tool-output detection, and configuration validation separately. Keep calibration and hold-out sets distinct, while permissions and production approval remain deterministic controls. Send unknown policies, detection anomalies, or simulation-versus-measurement conflicts to humans. Assess severe misses, normal-task blockage, action stability, and recovery time.",
+          "tags": [
+            "Workflow validation",
+            "Release gate"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "6bc681b6a7fe015f"
+}
