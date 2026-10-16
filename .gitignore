@@ -44,3 +44,6 @@ yarn-error.log*
 
 # generated from the canonical per-issue JSON files
 /content/briefings.generated.json
+
+# local Site publication archives
+/.openai/*.tar.gz
