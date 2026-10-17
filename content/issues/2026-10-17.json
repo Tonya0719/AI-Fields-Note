@@ -1,0 +1,233 @@
+{
+  "issue": "ISSUE 052",
+  "date": "2026.10.17",
+  "thesis": "本期纳入一项10月16日的企业数据架构说明，以及三项此前未覆盖的开放研究或工程实验。共同判断是：企业Agent的表现不仅取决于模型，也取决于数据如何授权、工具如何呈现、证据如何组织、历史如何保留。四组材料分别涉及实时业务查询、工具预算、群聊记忆和浏览器缓存；均缺乏独立生产效果复现，因此不把厂商说明或受控实验写成已经验证的业务收益。",
+  "takeaways": [
+    "Workday让Agent直接查询业务记录，但数据工具的可用性说明仍有分歧",
+    "ToolBottleneckBench：工具选择失败，可能是回答预算先被耗尽",
+    "EGCForest按频道、人物和交付物组织群聊，内部问答准确率达53.31%",
+    "Asana浏览器Agent保留稳定历史前缀，同模型实验成本降至约二十九分之一"
+  ],
+  "contrarian": "四组资料都要求把“上下文”当作有结构、有成本、有权限的工程对象。Workday试图保留业务计算与授权语义；ToolBottleneckBench证明工具呈现和生成预算会改变成功率；EGCForest保留群聊证据的时间、人物与交付物关系；Asana则说明频繁修改历史可能破坏缓存，使局部压缩反而更贵。 这些结论不能互相代替。稳定前缀不保证事实仍有效，完整证据不保证用户有权读取，提高Token上限也不保证动作安全。证据上，两项预印本主要支持受控比较；Asana支持一个任务上的工程改进；Workday仍是架构与交付声明，且公开页面存在可用性差异。本期没有足够独立证据支持普遍ROI结论，最值得复制的是分组件对照与明确的停止条件。",
+  "items": [
+    {
+      "type": "企业架构更新＋产品公告＋权限与语义层设计",
+      "source": "2026年10月16日技术说明；10月13日平台公告｜Workday",
+      "title": "Workday让Agent直接查询业务记录，但数据工具的可用性说明仍有分歧",
+      "summary": "Workday的新说明聚焦一个具体问题：HR或财务Agent查询在岗人数、成本中心或采购记录时，不应依赖过时导出表，也不应重新猜测指标定义。其Data Cloud将业务对象、实时查询、语义模型和受治理工具分层连接，强调沿用已有权限与计算逻辑。值得关注的是把“数据可读”“指标含义一致”和“动作获准”拆开。不过，技术博客与产品页对部分数据工具的早期访问或正式可用表述不同，采购和试点不能仅凭整个平台已发布就假定所有组件已经交付。",
+      "design": "Agent Lake以Iceberg承载业务对象，Live Data Query连接当前事务与历史数据；语义层复用对象关系和计算字段，减少模型自行拼接业务定义。MCP工具负责发现Schema、数据编排及生命周期操作，Gateway执行授权、限流与政策检查，ASOR登记身份和日志。厂商称越界动作转人工或触发事务回滚。公开资料未说明跨平台撤权传播、缓存、并发状态竞争及回滚覆盖范围。编辑建议先做只读查询：继承用户身份，返回记录时间与指标版本；权限冲突、版本不明或超时停止，交业务负责人核验后恢复。",
+      "evidence": "证据等级：厂商架构与交付声明，效果未验证。 官方列出逾240种预整理业务对象，并称Agent Lake和实时查询已正式可用，语义模型处于早期访问。来源冲突： 10月16日博客将Agent-Ready Tools for Data列为早期访问，产品页则列为正式可用；本期不能确认是否因组件范围或页面更新时间不同。独立证据： 未取得客户对照实验或权限测试。局限： “亚秒查询”“确定性计算”不能推导为整条Agent任务正确；没有查询集、错误率、延迟分位数、越权测试、恢复成绩或单位任务成本。零拷贝联邦访问也不等于模型上下文、日志与下游结果不存在数据副本，仍需逐路径核验。",
+      "idea": "为HR分析员做只读“在岗人数核对器”，只覆盖一个成本中心和固定统计日期，指标由业务层计算，模型只解释结果。HR确认口径后使用；对照原报表验收数字一致率、有效日期错误、越权返回、数据新鲜度、P95延迟及人工核对分钟数。",
+      "url": "https://blog.workday.com/en-us/four-layers-workday-data-cloud.html",
+      "relatedLinks": [
+        {
+          "label": "平台原始公告",
+          "url": "https://investor.workday.com/news-and-events/press-releases/news-details/2026/Workdays-Trusted-Agent-Platform-Now-Delivers-Headless-Access-to-HR-and-Finance-Letting-Customers-Build-and-Run-Lawful-AI-Agents/default.aspx"
+        },
+        {
+          "label": "Data Cloud产品页",
+          "url": "https://www.workday.com/en-us/ai-platform/data-cloud.html"
+        }
+      ],
+      "image": {
+        "src": "/cases/permission-aware-rag.webp",
+        "alt": "业务数据访问与权限示意图",
+        "caption": "相关既有配图；非本期Workday原图。"
+      }
+    },
+    {
+      "type": "新预印本＋开放基准与结果＋Harness预算对照实验",
+      "source": "2026年10月15日｜大阪大学、Initial S、名古屋大学",
+      "title": "ToolBottleneckBench：工具选择失败，可能是回答预算先被耗尽",
+      "summary": "这项研究固定企业任务，只分别改变注册工具目录、模型可见菜单、必需流程或返回记录格式，检查失败究竟发生在哪里。可见工具从8个增至128个时，成功率明显下降；但在容易截断的配置中，将单次生成上限提高十六倍，大部分下降消失。它提出一个重要诊断区别：“没有选出工具”可能只是生成先达到上限，不代表模型误解任务。企业在换模型或增加提示前，应先同时记录工具是否被检索到、是否真正执行，以及哪项预算终止了运行。",
+      "design": "基准以36个任务族覆盖12种合成企业意图，确定性编译器生成匹配变体；正确事实、决策和工具身份保持固定。精确评分器检查九项义务，并记录首个未满足项与终止上限。主实验单次生成限1,024 Token，总预算128,000 Token，调用与轮次另设限制。部分菜单在首次正确调用后利用金标准收窄，属于Oracle辅助对照，不是可直接部署的路由器。工具只在沙箱执行，未验证真实IAM或人工审批。生产应在预算耗尽时保存检查点并转人，恢复前核对已执行动作，避免重复写入。",
+      "evidence": "证据等级：开放受控实验，尚未同行评审。 21种模型—Harness配置共26,576个计分条件；可见菜单扩大后，路由菜单与固定菜单成功率分别下降12.3、17.5个百分点。六种高截断配置将上限升至16,384 Token后，菜单惩罚由43.7点降至2.7点。局限： 主容量单元每配置仅运行一次，重复子实验仍观察到运行差异；不同供应商对推理Token的计费与上限口径不同。91.5%的精确计分失败触及Harness限制，只适用于该冻结预算，不能解释为企业故障的一般比例。仓库开放计分结果与离线分析，但不含原始供应商回执及采集运行器；本期未复跑，也没有真实系统收益或事故证据。",
+      "idea": "为工单查询Agent准备30个冻结任务，分别展示8、32、128个工具，并独立调整生成上限；保持模型、事实和总成本门不变。只读执行，失败转工程师。测工具可见率、首次调用前截断、任务正确率、重复调用、P95时间及每个成功任务成本，先定位再修复。",
+      "url": "https://arxiv.org/abs/2610.21098",
+      "relatedLinks": [
+        {
+          "label": "全文与预算限制",
+          "url": "https://arxiv.org/html/2610.21098v1"
+        },
+        {
+          "label": "代码、计分结果与分析",
+          "url": "https://github.com/zichuanxu/tool-bottleneck-bench"
+        }
+      ],
+      "image": {
+        "src": "/cases/enterprise-rag-constraints.jpg",
+        "alt": "企业Agent工具调用示意图",
+        "caption": "相关既有配图；非本期论文原图。"
+      }
+    },
+    {
+      "type": "新预印本＋群聊RAG与记忆对照＋作者提供代码入口",
+      "source": "2026年10月14日｜浙江大学、小红书等",
+      "title": "EGCForest按频道、人物和交付物组织群聊，内部问答准确率达53.31%",
+      "summary": "EGCForest处理“谁最终批准了这个版本、后来是否撤回”等跨频道问题。它不把群聊仅切成独立文本，也不只保留压缩摘要，而是在同一原始消息日志上建立频道、人物和交付物三种树形索引，以回复关系和文档编号连接证据。内部集上准确率为53.31%，高于混合检索的40.70%。价值在于保留发言者、时间与交付物生命周期，使检索能找回分散的决策链；但答案仍有接近一半未达正确标准，尚不能让聊天记忆直接承担审批或任务执行依据。",
+      "design": "输入包含消息ID、时间、发言者、频道、回复目标和原文。离线构造三类树及节点摘要，同一消息通过Placement Map关联各视图；规则提取编号，稀疏桥连接回复与共同交付物。在线先召回消息，再用摘要补充、结构关系扩展，最后在3,000 Token内装配原文与上下文交给回答模型。查询检索不需在线LLM引导。人物视图用于理解语义，不是访问控制；论文未验证频道ACL、删除传播、撤权或增量更新。试点须先过滤用户可见证据，来源冲突或证据不足时拒答，交负责人确认，不自动更新业务状态。",
+      "evidence": "证据等级：离线研究，未见独立复现。 内部集含3个频道、39人、10,222条消息及801组问答；另测试两个公开群聊基准。内部准确率较MemOS提高20.85个百分点，但较更强的混合检索提高12.61点，不能只用前者代表相对所有基线的增益。效率自报： GroupMemBench检索平均65毫秒，构建1,842秒、存储206MB，均非端到端回答延迟。局限： 内部数据匿名且不可公开核查，部分公开集基线引用原论文，未全部重跑；答案依赖LLM评分，尚未测真实员工检索时间、越权泄露或维护成本。增量更新和多模态附件仍属未来方向；代码入口本次未返回可检查文件内容，不能声称已完成复现。",
+      "idea": "为一个项目组做“版本批准证据查询”，只收录两个获准频道和20个文档ID，返回批准、撤回及后续确认原文，不生成成员能力画像。项目负责人核对冲突；与普通RAG比较证据召回、当前状态正确率、引用归属、越权结果、更新滞后及查找分钟数。",
+      "url": "https://arxiv.org/abs/2610.19836",
+      "relatedLinks": [
+        {
+          "label": "全文、数据规模与消融",
+          "url": "https://arxiv.org/html/2610.19836v1"
+        },
+        {
+          "label": "作者代码入口",
+          "url": "https://anonymous.4open.science/r/EGCForest-MAD12/"
+        }
+      ],
+      "image": {
+        "src": "/cases/graph-rag.png",
+        "alt": "图结构检索与群聊记忆示意图",
+        "caption": "相关既有配图；非本期论文原图。"
+      }
+    },
+    {
+      "type": "工程博客＋多条件缓存实验＋已合入产品的厂商陈述",
+      "source": "2026年10月8日｜Asana、StackAI；此前未覆盖，非本日更新",
+      "title": "Asana浏览器Agent保留稳定历史前缀，同模型实验成本降至约二十九分之一",
+      "summary": "Asana发现，浏览器Agent每一步删除上一张截图、裁剪旧文本，虽然控制了上下文大小，却不断破坏可复用的请求前缀，使历史缓存频繁重写。团队改为缓存增长中的历史、批量删除截图，并扩大历史预算。同一原生产模型的最佳条件成本约降二十九倍、速度提高四倍；标题所称七十六倍还同时换了模型，不能全部归因于缓存。这是一项可复用的小工程：先检查请求是否保持追加式结构，再决定是否压缩，而不是默认每轮越短越便宜。",
+      "design": "浏览器工具把页面文字、截图和执行结果不断加入历史；缓存标记放到最新工具结果，系统提示与工具定义保持稳定。批量策略可保留20张截图后缩至1张，历史字符上限从120,000提高到480,000，减少每步修改旧前缀。实验逐请求采集供应商Token计数，答案对照独立准备的参考；工程师确定目标并审阅结论，修改经PR进入产品。它没有扩大工具授权，但也未披露浏览器身份、截图敏感信息和缓存隔离。实际部署仍需成本、步骤与Token上限，触顶即停转人，不能为保缓存无限保留敏感历史。",
+      "evidence": "证据等级：厂商工程实验，无独立复现。 六种历史策略、两个预算、四个模型，每条件三次，共144次，另有12次补充。最佳条件均遇到192项事实；更换模型后的七十六倍成本降低伴随89%输入来自缓存。关键限制： 三个模型匿名，重复次数少，原始完整轨迹与任务集未公开；文章显示的是同一任务的多条件运行，不能代表广泛浏览器任务。较小预算下部分配置没有完成，而较大预算全部完成，成本比较同时受到完成情况和历史保留影响。未报告置信区间、跨任务成功率、真实用户节省或长期缓存失效成本。已发布修改是部署方陈述，不等于全部生产流量都取得同等收益。",
+      "idea": "为只读网页资料收集器做缓存A/B：固定模型与20项任务，对比逐步裁剪、批量裁剪和预算内不裁剪；敏感页面不进入共享缓存，失败人工接管。验收事实覆盖、答案正确、缓存读取比例、输入费用、P95时间、触顶率及每个合格结果总成本。",
+      "url": "https://asana.com/inside-asana/cut-browsers-agent-cost",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/colorbrowser-agent.jpg",
+        "alt": "浏览器Agent历史与缓存示意图",
+        "caption": "相关既有配图；非本期文章原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "上下文成本与预算对照台",
+      "description": "选择一个只读Agent，固定任务和模型，分别改变工具菜单、历史裁剪和缓存策略；同时记录截断、步骤上限、质量和费用。以每个合格结果成本选择配置，不以最低Token数或单次成功率决定。",
+      "tags": [
+        "上下文成本",
+        "预算对照"
+      ]
+    },
+    {
+      "title": "带权限的当前状态证据包",
+      "description": "选择项目批准查询或HR统计，返回对象ID、有效日期、原始证据、指标版本和调用者权限；冲突或缺失即转人。验收当前状态正确率、引用归属、越权返回、更新滞后、人工核对时间及恢复能力。",
+      "tags": [
+        "权限控制",
+        "状态证据"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue includes an enterprise data-architecture explanation published on October 16 and three previously unfeatured open research or engineering experiments. The common judgment is that enterprise-agent performance depends not only on the model but also on how data is authorized, tools are presented, evidence is organized, and history is retained. The four sources address live business queries, tool budgets, group-chat memory, and browser caching. None has an independently replicated production outcome, so vendor descriptions and controlled experiments are not treated as established business gains.",
+      "takeaways": [
+        "Workday lets agents query business records directly, but its data-tool availability statements differ",
+        "ToolBottleneckBench: an apparent tool-selection failure may be an exhausted response budget",
+        "EGCForest organizes group chats by channel, person, and deliverable, reaching 53.31% accuracy on an internal QA set",
+        "Asana’s browser agent preserves a stable history prefix; same-model experimental cost fell to roughly one twenty-ninth"
+      ],
+      "contrarian": "All four sources treat context as an engineering object with structure, cost, and permissions. Workday aims to preserve business calculations and authorization semantics; ToolBottleneckBench shows that tool presentation and generation budgets change success rates; EGCForest retains the temporal, participant, and deliverable relationships in chat evidence; and Asana shows how repeatedly editing history can break caching, making local compression more expensive. These conclusions do not substitute for one another. A stable prefix does not guarantee that facts remain current; complete evidence does not mean the user is allowed to read it; and a higher token ceiling does not make an action safe. Two preprints mainly support controlled comparisons, Asana supports an engineering improvement on one task, and Workday remains an architecture and delivery claim with conflicting public availability statements. There is insufficient independent evidence here for a general ROI conclusion. The most reusable practices are component-level comparisons and explicit stopping conditions.",
+      "items": [
+        {
+          "type": "Enterprise architecture update + product announcement + permission and semantic-layer design",
+          "source": "Technical explanation October 16, 2026; platform announcement October 13 | Workday",
+          "title": "Workday lets agents query business records directly, but statements on data-tool availability still differ",
+          "summary": "Workday’s new explanation addresses a concrete problem: when an HR or finance agent asks for headcount, cost-center data, or purchasing records, it should not rely on stale exports or guess metric definitions anew. Data Cloud connects business objects, live queries, semantic models, and governed tools in layers, emphasizing reuse of existing permissions and calculation logic. The useful distinction is between data readability, consistent metric meaning, and permission to act. However, the technical blog and product page describe some data tools differently as early access or generally available. A buyer or pilot team cannot assume every component has shipped simply because the overall platform has been announced.",
+          "design": "Agent Lake uses Iceberg for business objects, while Live Data Query connects current transactions to historical data. A semantic layer reuses object relationships and calculated fields instead of asking the model to assemble business definitions. MCP tools support schema discovery, data orchestration, and lifecycle actions; a Gateway enforces authorization, rate limits, and policy checks; ASOR registers identities and logs. The vendor says out-of-scope actions go to humans or trigger transaction rollback. Public material does not explain cross-platform revocation propagation, caches, concurrent state races, or the scope of rollback. A prudent initial deployment is read-only: inherit the user’s identity and return record timestamps and metric versions; stop on permission conflicts, unknown versions, or timeouts and resume only after a business owner checks them.",
+          "evidence": "Evidence level: vendor architecture and delivery claims, without validated effects. Workday lists more than 240 prearranged business objects and says Agent Lake and live queries are generally available while semantic models are in early access. The October 16 blog lists Agent-Ready Tools for Data as early access; the product page lists them as generally available. This issue cannot resolve whether that difference reflects component scope or page-update timing. No independent customer comparison or permission test was found. Subsecond queries and deterministic calculations do not prove an entire agent task correct: there is no disclosed query set, error rate, latency distribution, unauthorized-access test, recovery result, or per-task cost. Zero-copy federated access also does not mean there are no copies in model context, logs, or downstream results; each data path still needs inspection.",
+          "idea": "Build a read-only headcount checker for an HR analyst, limited to one cost center and a fixed reporting date. The business layer calculates the metric; the model only explains it. After HR approves the definition, compare with the established report on numerical agreement, effective-date errors, unauthorized returns, freshness, P95 latency, and human-checking minutes.",
+          "relatedLinks": [
+            {
+              "label": "Original platform announcement"
+            },
+            {
+              "label": "Data Cloud product page"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of business-data access and permissions",
+            "caption": "Relevant existing illustration; not an original image from this Workday release."
+          }
+        },
+        {
+          "type": "New preprint + open benchmark and results + Harness-budget controlled experiment",
+          "source": "October 15, 2026 | Osaka University, Initial S, Nagoya University",
+          "title": "ToolBottleneckBench: apparent tool-selection failure may mean the answer budget was exhausted first",
+          "summary": "The study holds enterprise tasks fixed while separately changing the registered tool catalog, the menu visible to the model, required workflow, or returned-record format to locate the actual failure point. Success falls markedly when visible tools increase from eight to 128. Yet in configurations prone to truncation, increasing the per-generation limit sixteenfold removes most of the drop. “Failed to choose a tool” may therefore mean generation hit its ceiling before a tool call, not that the model misunderstood the task. Before changing models or adding prompt instructions, enterprises should record whether a tool was retrieved, whether it was executed, and which budget terminated the run.",
+          "design": "The benchmark spans 36 task families and 12 synthetic enterprise intents, with a deterministic compiler generating matched variants while correct facts, decisions, and tool identity remain fixed. An exact grader checks nine obligations and records the first unmet one and the stopping limit. The main experiment caps a generation at 1,024 tokens and total use at 128,000 tokens, with separate call and turn limits. Some menus narrow after the first correct call using gold-standard knowledge; that is an oracle-assisted control, not a deployable router. Tools execute only in a sandbox, without real IAM or human approvals. In production, exhausting a budget should save a checkpoint and hand off to a person, who checks already-executed actions before resumption to avoid duplicate writes.",
+          "evidence": "Evidence level: open controlled experiment, not yet peer reviewed. Twenty-one model–Harness configurations generated 26,576 scored conditions. Enlarging the visible menu reduced success by 12.3 percentage points for routing menus and 17.5 for fixed menus. In six highly truncated configurations, raising the limit to 16,384 tokens reduced a 43.7-point menu penalty to 2.7 points. Each main capacity cell ran only once, although repeated subexperiments still showed run-to-run variation. Vendors count and cap reasoning tokens differently. The finding that 91.5% of exactly graded failures hit Harness limits applies to this frozen budget, not to enterprise failures generally. The repository shares scores and offline analysis but not original provider receipts or the collection runner. This issue did not rerun the work, and it offers no real-system benefit or incident evidence.",
+          "idea": "Prepare 30 frozen tasks for a ticket-query agent, showing it eight, 32, or 128 tools while independently changing the generation ceiling. Keep the model, facts, and total cost gate fixed. Execute read-only and hand failures to an engineer. Measure tool visibility, truncation before first call, task accuracy, repeated calls, P95 duration, and cost per successful task before choosing a fix.",
+          "relatedLinks": [
+            {
+              "label": "Full text and budget limitations"
+            },
+            {
+              "label": "Code, scoring results, and analysis"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of enterprise-agent tool calling",
+            "caption": "Relevant existing illustration; not a figure from this paper."
+          }
+        },
+        {
+          "type": "New preprint + group-chat RAG and memory comparison + author-provided code entry",
+          "source": "October 14, 2026 | Zhejiang University, Xiaohongshu and others",
+          "title": "EGCForest organizes group chat by channel, person, and deliverable; internal QA accuracy reaches 53.31%",
+          "summary": "EGCForest targets cross-channel questions such as who finally approved a version and whether that approval was later withdrawn. Instead of splitting chat into isolated passages or keeping only compressed summaries, it builds three tree indexes—channel, person, and deliverable—over the same raw message log, linking evidence through replies and document identifiers. Its internal-set accuracy is 53.31%, versus 40.70% for hybrid retrieval. The value is preserving speakers, time, and the life cycle of a deliverable so retrieval can recover a distributed decision trail. But nearly half the answers still fail the correctness standard, so chat memory cannot be the sole basis for approvals or task execution.",
+          "design": "Input records contain message ID, time, speaker, channel, reply target, and original text. Offline construction creates three kinds of trees and node summaries; a Placement Map links each message across views, while rules extract identifiers and sparse bridges connect replies and shared deliverables. Online retrieval first recalls messages, then supplements with summaries and graph relations, assembling original text and context within 3,000 tokens for the answer model. Query-time retrieval needs no online LLM guidance. The person view helps interpret meaning; it is not access control. The paper does not validate channel ACLs, deletion propagation, revocation, or incremental updates. A pilot must filter evidence by the viewer’s permissions before retrieval, refuse answers when sources conflict or are insufficient, and seek owner confirmation rather than automatically updating business state.",
+          "evidence": "Evidence level: offline research with no independent replication found. The internal set has three channels, 39 people, 10,222 messages, and 801 QA pairs, plus tests on two public group-chat benchmarks. Internal accuracy exceeds MemOS by 20.85 points but exceeds the stronger hybrid-retrieval baseline by 12.61 points; the former alone must not stand for the gain against every baseline. The authors report 65 ms average retrieval on GroupMemBench, 1,842 seconds to build, and 206 MB storage—none is end-to-end answer latency. Internal data are anonymized and unavailable for public checking; some public baselines are cited from their original papers rather than all being rerun. Answers rely on LLM scoring, and employee search time, unauthorized disclosure, and maintenance cost have not been measured. Incremental updates and multimodal attachments remain future work. The code entry did not return inspectable files in this review, so replication is not claimed.",
+          "idea": "Build a version-approval evidence query for one project team, indexing only two authorized channels and 20 document IDs. Return the original approval, withdrawal, and subsequent confirmation text without profiling members’ abilities. A project owner resolves conflicts. Compare with ordinary RAG on evidence recall, current-state correctness, attribution, unauthorized results, update lag, and search minutes.",
+          "relatedLinks": [
+            {
+              "label": "Full text, dataset size, and ablations"
+            },
+            {
+              "label": "Author’s code entry"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of graph-structured retrieval and chat memory",
+            "caption": "Relevant existing illustration; not a figure from this paper."
+          }
+        },
+        {
+          "type": "Engineering blog + multicondition caching experiment + vendor claim of product integration",
+          "source": "October 8, 2026 | Asana, StackAI; previously unfeatured, not a new update today",
+          "title": "Asana browser agent preserves a stable history prefix; same-model experimental cost falls to about one twenty-ninth",
+          "summary": "Asana found that deleting the last screenshot and pruning old text at every browser-agent step kept context short but repeatedly broke the reusable request prefix, forcing the history cache to be rewritten. The team switched to a growing cached history, batched screenshot deletion, and increased the history budget. The best condition with the same production model cost roughly one twenty-ninth as much and ran four times faster. The headline’s 76-fold decrease also changes models and cannot all be attributed to caching. This is a reusable small engineering lesson: inspect whether requests preserve an append-only structure before deciding to compress, rather than assuming that a shorter prompt each turn is always cheaper.",
+          "design": "The browser tool appends page text, screenshots, and execution results to history; a cache marker sits on the newest tool result, while system instructions and tool definitions remain stable. A batch policy can keep 20 screenshots before shrinking to one; the history-character ceiling rose from 120,000 to 480,000, reducing edits to old prefixes each step. The experiment collected provider token counts per request and compared answers with an independently prepared reference. Engineers chose the target and reviewed conclusions, and the modification entered the product through a pull request. Tool authorization was not expanded, but browser identity, screenshot sensitivity, and cache isolation were not disclosed. Deployment still needs cost, step, and token ceilings, with human handoff at the limit; sensitive histories cannot be kept without bound merely to preserve caching.",
+          "evidence": "Evidence level: vendor engineering experiment without independent replication. Six history policies, two budgets, four models, and three runs per condition produced 144 runs, plus 12 supplementary ones. The best conditions encountered all 192 target facts; after changing models, the 76-fold cost reduction coincided with 89% of input coming from cache. Three models are anonymized, repetitions are few, and complete raw traces and tasks are not public. The article shows multiple conditions on one task, not broad browser-agent performance. Some smaller-budget configurations did not finish, while all larger-budget ones did, so cost comparisons are affected by completion and retained history. Confidence intervals, cross-task success, actual user savings, and long-run cache invalidation cost were not reported. Product integration is the deploying party’s claim, not proof of equivalent gains across all traffic.",
+          "idea": "Run a cache A/B test for a read-only web research agent, fixing the model and 20 tasks while comparing per-step pruning, batched pruning, and no pruning within budget. Do not put sensitive pages into a shared cache; hand failures to a person. Evaluate fact coverage, answer accuracy, cache-read share, input charges, P95 duration, ceiling hits, and total cost per acceptable result.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Illustration of browser-agent history and caching",
+            "caption": "Relevant existing illustration; not an original image from this article."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Context cost and budget comparison bench",
+          "description": "Choose a read-only agent with fixed tasks and model, varying the tool menu, history pruning, and cache policy independently. Record truncation, step limits, quality, and expense together. Select a configuration by cost per acceptable result, not by minimum token count or a single-run success rate.",
+          "tags": [
+            "Context cost",
+            "Budget comparison"
+          ]
+        },
+        {
+          "title": "Permissioned current-state evidence packet",
+          "description": "For project-approval queries or HR statistics, return object ID, effective date, original evidence, metric version, and caller permission. Hand off on conflict or missing data. Test current-state accuracy, source attribution, unauthorized results, update lag, human-checking time, and recoverability.",
+          "tags": [
+            "Permission control",
+            "State evidence"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "1452fece4e04098d"
+}
