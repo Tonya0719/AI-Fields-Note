@@ -21,6 +21,16 @@ function assertUrl(value, label) {
   if (url.protocol !== "https:") throw new Error(`${label} 必须使用 https`);
 }
 
+function validateEnglishItem(item, original, label) {
+  for (const field of ["type", "source", "title", "summary", "design", "evidence", "idea"]) assertString(item?.[field], `${label}.${field}`);
+  if (!item.image || typeof item.image !== "object") throw new Error(`${label}.image 缺失`);
+  for (const field of ["alt", "caption"]) assertString(item.image[field], `${label}.image.${field}`);
+  const links = original.relatedLinks ?? [];
+  const translatedLinks = item.relatedLinks ?? [];
+  if (translatedLinks.length !== links.length) throw new Error(`${label}.relatedLinks 数量必须与原文一致`);
+  translatedLinks.forEach((link, index) => assertString(link?.label, `${label}.relatedLinks[${index}].label`));
+}
+
 export function validateIssue(issue, { checkHash = true, requireTranslation = false } = {}) {
   for (const field of requiredIssueFields) if (!(field in issue)) throw new Error(`${issue.date ?? "未知日期"} 缺少 ${field}`);
   assertString(issue.issue, `${issue.date}.issue`);
@@ -52,6 +62,19 @@ export function validateIssue(issue, { checkHash = true, requireTranslation = fa
     if (!Array.isArray(project.tags) || project.tags.length < 2) throw new Error(`${issue.date}.projectIdeas[${index}] 至少需要 2 个标签`);
   });
   if (requireTranslation && issue.translations === undefined) throw new Error(`${issue.date}.translations.en 新增期必填`);
+  if (issue.itemTranslations !== undefined) {
+    if (issue.translations !== undefined) throw new Error(`${issue.date} 完整译文与逐篇译文不可并存`);
+    const entries = issue.itemTranslations?.en;
+    if (!Array.isArray(entries) || entries.length === 0) throw new Error(`${issue.date}.itemTranslations.en 至少需要一篇译文`);
+    let previousIndex = -1;
+    entries.forEach((entry, position) => {
+      const label = `${issue.date}.itemTranslations.en[${position}]`;
+      if (!Number.isInteger(entry?.index) || entry.index <= previousIndex || entry.index >= issue.items.length) throw new Error(`${label}.index 必须按原文顺序且不重复`);
+      if (entry.url !== issue.items[entry.index].url) throw new Error(`${label}.url 必须与原文链接一致`);
+      validateEnglishItem(entry.translation, issue.items[entry.index], `${label}.translation`);
+      previousIndex = entry.index;
+    });
+  }
   if (issue.translations !== undefined) {
     const en = issue.translations?.en;
     if (!en || typeof en !== "object") throw new Error(`${issue.date}.translations.en 缺失`);
@@ -59,15 +82,7 @@ export function validateIssue(issue, { checkHash = true, requireTranslation = fa
     if (!Array.isArray(en.takeaways) || en.takeaways.length !== 4) throw new Error(`${issue.date}.translations.en.takeaways 必须有 4 条`);
     en.takeaways.forEach((value, index) => assertString(value, `${issue.date}.translations.en.takeaways[${index}]`));
     if (!Array.isArray(en.items) || en.items.length !== issue.items.length) throw new Error(`${issue.date}.translations.en.items 必须与中文资料逐条对应`);
-    en.items.forEach((item, index) => {
-      for (const field of ["type", "source", "title", "summary", "design", "evidence", "idea"]) assertString(item?.[field], `${issue.date}.translations.en.items[${index}].${field}`);
-      if (!item.image || typeof item.image !== "object") throw new Error(`${issue.date}.translations.en.items[${index}].image 缺失`);
-      for (const field of ["alt", "caption"]) assertString(item.image[field], `${issue.date}.translations.en.items[${index}].image.${field}`);
-      const links = issue.items[index].relatedLinks ?? [];
-      const translatedLinks = item.relatedLinks ?? [];
-      if (translatedLinks.length !== links.length) throw new Error(`${issue.date}.translations.en.items[${index}].relatedLinks 数量必须与原文一致`);
-      translatedLinks.forEach((link, linkIndex) => assertString(link?.label, `${issue.date}.translations.en.items[${index}].relatedLinks[${linkIndex}].label`));
-    });
+    en.items.forEach((item, index) => validateEnglishItem(item, issue.items[index], `${issue.date}.translations.en.items[${index}]`));
     if (!Array.isArray(en.projectIdeas) || en.projectIdeas.length !== issue.projectIdeas.length) throw new Error(`${issue.date}.translations.en.projectIdeas 必须与中文项目方向逐条对应`);
     en.projectIdeas.forEach((project, index) => {
       assertString(project?.title, `${issue.date}.translations.en.projectIdeas[${index}].title`);

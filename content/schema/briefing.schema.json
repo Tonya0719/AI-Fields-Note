@@ -34,9 +34,27 @@
       "additionalProperties": false,
       "required": ["en"],
       "properties": { "en": { "$ref": "#/$defs/englishIssue" } }
+    },
+    "itemTranslations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en"],
+      "properties": {
+        "en": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/partialEnglishItem" } }
+      }
     }
   },
   "$defs": {
+    "partialEnglishItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "url", "translation"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "url": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "translation": { "$ref": "#/$defs/englishItem" }
+      }
+    },
     "englishIssue": {
       "type": "object",
       "additionalProperties": false,

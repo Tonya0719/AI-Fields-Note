@@ -106,5 +106,43 @@
       ]
     }
   ],
-  "contentHash": "7e3c4ac68b84ba5c"
+  "itemTranslations": {
+    "en": [
+      {
+        "index": 0,
+        "url": "https://arxiv.org/pdf/2512.04123",
+        "translation": {
+          "type": "Research / Survey",
+          "source": "ICML 2026",
+          "title": "What Do Agents in Production Actually Look Like?",
+          "summary": "A survey of 20 deployment teams, 306 practitioners, and 86 agent systems already in pilot or production shows that most teams use off-the-shelf models, write prompts by hand, and keep workflows within 10 steps before human intervention.",
+          "design": "User task → defined toolset → short workflow → human review or takeover.",
+          "evidence": "The data come directly from deployment teams, but may be more likely to cover successful projects or those already in pilot, potentially undercounting failed projects.",
+          "idea": "Find a narrow task that takes a person 20–60 minutes but allows AI a few minutes to complete it, then have a person confirm the final step.",
+          "image": {
+            "alt": "Co-occurrence chart of validation methods in the production-agent survey",
+            "caption": "Deployment teams combine multiple validation methods and generally retain human review and short workflows."
+          }
+        }
+      },
+      {
+        "index": 1,
+        "url": "https://arxiv.org/html/2605.05538v1",
+        "translation": {
+          "type": "Paper / RAG",
+          "source": "Microsoft",
+          "title": "Instead of Letting One Search Decide the Answer, Let the Model Keep Investigating",
+          "summary": "AgenticRAG keeps an enterprise's existing search system and adds only four tools—search, find, open, and summarize—so the model can query again when it finds insufficient evidence, rather than being locked into the first retrieval result.",
+          "design": "A single search becomes an iterative cycle of retrieval → opening documents → checking evidence → searching again.",
+          "evidence": "It performs strongly on several public benchmarks, but real operating costs, user adoption, and long-term maintenance burden have not yet been sufficiently demonstrated.",
+          "idea": "Narrow an ordinary FAQ into an investigation that spans multiple documents, requires comparing sources, and judges whether the evidence is sufficient.",
+          "image": {
+            "alt": "Diagram of Microsoft AgenticRAG's iterative investigation loop",
+            "caption": "The model investigates through a cycle of search, opening documents, and checking evidence instead of accepting the result of a single retrieval."
+          }
+        }
+      }
+    ]
+  },
+  "contentHash": "9ab52acaf9f1fee6"
 }

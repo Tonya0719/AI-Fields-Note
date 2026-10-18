@@ -42,6 +42,7 @@ export type Briefing = {
   items: BriefingItem[];
   projectIdeas: { title: string; description: string; tags: string[] }[];
   translations?: { en: EnglishTranslation };
+  itemTranslations?: { en: { index: number; url: string; translation: BriefingItemTranslation }[] };
   contentHash: string;
 };
 
