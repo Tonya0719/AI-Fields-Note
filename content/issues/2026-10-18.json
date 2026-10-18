@@ -1,0 +1,249 @@
+{
+  "issue": "ISSUE 053",
+  "date": "2026.10.18",
+  "thesis": "过去24小时未检索到足够扎实、且未覆盖的新生产部署，本期选取四组此前未覆盖的近期调查、同行评审论文与开放基准，不将转载或修订日期包装成新成果。核心判断是：Agent是否有用，要同时看员工真正需要什么、接口能否完成动作、业务结果是否正确，以及证据是否足以支持结论。“工具调用成功”“SQL可执行”“找到了文档”和“生成了产物”，都只是中间状态。",
+  "takeaways": [
+    "Asana调查：多Agent用户的协调负担，不等于自动化已经节省时间",
+    "StarShell：终端直接调用API可作为基线，但不能推导出应授予通用Shell权限",
+    "Argo-Bench不只评分SQL：封禁误伤、预算效果和预测区间都进入业务后果",
+    "ExecutionRAG减少漏检证据，却把瓶颈推向“证据是否足够”"
+  ],
+  "contrarian": "四组材料分别揭示了四种“完成”的落差：调查中的Agent产出可能需要员工继续协调；接口任务的目标状态正确，仍可能伴随额外修改；SQL与统计方法正确，仍可能优化错业务目标；检索找到必需资料，仍可能错误判断其充分性。它们不能用一个通用成功率合并验收。 证据层级也必须保留。Asana反映员工估计与态度，不是净工时审计；StarShell有同模型、同任务对照，但主要是单平台短任务；Argo-Bench能评分模拟后果，却未公开完整评分器；ExecutionRAG有组件控制，但存在评分口径与外推限制。最可迁移的原则是：让任务终点、允许修改、业务目标和证据闭合分别具有可核查标准，再计算人工接管后的总成本。",
+  "items": [
+    {
+      "type": "企业员工调查＋独立新闻跟进＋工作流协调成本",
+      "source": "2026年10月14日报告；10月16日媒体跟进｜Asana、Censuswide、CIO Dive",
+      "title": "Asana调查：多Agent用户的协调负担，不等于自动化已经节省时间",
+      "summary": "Asana调查发现，在每周使用至少两个Agent的员工中，46%估计切换工具、选择Agent、管理输出及处理冲突占去超过10%的工作时间；在组织使用至少两个Agent的员工中，38%估计超过四分之一的Agent工作存在重复或明显重叠。只有23%的受访AI办公用户认为，新引入的Agent解决了自己最需要帮助的问题。它把选题从“部署多少Agent”推进到“减少哪项交接与重复劳动”；但重复也可能是必要复核，不能把所有重叠直接记为浪费。",
+      "design": "这不是单一系统部署研究，没有公开各组织的模型、检索、工具或恢复机制。编辑建议选择一个跨团队流程，将请求、负责人、当前版本、已完成步骤及待批准动作保存在共享任务记录中；Agent只领取明确子任务，提交带来源的草稿，人员决定采用哪个版本。身份与数据权限按原业务系统执行，不因共享任务而扩大。遇到重复领取、冲突输出、超时或无人负责时暂停交接，由流程负责人裁决并保留版本记录；不能让多个Agent通过相互讨论自行决定哪个产物成为权威结果。",
+      "evidence": "证据等级：横截面自报调查，不能证明因果。 Censuswide于2026年9月调查美英4,502人，包括1,501名CIO或AI负责人及3,001名AI办公用户；协调负担分母为1,809人，重复工作分母为2,071人。独立核验： CIO Dive核实报告并采访Asana，但未审计工时。局限： 管理者与员工未按同一雇主配对，不能将差异解释为同一家公司的认知冲突；比例来自个人估计，不是日志测量。没有采用前基线、产出质量或净收益对照，无法判断协调成本是否被其他节省抵消。Asana同时销售工作管理产品，其建议有商业关联；调查支持检查工作流负担，不证明统一平台必然有效。",
+      "idea": "为采购报价汇总做两周“单一任务记录”试点，仅让两个Agent分别提取报价和检查缺项，采购员选择最终版本，不自动外发。与原流程比较重复处理、切换次数、冲突修正、交接等待、最终完成时间及人工分钟数；保留必要双重复核，不以减少Agent数量作为目标。",
+      "url": "https://asana.com/inside-asana/ai-agents-flow-of-work-which-agents-you-use",
+      "relatedLinks": [
+        {
+          "label": "CIO Dive报道",
+          "url": "https://www.ciodive.com/news/agentic-gap-executives-workers/833289/"
+        }
+      ],
+      "image": {
+        "src": "/cases/agent-adoption-interviews.jpg",
+        "alt": "员工使用多个Agent的工作流示意图",
+        "caption": "相关既有配图；非本期调查原图。"
+      }
+    },
+    {
+      "type": "TMLR论文＋开放代码与数据＋三类企业平台接口对照",
+      "source": "2026年3月31日首发、10月14日v4；论文页注明发表于TMLR 2026｜ServiceNow、Mila等",
+      "title": "StarShell：终端直接调用API可作为基线，但不能推导出应授予通用Shell权限",
+      "summary": "StarShell比较三种完成同一企业任务的方式：浏览器操作、预定义MCP工具，以及通过终端编写代码直接调用平台API。729个单会话任务覆盖ServiceNow、GitLab和ERPNext；在多个相同模型对照中，终端方案以更低推理费用达到接近或更高成功率。工程启发是先验证稳定API能否完成窄任务，再增加界面操作或工具抽象。但论文比较的是特定现成MCP服务器，不是MCP协议本身；终端更灵活也意味着执行面更广，成本优势不能成为放开网络与凭证的理由。",
+      "design": "Agent接收任务与执行上下文，循环生成命令或脚本，读取API响应，再修正下一步；文件系统保存中间结果、文档和可复用Skill。实验采用隔离平台实例，并以最终系统状态验证任务是否完成；同组接口对照共享底层模型。API发现与参数组合由模型负责，业务系统承担实际记录操作。研究没有覆盖完整生产身份委托、人工批准及跨会话恢复。试点应只暴露获准API与短期凭证，写入先生成预览；命令越界、接口失败或达到运行上限立即停止，人员核对已执行动作后从可信检查点恢复。",
+      "evidence": "证据等级：同行评审受控实验，非客户生产ROI。 ServiceNow、GitLab、ERPNext分别330、192、207题。以Sonnet 4.6为例，终端总体成功率72.7%、平均推理费用0.56美元，浏览器为72.2%、3.29美元；GPT‑5.4对照则为73.5%、0.19美元与73.4%、0.43美元。限制： 多数任务仅需少量API调用、触及单一系统，没有长期协作与人工监督。MCP基线仅代表所选7—83个工具的现成实现，字段完整的服务器可能缩小差距。验证器主要确认目标状态存在，并不完整保证其他状态未改变；费用也不含平台、运维和审阅成本。开放代码不等于本期已复跑，结果不能证明终端方案更安全。",
+      "idea": "为GitLab维护团队选择30项标签、负责人和里程碑更新任务，对比受限API脚本与浏览器方案；只能访问测试项目，写入需人工预览。除目标状态外，对全部改动做Diff，验收成功率、非请求修改、审阅分钟数、调用次数、恢复时间及每个合格变更总成本。",
+      "url": "https://arxiv.org/abs/2604.00073",
+      "relatedLinks": [
+        {
+          "label": "v4完整实验",
+          "url": "https://arxiv.org/html/2604.00073v4"
+        },
+        {
+          "label": "StarShell代码",
+          "url": "https://github.com/ServiceNow/StarShell"
+        },
+        {
+          "label": "数据集集合",
+          "url": "https://huggingface.co/collections/ServiceNow-AI/starshell"
+        }
+      ],
+      "image": {
+        "src": "/cases/agent-ops.png",
+        "alt": "企业Agent调用平台接口示意图",
+        "caption": "相关既有配图；非本期论文原图。"
+      }
+    },
+    {
+      "type": "企业数据Agent预印本＋开放数据仓库与Harness＋隐藏状态评分",
+      "source": "2026年10月1日｜TextQL；此前未覆盖，非本日更新",
+      "title": "Argo-Bench不只评分SQL：封禁误伤、预算效果和预测区间都进入业务后果",
+      "summary": "Argo-Bench模拟纽约外卖平台，让Agent从企业仓库重建经营事实，再提交封禁名单、激励预算、预测或报表，而不是只输出SQL。评分器掌握Agent看不到的模拟真值，例如真实欺诈身份与未来月份结果，因此可以同时计算阻止损失和误伤正常客户的代价。210项任务中，最强模型仅在34.8%的任务达到95分。其价值是把“分析看起来专业”与“决策真正优化目标”拆开；这些经营后果来自模拟器，不能当作真实平台实现的收入或风控收益。",
+      "design": "模拟器生成业务世界，再导出235张ERP式表，隐藏潜在标签和未来数据。Agent通过SQL探索、Python统计与优化，在独立Mission Control提交明确结果；评分按模拟后果、真实账目或预测区间计算。正式运行使用无外网gVisor沙箱，500轮结束仍未完成也停止，不接触真实客户。研究曾在开发中发现隔离不足导致模型读取评分代码，最终配置对此加强隔离。公开Harness不包含模拟器和评分器，因此本地提交不能完全独立复算官方分数；真实部署仍须另设权限、人工批准和事务恢复，不能沿用模拟动作直接上线。",
+      "evidence": "证据等级：开放模拟基准，评分独立复核受限。 比较14个模型，最强平均59.5分；论文私有世界约74.9亿行，公开兄弟世界约75.4亿行、76.5GB Parquet，不能视为完全相同数据。可检查部分： 公开任务、参考Agent和仓库；模拟器与评分器不公开，官方结果不能端到端独立复算。重要局限： 仅一个城市、一年和一种ERP格式，主动排除了真实仓库常见的迁移冲突与数据漂移；每模型配置每题一次，区间不覆盖重复运行波动。论文与网站部分统计口径不同，本期采用论文版本的核心结果。作者明确不据此估计真实公司性能，模拟净收益也不能转换为现实ROI。",
+      "idea": "为电商运营做“预算削减建议”沙箱，只覆盖一个地区和一种补贴，保留业务目标、约束与反事实响应模型。Agent只能提交方案，运营人员批准后才执行小流量实验。验收约束满足、净贡献、目标误读、预测覆盖、误伤客户、人工修正及单位有效方案成本。",
+      "url": "https://arxiv.org/html/2610.02122v1",
+      "relatedLinks": [
+        {
+          "label": "代码仓库",
+          "url": "https://github.com/TextQLLabs/Argo-Bench"
+        },
+        {
+          "label": "公开数据集",
+          "url": "https://huggingface.co/datasets/textql/Argo-Bench"
+        },
+        {
+          "label": "基准概览",
+          "url": "https://argo-bench.com/overview"
+        }
+      ],
+      "image": {
+        "src": "/cases/ebay-rag.jpg",
+        "alt": "企业数据分析与业务决策示意图",
+        "caption": "相关既有配图；非本期基准原图。"
+      }
+    },
+    {
+      "type": "近期研究论文＋固定组件对照＋多跳RAG错误分析",
+      "source": "2026年10月15日｜浙江大学、上海AI实验室等；论文页注明获DAI 2026 Oral接收",
+      "title": "ExecutionRAG减少漏检证据，却把瓶颈推向“证据是否足够”",
+      "summary": "ExecutionRAG维护“尚未回答的子问题及对应证据”账本，防止多跳检索找到一个看似相关的人名或实体后，沿错误方向继续搜索。研究固定检索器、语料和生成模型，仅改变搜索引导；在1,000道MuSiQue题中，一种检索配置下缺失必需证据的错误由382例降至234例。不过，过早判定证据充分和放弃回答随之增加，总体改善远小于证据恢复量。企业知识问答值得借鉴的是显式记录缺口，而不是把“检索到更多资料”直接当成正确完成。",
+      "design": "初始问题与种子检索共同建立需求账本，每项记录未解决、已支持或被后续证据推翻的状态及来源。Agent选择未解决项发起查询，再更新账本；确定性规则禁止未解决项静默消失，并保留已记录证据。全部闭合才回答，达到十五轮检索或累计上下文预算时返回有限部分答案。模型仍负责判断支持是否充分，账本不是独立验证器。研究未实现企业资料ACL、用户授权或人工审批；生产应先限制可见语料，证据冲突、关键字段缺失或超时即停止，展示未闭合项交领域人员，不以模型自行勾选代替批准。",
+      "evidence": "证据等级：固定组件离线实验，未见独立复现。 三个公开多跳基准各1,000题；同配置下MuSiQue的Contain-Match由42.0%升至49.1%，每题API费用由0.0034增至0.0064美元，检索Token由5,015增至7,161。换用另一Embedding后，LLM评分增益仅0.5个百分点，说明收益依赖任务和检索条件。口径警告： 主表LLM正确率与附录错误分析的失败总数不能直接对齐，本期不据其重算总体错误降幅。局限： 主要生成模型固定，开放百科问题不等同企业政策；部分评分依赖LLM，账本可能过早关闭。证据恢复证明原检索器可达，不证明最终推理正确，也没有真实员工采用、权限或业务收益实验。",
+      "idea": "为供应商准入问答做50题缺口账本，只覆盖证照、有效期与采购限制；每项必须绑定原文，关键项缺证即转采购人员。对比普通Agentic RAG，测必需证据召回、错误闭合、最终正确率、拒答质量、人工核验分钟数及每个正确答案成本。",
+      "url": "https://arxiv.org/abs/2610.21184",
+      "relatedLinks": [
+        {
+          "label": "全文、成本与错误分类",
+          "url": "https://arxiv.org/html/2610.21184v1"
+        }
+      ],
+      "image": {
+        "src": "/cases/agentic-rag-comparison.jpg",
+        "alt": "多跳检索证据组织示意图",
+        "caption": "相关既有配图；非本期论文原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "只读分析到批准写入的双阶段流程",
+      "description": "选择预算建议或GitLab维护，第一阶段只分析并提交带依据的计划；第二阶段由人员批准，执行后读回目标状态并检查非请求修改。以业务目标正确、修改Diff、恢复能力及单位合格结果成本验收。",
+      "tags": [
+        "两阶段流程",
+        "写入审批"
+      ]
+    },
+    {
+      "title": "可审阅的完成契约",
+      "description": "为供应商准入或采购报价定义必需字段、证据、负责人及停止条件；Agent维护缺口而非自行宣布成功。把重复劳动、错误闭合、最终业务正确率和人工核验时间一起纳入发布门。",
+      "tags": [
+        "完成契约",
+        "人工核验"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "The last 24 hours yielded too few solid, previously unfeatured production deployments. This issue therefore selects four recent, previously uncovered surveys, peer-reviewed papers, and open benchmarks, without presenting a repost or revision date as a new result. The central judgment is that an agent’s usefulness requires measuring what employees actually need, whether an interface can complete an action, whether the business outcome is right, and whether the evidence supports the conclusion. A successful tool call, executable SQL, a retrieved document, or a generated artifact is only an intermediate state.",
+      "takeaways": [
+        "Asana survey: the coordination burden of multi-agent users does not prove automation saved time",
+        "StarShell: direct API calls from a terminal are a useful baseline, but not a reason to grant general shell access",
+        "Argo-Bench scores more than SQL: false-positive bans, budget effects, and forecast intervals affect business outcomes",
+        "ExecutionRAG misses less evidence but moves the bottleneck to judging whether evidence is sufficient"
+      ],
+      "contrarian": "The four sources reveal four different gaps in what “done” means. Agent output in the survey may still require employee coordination. An interface task may reach the target state while making additional changes. Correct SQL and statistical methods may still optimize the wrong business objective. Retrieval may find the necessary material yet incorrectly judge it sufficient. A single generic success rate cannot combine these checks. Evidence levels must also remain distinct: Asana captures employees’ estimates and attitudes, not audited net working time; StarShell compares the same tasks with the same models but mainly short, single-platform tasks; Argo-Bench scores simulated consequences without releasing its complete scorer; and ExecutionRAG controls components but has scoring-definition and generalization limits. The most transferable principle is to make the task endpoint, permitted changes, business objective, and evidence closure separately checkable, then calculate total cost including human handoff.",
+      "items": [
+        {
+          "type": "Enterprise employee survey + independent news follow-up + workflow coordination cost",
+          "source": "Report October 14, 2026; media follow-up October 16 | Asana, Censuswide, CIO Dive",
+          "title": "Asana survey: multi-agent coordination burden is not proof that automation has saved time",
+          "summary": "Asana’s survey finds that among employees using at least two agents each week, 46% estimate that switching tools, choosing agents, managing outputs, and resolving conflicts take more than 10% of their work time. Among employees whose organizations use at least two agents, 38% estimate that more than a quarter of agent work is duplicated or substantially overlaps. Only 23% of surveyed AI office users think newly introduced agents address the work for which they most need help. The focus shifts from how many agents are deployed to which handoffs and repeated tasks are reduced. Some duplication, however, may be necessary review and cannot automatically be counted as waste.",
+          "design": "This is not a study of one deployed system. The models, retrieval, tools, and recovery mechanisms in surveyed organizations are undisclosed. A proposed implementation is to choose one cross-team process and keep the request, owner, current version, completed steps, and pending approvals in a shared task record. Each agent takes only an explicit subtask and submits a sourced draft; a person selects the accepted version. Identity and data rights stay in the original business systems and are not expanded by the shared record. Duplicate claims, conflicting outputs, timeouts, or ownerless steps pause the handoff for a process owner to decide, preserving version history. Agents should not decide among themselves which artifact becomes authoritative.",
+          "evidence": "Evidence level: cross-sectional self-report survey, not causal proof. Censuswide surveyed 4,502 people in the US and UK in September 2026: 1,501 CIOs or AI leaders and 3,001 AI office users. The coordination-burden denominator is 1,809 and the duplicated-work denominator is 2,071. CIO Dive checked the report and interviewed Asana but did not audit time records. Managers and employees were not paired by employer, so differences cannot be described as a perception gap inside the same company. Percentages are personal estimates, not measured logs. Without a pre-adoption baseline, output-quality measure, or net-benefit comparison, the survey cannot tell whether other savings offset coordination cost. Asana sells work-management software, so its recommendations have a commercial link. The findings justify examining workflow burden, not claiming one platform is necessarily effective.",
+          "idea": "Run a two-week shared-task-record pilot for purchasing-quote consolidation. Two agents extract quotes and check omissions; a buyer chooses the final version, with no automatic external sending. Compare duplicate processing, switches, conflict corrections, handoff waits, completion time, and human minutes with the previous process. Preserve useful double-checking; reducing agent count is not itself the goal.",
+          "relatedLinks": [
+            {
+              "label": "CIO Dive report"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of employees coordinating several agents",
+            "caption": "Relevant existing illustration; not an original image from this survey."
+          }
+        },
+        {
+          "type": "TMLR paper + open code and data + comparison across three enterprise-platform interfaces",
+          "source": "First published March 31, 2026; version 4 October 14; paper page lists TMLR 2026 | ServiceNow, Mila and others",
+          "title": "StarShell: direct API calls from a terminal are a baseline, not a case for granting general shell authority",
+          "summary": "StarShell compares three ways to complete the same enterprise task: browser interaction, predefined MCP tools, and terminal-generated code calling platform APIs directly. Its 729 single-session tasks span ServiceNow, GitLab, and ERPNext. In several same-model comparisons, the terminal approach achieves similar or higher success with lower inference charges. The engineering lesson is to first test whether a stable API can handle a narrow task before adding UI interaction or another tool abstraction. But the paper evaluates particular ready-made MCP servers, not the MCP protocol itself. A terminal also has a broader execution surface, so a cost advantage cannot justify unrestricted network access or credentials.",
+          "design": "The agent receives a task and execution context, iteratively generates commands or scripts, reads API responses, and adjusts its next step. A file system stores intermediate results, documents, and reusable Skills. Experiments use isolated platform instances and verify completion against final system state; interface comparisons in the same group use the same underlying model. The model discovers APIs and composes parameters while business systems perform the actual record operations. The research does not cover full production identity delegation, human approval, or cross-session recovery. A pilot should expose only permitted APIs and short-lived credentials, preview writes first, stop immediately on out-of-scope commands, API failure, or limits, then have a person check executed actions before resuming from a trusted checkpoint.",
+          "evidence": "Evidence level: peer-reviewed controlled experiment, not customer production ROI. ServiceNow, GitLab, and ERPNext contribute 330, 192, and 207 tasks. With Sonnet 4.6, terminal success is 72.7% at $0.56 mean inference cost versus browser success of 72.2% at $3.29; with GPT-5.4 the figures are 73.5% at $0.19 versus 73.4% at $0.43. Most tasks need few API calls and involve one system, not long-term collaboration or human supervision. The MCP baselines represent only the selected existing servers with 7–83 tools; a server with more complete fields might narrow the gap. The verifier mainly checks that the target state exists and does not fully establish that no other state changed. Charges omit platform, operations, and review costs. Open code does not mean this issue reran the experiment, and the results do not prove the terminal approach is safer.",
+          "idea": "Select 30 label, owner, and milestone update tasks for a GitLab maintenance team. Compare restricted API scripts with a browser workflow in a test project only, requiring human preview before writes. Diff all changes, not just the target state. Measure success, unsolicited changes, review minutes, call counts, recovery time, and total cost per acceptable change.",
+          "relatedLinks": [
+            {
+              "label": "Version 4 complete experiments"
+            },
+            {
+              "label": "StarShell code"
+            },
+            {
+              "label": "Dataset collection"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of an enterprise agent calling platform APIs",
+            "caption": "Relevant existing illustration; not a figure from this paper."
+          }
+        },
+        {
+          "type": "Enterprise data-agent preprint + open warehouse and Harness + hidden-state scoring",
+          "source": "October 1, 2026 | TextQL; previously unfeatured, not a new update today",
+          "title": "Argo-Bench scores more than SQL: wrongful bans, budget effects, and forecast intervals enter business outcomes",
+          "summary": "Argo-Bench simulates a New York food-delivery platform. Agents reconstruct operating facts from an enterprise warehouse and submit ban lists, incentive budgets, forecasts, or reports rather than merely outputting SQL. Its scorer knows simulated truths unavailable to the agent, including genuine fraud identities and future-month outcomes, so it can count both losses prevented and harm to legitimate customers. Across 210 tasks, the strongest model reached a score of 95 on only 34.8%. The contribution is separating professional-looking analysis from decisions that truly optimize the objective. These business consequences come from a simulator, not observed revenue or risk gains at a real platform.",
+          "design": "A simulator generates a business world and exports 235 ERP-like tables while withholding latent labels and future data. Agents explore with SQL and Python statistics or optimization, then submit explicit outputs to a separate Mission Control. Scoring uses simulated consequences, true ledger values, or prediction intervals. Official runs use a no-internet gVisor sandbox and stop after 500 turns without completion; they do not touch real customers. During development the researchers found insufficient isolation allowed models to read scoring code, so the final configuration strengthened it. The public Harness omits the simulator and scorer, preventing complete independent recalculation of official scores from a local submission. Real deployments need separate permissions, human approval, and transaction recovery; simulated actions cannot be promoted directly into production.",
+          "evidence": "Evidence level: open simulated benchmark with limits on independent scoring review. Fourteen models are compared; the strongest averages 59.5 points. The private paper world contains about 7.49 billion rows, while the public sibling world has about 7.54 billion rows and 76.5 GB of Parquet; they are not identical datasets. Public tasks, a reference agent, and the repository can be checked, but the simulator and scorer are not released, so official outcomes cannot be independently recomputed end to end. The setting covers one city, one year, and one ERP format, excluding common real-warehouse migration conflicts and data drift. Each model configuration runs each task once, so reported intervals do not include rerun variability. Some paper and website statistics use different definitions; this issue uses the paper’s main results. The authors explicitly caution against estimating real-company performance or translating simulated net gains into actual ROI.",
+          "idea": "Build a budget-cut recommendation sandbox for e-commerce operations, limited to one region and one subsidy. Keep the business objective, constraints, and counterfactual response model explicit. Agents submit proposals only; operators approve before a limited real experiment. Assess constraint satisfaction, net contribution, objective misinterpretation, forecast coverage, customer harm, human correction, and cost per useful proposal.",
+          "relatedLinks": [
+            {
+              "label": "Code repository"
+            },
+            {
+              "label": "Public dataset"
+            },
+            {
+              "label": "Benchmark overview"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of enterprise data analysis and business decisions",
+            "caption": "Relevant existing illustration; not an original image from this benchmark."
+          }
+        },
+        {
+          "type": "Recent research paper + fixed-component comparison + multi-hop RAG error analysis",
+          "source": "October 15, 2026 | Zhejiang University, Shanghai AI Laboratory and others; paper page lists DAI 2026 Oral acceptance",
+          "title": "ExecutionRAG reduces missing evidence but shifts the bottleneck to whether evidence is sufficient",
+          "summary": "ExecutionRAG maintains a ledger of unanswered subquestions and their supporting evidence so that, after finding one seemingly relevant name or entity, multi-hop retrieval does not pursue the wrong branch. The study fixes retriever, corpus, and generation model, changing only search guidance. On 1,000 MuSiQue questions under one retrieval configuration, failures to retrieve required evidence fell from 382 to 234. However, premature declarations that evidence was sufficient and answer abandonment increased, making the overall improvement much smaller than the evidence gain. The enterprise lesson is to record gaps explicitly, not to treat more retrieved material as completed and correct work.",
+          "design": "The initial question and seed retrieval create a requirements ledger. Each entry records whether a subquestion is unresolved, supported, or overturned by later evidence, along with its source. The agent queries unresolved entries and updates the ledger; deterministic rules prevent silent disappearance of unresolved items and preserve recorded evidence. It answers only after all entries close, or returns a limited partial answer after 15 retrieval rounds or the cumulative context budget. The model still decides whether support suffices; the ledger is not an independent verifier. Enterprise document ACLs, user authorization, and human approval are not implemented. Production use must first restrict visible materials, stop on conflicting evidence, missing key fields, or timeouts, and show unclosed items to a domain reviewer rather than treating a model’s checkbox as approval.",
+          "evidence": "Evidence level: fixed-component offline experiment with no independent replication found. Three public multi-hop benchmarks each contain 1,000 questions. On MuSiQue in the matched setup, Contain-Match rises from 42.0% to 49.1%; API charge per question rises from $0.0034 to $0.0064 and retrieval tokens from 5,015 to 7,161. With another embedding model, the LLM-scored gain is only 0.5 percentage points, showing dependence on task and retrieval conditions. Main-table LLM correctness and appendix error totals cannot be aligned directly, so this issue does not recompute an overall failure reduction from them. The main generation model is fixed, open-encyclopedia questions differ from enterprise policy, some scoring uses an LLM, and the ledger can close prematurely. Recovering evidence shows that the retriever could reach it, not that final reasoning is right; no experiment measures real employee adoption, authorization, or business returns.",
+          "idea": "Create a 50-question gap ledger for supplier-onboarding answers, limited to certificates, validity dates, and purchasing restrictions. Bind each requirement to original text; missing key evidence goes to a buyer. Compare with ordinary agentic RAG on required-evidence recall, incorrect closure, final-answer accuracy, refusal quality, human-checking minutes, and cost per correct answer.",
+          "relatedLinks": [
+            {
+              "label": "Full text, cost and error categories"
+            }
+          ],
+          "image": {
+            "alt": "Illustration of multi-hop retrieval evidence organization",
+            "caption": "Relevant existing illustration; not a figure from this paper."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Two-stage workflow from read-only analysis to approved writes",
+          "description": "For budget recommendations or GitLab maintenance, stage one analyzes and submits an evidenced plan. A person approves stage two; after execution, read back the target state and check unsolicited changes. Accept on business-objective correctness, change diffs, recoverability, and cost per acceptable result.",
+          "tags": [
+            "Two-stage workflow",
+            "Write approval"
+          ]
+        },
+        {
+          "title": "Reviewable completion contract",
+          "description": "For supplier onboarding or quote procurement, define required fields, evidence, owner, and stopping conditions. The agent maintains gaps instead of declaring success on its own. Include duplicated work, incorrect closure, final business accuracy, and human-checking time in the release gate.",
+          "tags": [
+            "Completion contract",
+            "Human review"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "f189e90025bc941d"
+}
