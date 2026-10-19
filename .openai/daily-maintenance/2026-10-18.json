@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-18",
+  "status": "published",
+  "siteVersion": 54,
+  "improvement": "Support individually translated articles in older issues without labeling the whole issue as translated",
+  "translatedItems": [
+    { "date": "2026-08-21", "url": "https://arxiv.org/pdf/2512.04123" },
+    { "date": "2026-08-21", "url": "https://arxiv.org/html/2605.05538v1" }
+  ],
+  "verification": "Content validation and build passed; published Site script bundle contains both English titles and the partial-translation notice."
+}

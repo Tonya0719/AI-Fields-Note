@@ -141,8 +141,42 @@
             "caption": "The model investigates through a cycle of search, opening documents, and checking evidence instead of accepting the result of a single retrieval."
           }
         }
+      },
+      {
+        "index": 2,
+        "url": "https://arxiv.org/html/2605.05287v1",
+        "translation": {
+          "type": "Security / Architecture",
+          "source": "Red Hat",
+          "title": "The Most Dangerous Enterprise RAG Error May Be Retrieving a Correct Answer the User Is Not Authorized to See",
+          "summary": "Relevance ranking is not an access-control decision. In an environment with multiple departments and customers, the most semantically relevant document may belong to another tenant. Permission checks must be built into every layer: ingestion, retrieval, tool execution, and conversation state.",
+          "design": "Attach permission labels at ingestion → apply ABAC filters during retrieval → manage agent state and tool permissions on the server → run inference with a shared model.",
+          "evidence": "Retrieval-layer gating prevented all cross-tenant leaks in controlled tests, but maintaining permission rules in a real enterprise is more complex.",
+          "idea": "Build a shared knowledge assistant with a record of permission filtering, making ‘use only evidence the current user is authorized to access’ its core capability.",
+          "image": {
+            "alt": "Reference architecture diagram for permission-aware, multi-tenant RAG",
+            "caption": "Tenant identity and role filters enter the retrieval layer, reducing the risk of cross-tenant evidence leaks."
+          }
+        }
+      },
+      {
+        "index": 3,
+        "url": "https://arxiv.org/html/2602.15859v1",
+        "translation": {
+          "type": "Case Study / Customer Service",
+          "source": "Industry research",
+          "title": "An Enterprise's Existing Customer-Service Conversations Can Become a Knowledge Base and Evaluation Data",
+          "summary": "First score historical conversations and remove errors and contradictions. Then extract structured knowledge as the sole source for RAG, while using past conversations to create user simulators that test answers, refusals, and handoffs to human agents.",
+          "design": "Conversation quality checks → knowledge extraction → governed RAG → user simulation → refusal and human-handoff tests.",
+          "evidence": "About 30% of calls could be handled safely and automatically in two domains, but the result relied mainly on simulated users rather than a long-term deployment with real customers.",
+          "idea": "Extract reusable knowledge from historical support tickets, automate only high-confidence recurring questions, and evaluate when the assistant should refuse to answer.",
+          "image": {
+            "alt": "Chart of customer-service knowledge extraction and automated handling results",
+            "caption": "After historical conversations undergo quality checks, knowledge extraction, and simulated evaluation, only high-confidence questions are handled automatically."
+          }
+        }
       }
     ]
   },
-  "contentHash": "9ab52acaf9f1fee6"
+  "contentHash": "b6f5f4e357e8ba5a"
 }

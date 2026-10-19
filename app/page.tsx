@@ -105,7 +105,7 @@ export default function Home() {
       <div className="archive-directory">
         {archiveMonths.map(([month, editions], monthIndex) => <details className="archive-month" open={monthIndex === 0} key={month}>
           <summary className="archive-month-heading">
-            <span className="archive-month-date"><strong>{Number(month.slice(5))}月</strong><span>{month.slice(0, 4)}</span></span>
+            <span className="archive-month-date"><strong>{locale === "en" ? new Intl.DateTimeFormat("en", { month: "long", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`)) : `${Number(month.slice(5))}月`}</strong><span>{month.slice(0, 4)}</span></span>
             <span className="archive-month-count">{editions.length} {copy.issueCount}</span>
             <span className="archive-month-action" aria-hidden="true"><span className="when-closed">{copy.expand}</span><span className="when-open">{copy.collapse}</span><i /></span>
           </summary>
