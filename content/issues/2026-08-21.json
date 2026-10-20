@@ -175,8 +175,25 @@
             "caption": "After historical conversations undergo quality checks, knowledge extraction, and simulated evaluation, only high-confidence questions are handled automatically."
           }
         }
+      },
+      {
+        "index": 4,
+        "url": "https://arxiv.org/html/2606.04037v2",
+        "translation": {
+          "type": "Governance / Evaluation",
+          "source": "Enterprise AI",
+          "title": "Before Deployment, Rules Can Generate a “Driving Test” for an Agent",
+          "summary": "First define the agent's operating boundaries: what it may access and do, and when it must stop. Then generate normal, edge, and attack scenarios from industry rules, leading to a deployment decision.",
+          "design": "Industry rules and ontology → automatically generated test scenarios → multi-model execution → evidence synthesis → approval, conditional approval, or rejection.",
+          "evidence": "The evaluation covers 1,800 scenarios, but its methodological advantage is not significant after strict statistical correction. Passing the tests also does not mean absolute safety in an open environment.",
+          "idea": "Given an agent's permissions, tools, and enterprise rules, automatically generate pre-deployment tests and determine whether it may be deployed.",
+          "image": {
+            "alt": "Cross-model evaluation heatmap for pre-deployment agent tests",
+            "caption": "Normal, edge, and attack scenarios generated from rules together form an evidence matrix for pre-deployment decisions."
+          }
+        }
       }
     ]
   },
-  "contentHash": "b6f5f4e357e8ba5a"
+  "contentHash": "65d095fbeb7b36f8"
 }

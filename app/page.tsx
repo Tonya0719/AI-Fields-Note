@@ -19,6 +19,7 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const [activeSection, setActiveSection] = useState("signal");
   const [locale, setLocale] = useState<Locale>("zh");
+  const [localePreferenceLoaded, setLocalePreferenceLoaded] = useState(false);
   const briefing = briefings[issueIndex];
   const english = locale === "en" ? briefing.translations?.en : undefined;
   const copy = ui[locale];
@@ -53,6 +54,19 @@ export default function Home() {
   useEffect(() => {
     document.documentElement.lang = locale === "zh" ? "zh-CN" : "en";
   }, [locale]);
+
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem("ai-field-notes-locale") === "en") setLocale("en");
+    } catch { /* Browsing remains available when storage is disabled. */ }
+    setLocalePreferenceLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!localePreferenceLoaded) return;
+    try { window.localStorage.setItem("ai-field-notes-locale", locale); }
+    catch { /* The language switch still works for this visit. */ }
+  }, [locale, localePreferenceLoaded]);
 
   const scrollBehavior = (): ScrollBehavior => window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
   const chooseIssue = (index: number) => {

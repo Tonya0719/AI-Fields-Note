@@ -1,0 +1,217 @@
+{
+  "issue": "ISSUE 055",
+  "date": "2026.10.20",
+  "thesis": "本期纳入一项10月19日更新的企业采访，以及三组此前未覆盖的工程案例和研究，不把较早发布日期包装成当日新闻。共同判断是：人工复核、历史经验和多Agent协作只有进入明确的证据与权限流程，才可能形成净价值。尤其要分开计算模型处理时间与人工总时间、建议正确与证据充分、单个动作合规与全流程约束成立。",
+  "takeaways": [
+    "IBM称安全调查由45分钟降至“2分钟生成＋10分钟复核”，人工不能从成本中消失",
+    "Uber合同Agent把律师修改变成可检索经验，但“自学习”并非自动微调",
+    "Airbnb用可移植Skill生成客服指引：流程匹配99.2%，证据充分却只有83.3%",
+    "EAIR发现：每个Agent单独有权操作，合起来仍可能突破总额与委派边界"
+  ],
+  "contrarian": "四组材料共同要求把“人参与了”进一步拆开。IBM的人负责核验调查；Uber的律师既批准当次修改，也提供未来检索经验；Airbnb的坐席需要确认步骤与证据是否齐全；EAIR则显示，交给另一个Agent或高权限角色并不等于完成授权检查。人工接管、经验学习和权限批准必须有不同记录，不能混成一个点赞或完成标记。 证据也呈现不同强度：IBM和Uber有真实使用背景，但收益数字缺少公开对照分母；Airbnb有真实案例和置信区间，却主要依赖自动评委，且执行预算不匹配；EAIR有可检查环境和复测，但主要支持受控机制判断。最稳健的共同结论是：同时检查最终结果、原文证据、全局约束与人工总成本，不用局部提速或单项高分代替上线验收。",
+  "items": [
+    {
+      "type": "独立媒体采访＋企业内部部署披露＋流程对照方法",
+      "source": "2026年10月18日首发，10月19日更新｜The Financial Express、IBM Consulting",
+      "title": "IBM称安全调查由45分钟降至“2分钟生成＋10分钟复核”，人工不能从成本中消失",
+      "summary": "IBM Consulting负责人披露，内部约6,000个Agent已嵌入150多个流程，并以安全威胁调查说明收益：原本约45分钟的工作，Agent约两分钟完成处理，随后仍需十分钟人工审阅。报道同时指出，IBM会在上线前比较有无Agent的流程，且部分改造出现负生产率。值得借鉴的是把人工审阅保留在结果分母中，而不是采用最醒目的“两分钟”宣称整体提速。该案例仍来自管理层陈述，未公开调查样本、威胁难度或漏判后果，不能据此计算普遍投资回报。",
+      "design": "来源只说明多个Agent承担调查任务，人员审阅结果，没有披露日志输入、检索库、模型、检测规则、工具权限或异常恢复，不能重建生产架构。编辑建议将原型限定为单类告警的只读证据整理：工具拉取批准范围内的事件，规则核对时间与实体，模型生成附来源的调查草稿；分析员决定升级或关闭，不允许Agent隔离主机或修改账户。缺日志、对象冲突或超时即保存证据包转人，恢复前重新核对事件状态，避免旧调查结论被直接复用。",
+      "evidence": "证据等级：媒体采访记录的部署方主张，非独立效果审计。 报道确认负责人提出上述规模、处理时间及上线前对照方法；但没有公开实验设计或原始记录。关键口径： 应观察两分钟处理加十分钟人工，而非仅将45分钟与两分钟相除；公司另称相同人员可处理三倍威胁，不能用简单时间比例替代该吞吐陈述。局限： 样本量、观察期、任务分层、误报漏报、返工、算力费用和人工基线均缺失；约6,000个Agent也不能代表6,000项独立收益。材料支持要求端到端对照，不足以证明收益来自Agent数量或能外推到其他安全流程。",
+      "idea": "为安全分析员选30条历史钓鱼告警，比较人工独立调查与Agent整理证据后复核，两组使用相同资料；严重判断由第二人裁决。验收正确升级、漏判、证据查找、人工审阅与返工分钟数、总完成时间及每条合格调查总成本，不以生成速度验收。",
+      "url": "https://www.financialexpress.com/business/news/ibm-deploys-6000-ai-agents-across-consulting-workflows/4364322/",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/proofpoint-soc-agent.webp",
+        "alt": "安全调查与人工复核相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "企业工程博客＋Word内真实试点＋规则与反馈检索",
+      "source": "2026年10月8日｜Uber Engineering；此前未覆盖，非本日更新",
+      "title": "Uber合同Agent把律师修改变成可检索经验，但“自学习”并非自动微调",
+      "summary": "Uber法律团队将合同修订助手放进Microsoft Word，而非要求律师换到新界面。系统识别对方修改，结合公司立场和历史谈判反馈，建议接受、拒绝或提出替代文字；律师逐项决定是否采用。团队报告平均审阅时间减少超过20%，AI决策准确率91%，但没有公开统计分母。其具体工程价值是把律师最终改文和理由保存为下一次检索材料，而不是仅收集点赞；所谓“自学习”主要依赖反馈检索与时间加权，并不意味着模型持续训练或历史决定自动成为新政策。",
+      "design": "Word插件读取修订，Python与LangGraph并行分析意图、风险和政策；OpenSearch分别保存规则与反馈，Redis维护会话。系统检索相近经验、生成修改，并检查与规则是否一致，最终仍由律师确认。历史反馈采用时间衰减，避免旧立场占据上下文。文章未完整披露案件级权限、跨团队反馈隔离、撤回传播、超时和崩溃恢复。编辑建议将批准规则与可参考经验分库、版本化；规则冲突或文档版本变化即停，律师核对当前文本后恢复，不让过往妥协覆盖现行硬性要求。",
+      "evidence": "证据等级：部署方工程自报，未见独立复现。 系统于2025年试点，报告超过20%平均审阅时间下降、91%决策准确率；公开了反馈记录、检索及Word接口问题，但未给合同数、律师数、观察周期、准确率定义或对照分配。不能证明： 时间下降是否扣除审阅、纠错和维护，错误是否集中在高风险条款，均未知；奖项也不是可靠性验证。外推限制： 同模板反复谈判提供稳定检索锚点，不代表任意第三方合同同样有效。文章同时描述语义匹配、规则覆盖及末端LLM检查，不能将其整体理解为形式化合规证明；Harness和法律图谱仍属探索方向。",
+      "idea": "为采购法务做单一保密协议模板的修订建议器，只覆盖五类常改条款；规则由法务维护，历史修改仅作参考，每项需律师批准。以严重条款漏检、规则冲突、建议接受率、人工修改分钟数、过时经验引用和每份完成审阅总成本验收。",
+      "url": "https://www.uber.com/us/en/blog/building-ubers-redlining-agent/",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/dacl-contract.jpg",
+        "alt": "合同修订与法律审核相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "企业部署案例预印本＋真实客服样本＋附录代码与验证契约",
+      "source": "2026年10月10日｜Airbnb",
+      "title": "Airbnb用可移植Skill生成客服指引：流程匹配99.2%，证据充分却只有83.3%",
+      "summary": "Airbnb研究将客服指引生成封装为操作说明、确定性脚本、配置和知识库，交由通用Harness运行，不另行训练任务模型。生成的Wiki导航负责找资料，权威文章负责提供可引用原文；保存时用程序验证摘录确实来自对应文章。132个真实案例中，131例指引与批准答案流程等价，但只有110例能用摘录完整重建依据。它说明“建议看起来正确”与“证据足以支持执行”必须分开。该方案约90秒一例，明显慢于现有生产助手，适合容忍等待、逐案人审的内部流程。",
+      "design": "去标识案例包含联系原因、坐席笔记与对话；Agent查询约2,700页导航，再读取2,881篇源文章，草拟步骤并提取原文。输出脚本检查Schema及摘录来源，不允许把导航摘要当权威引文；源库更新后需检查断链并重新审计。系统辅助坐席，不自主操作客户账户。论文未充分披露逐用户资料授权及运行超时恢复。编辑建议固定知识版本与时间预算，证据不足或验证失败即不保存为可执行指引，展示缺项交坐席；恢复时重取源文，不能凭上次摘要补写依据。",
+      "evidence": "证据等级：单企业内部离线评测，尚未同行评审。 流程匹配131/132，95%区间95.8%—99.9%；证据充分110/132，区间76.1%—88.7%。改用生产RAG检索后的证据充分率为59.8%，但两组执行循环与查询读取预算未匹配，不能把差异全归因于Wiki。测量限制： GPT‑4.1三次多数票评分，估计仍有约±2—3个百分点波动，模型快照未固定；参考指引来自既有人工批准，未重新审计，也未进行新的人工作答评分。成本边界： Wiki方案约90秒，检索替换方案约74秒，现有生产助手约8—9秒。内部样本与源文不公开，没有真实解决率、客户损害或长期维护成本结果。",
+      "idea": "为退货客服制作50题只读指引Skill：说明文件定义流程，脚本强制原文摘录，坐席确认后使用，不自动退款。对比普通RAG，分别测步骤等价、证据充分、错误版本、缺项拒答、人工核验时间、更新维护工时及每条合格指引成本。",
+      "url": "https://arxiv.org/abs/2610.14428",
+      "relatedLinks": [
+        {
+          "label": "全文、对照与局限",
+          "url": "https://arxiv.org/html/2610.14428v1"
+        },
+        {
+          "label": "附录Skill及验证器",
+          "url": "https://arxiv.org/html/2610.14428v1#A5"
+        }
+      ],
+      "image": {
+        "src": "/cases/airbnb-agent-loop.jpg",
+        "alt": "客服指引生成与证据核验相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "新预印本＋开放微型企业环境＋交互风险诊断与修复复测",
+      "source": "2026年10月10日｜微软、慕尼黑大学等",
+      "title": "EAIR发现：每个Agent单独有权操作，合起来仍可能突破总额与委派边界",
+      "summary": "EAIR研究的不是单个模型会否拒绝危险请求，而是多个角色交接后，组织规则是否仍成立。例如客服各自发放的补偿都没超个人额度，总和却突破共同上限；高权限专家代查资料时，忘记原请求者无权读取。研究用五个可执行微型环境检查总额、权威影响、状态漂移、委派授权和能力路由，并将过程异常、最终危害与任务完成分开记录。其价值是让风险指向具体交互边界，而非笼统归因于“多Agent失控”；受控失败比例不能当作企业生产事故率。",
+      "design": "环境显式保存角色、政策、权限、源事实和操作轨迹；能从账本直接判断的总额问题用确定性评分，语义判断才交模型。审计Agent必须引用步骤及交接证据，修复Agent修改控制逻辑，独立审阅通过后重跑，不能靠代码审查宣布安全。全部发生在模拟环境，不触及真实客户。编辑建议落地时由共享事务账本计算累计额度，将原请求者身份贯穿委派；状态缺失、授权不明或并发冲突即停止转主管，恢复前重算全局状态，避免各Agent仅凭自己的局部记忆继续执行。",
+      "evidence": "证据等级：开放受控研究，非生产事故统计。 主实验十种模型实现、1,158次有效运行；累计额度违规47/60，未经授权的信息披露70/90，最终邮件误述批准状态38/150。修复证据： 五类风险各20次新身份复测，目标故障共3/100，均为状态漂移；但新审计还发现30项目标标签之外的问题。重要限制： 复测只用一种实现，原审计集分层选取，不能将44/100与3/100直接计算为总体风险降幅；部分“完成”仅是响应代理指标。环境、用户与部分评委均由模型构造，保留有效运行也限制外推。引用可定位只证明发现可检查，不证明诊断正确，更不保证没有其他风险。",
+      "idea": "为售后补偿做双Agent沙箱，设置同一订单共享额度，客服只能提议、主管批准；委派查询始终携带原请求者权限。构建重复申请、并发补偿和状态交接案例，验收累计超额、越权披露、批准状态漂移、正确升级、合法任务完成及恢复时间。 ## 跨来源判断 四组材料共同要求把“人参与了”进一步拆开。IBM的人负责核验调查；Uber的律师既批准当次修改，也提供未来检索经验；Airbnb的坐席需要确认步骤与证据是否齐全；EAIR则显示，交给另一个Agent或高权限角色并不等于完成授权检查。人工接管、经验学习和权限批准必须有不同记录，不能混成一个点赞或完成标记。 证据也呈现不同强度：IBM和Uber有真实使用背景，但收益数字缺少公开对照分母；Airbnb有真实案例和置信区间，却主要依赖自动评委，且执行预算不匹配；EAIR有可检查环境和复测，但主要支持受控机制判断。最稳健的共同结论是：同时检查最终结果、原文证据、全局约束与人工总成本，不用局部提速或单项高分代替上线验收。 ## 本期项目方向 1. 证据化人工复核工作台：选择安全调查或客服指引，输出必须包含原文、对象版本、未解决项及建议动作；人员分别记录正确性、证据充分性和修改理由。以含复核返工的总工时、严重漏判及每份合格产物成本比较人工基线。 2. 跨Agent约束回归门：为补偿或采购流程建立共享额度、原请求者身份和批准状态账本；每次交接后验证这些约束没有丢失。修复后既复测原故障，也扫描新故障，并保留合法任务完成率，避免靠全面拒绝获得“安全”。",
+      "url": "https://arxiv.org/abs/2610.14800",
+      "relatedLinks": [
+        {
+          "label": "完整实验与复测",
+          "url": "https://arxiv.org/html/2610.14800v1"
+        },
+        {
+          "label": "EAIR开源工具",
+          "url": "https://github.com/microsoft/EAIR"
+        }
+      ],
+      "image": {
+        "src": "/cases/agent-ops.png",
+        "alt": "多Agent协作与约束检查相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "证据化人工复核工作台",
+      "description": "选择安全调查或客服指引，输出必须包含原文、对象版本、未解决项及建议动作；人员分别记录正确性、证据充分性和修改理由。以含复核返工的总工时、严重漏判及每份合格产物成本比较人工基线。",
+      "tags": [
+        "人工复核",
+        "证据充分"
+      ]
+    },
+    {
+      "title": "跨Agent约束回归门",
+      "description": "为补偿或采购流程建立共享额度、原请求者身份和批准状态账本；每次交接后验证这些约束没有丢失。修复后既复测原故障，也扫描新故障，并保留合法任务完成率，避免靠全面拒绝获得“安全”。",
+      "tags": [
+        "跨Agent约束",
+        "回归测试"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue includes one enterprise interview updated on October 19 and three previously uncovered engineering cases and studies. It does not present older publication dates as today's news. The shared judgment is that human review, past experience, and multi-agent coordination can create net value only when placed in explicit evidence and permission workflows. In particular, model processing time must be separated from total human time, a correct recommendation from sufficient evidence, and compliance of a single action from satisfaction of constraints across the whole workflow.",
+      "takeaways": [
+        "IBM Says Security Investigations Went from 45 Minutes to “2 Minutes to Generate + 10 Minutes to Review”; Human Time Cannot Disappear from the Cost",
+        "Uber’s Contract Agent Turns Lawyers’ Edits into Retrievable Experience, but “Self-Learning” Is Not Automatic Fine-Tuning",
+        "Airbnb Uses a Portable Skill to Generate Customer-Support Guidance: 99.2% Process Match, but Only 83.3% Sufficient Evidence",
+        "EAIR Finds That Even When Each Agent Is Authorized to Act, Their Combined Actions Can Still Breach Total Limits and Delegation Boundaries"
+      ],
+      "contrarian": "The four sources require a more precise account of what it means for a human to participate. IBM's people verify investigations. Uber's lawyers both approve the current edit and provide experience for future retrieval. Airbnb's support staff need to confirm that steps and evidence are complete. EAIR shows that handing work to another agent or a more privileged role does not itself complete an authorization check. Human takeover, learning from experience, and permission approval need distinct records; they cannot be collapsed into one thumbs-up or completion marker. The strength of the evidence also differs. IBM and Uber have real-use contexts, but their benefit figures lack publicly disclosed comparison denominators. Airbnb has real cases and confidence intervals, but relies largely on automated judges, and execution budgets do not match. EAIR has inspectable environments and retesting, but mainly supports judgments about controlled mechanisms. The most robust shared conclusion is to check final outcomes, original-source evidence, global constraints, and total human cost together, rather than using local speedups or a high score on one metric as a substitute for deployment acceptance.",
+      "items": [
+        {
+          "type": "Independent media interview + internal enterprise deployment disclosure + workflow-comparison method",
+          "source": "First published October 18, updated October 19, 2026 | The Financial Express, IBM Consulting",
+          "title": "IBM Says Security Investigations Went from 45 Minutes to “2 Minutes to Generate + 10 Minutes to Review”; Human Time Cannot Disappear from the Cost",
+          "summary": "The head of IBM Consulting disclosed that about 6,000 agents have been embedded in more than 150 internal workflows. For security-threat investigations, work that previously took about 45 minutes is said to take an agent about two minutes to process, followed by ten minutes of human review. The report also says IBM compares workflows with and without agents before launch, and that some redesigns produced negative productivity. The practice worth adopting is keeping human review in the result's denominator, rather than using the striking “two minutes” to claim an end-to-end speedup. This case remains a management statement; investigation samples, threat difficulty, and consequences of missed detections were not disclosed, so it cannot establish general investment returns.",
+          "design": "The source says only that several agents perform investigation tasks and people review the results. It does not disclose log inputs, retrieval stores, models, detection rules, tool permissions, or failure recovery, so a production architecture cannot be reconstructed. The editorial recommendation is to limit a prototype to read-only evidence organization for one alert type: tools retrieve events within an approved scope, rules check time and entities, and the model drafts a sourced investigation. An analyst decides whether to escalate or close; the agent must not isolate hosts or change accounts. If logs are missing, objects conflict, or a timeout occurs, save an evidence package and hand off to a person. Recheck event status before resuming, rather than reusing an old investigation conclusion directly.",
+          "evidence": "Evidence level: the deploying party's claims recorded in a media interview, not an independent effectiveness audit. The report confirms that the executive stated the scale, processing time, and prelaunch comparison method, but publishes neither an experimental design nor raw records. Key denominator: observe two minutes of processing plus ten minutes of human work, rather than dividing 45 minutes by two minutes alone. The company separately says the same number of people can handle three times as many threats; a simple time ratio cannot replace that throughput claim. Limitations: sample size, observation period, task mix, false positives and misses, rework, compute expenses, and the human baseline are all missing. About 6,000 agents also do not imply 6,000 independent benefits. The material supports a call for end-to-end comparisons, not proof that benefits come from agent count or generalize to other security workflows.",
+          "idea": "Select 30 historical phishing alerts for security analysts. Compare independent human investigations with agent-organized evidence followed by human review, using the same materials in both groups; a second person adjudicates serious judgments. Assess correct escalations, misses, evidence-search time, minutes of human review and rework, total completion time, and total cost per qualified investigation. Do not accept generation speed as the success criterion.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing related illustration of security investigation and human review",
+            "caption": "Existing related illustration; not an original image from this issue's source."
+          }
+        },
+        {
+          "type": "Enterprise engineering blog + real pilot in Word + retrieval of rules and feedback",
+          "source": "October 8, 2026 | Uber Engineering; not previously covered and not updated today",
+          "title": "Uber’s Contract Agent Turns Lawyers’ Edits into Retrievable Experience, but “Self-Learning” Is Not Automatic Fine-Tuning",
+          "summary": "Uber's legal team put its contract-redlining assistant inside Microsoft Word rather than asking lawyers to move to a new interface. The system identifies counterparty edits and, using company positions and feedback from past negotiations, recommends accepting, rejecting, or proposing replacement wording. Lawyers decide on each suggestion. The team reports a reduction of more than 20% in average review time and 91% accuracy for AI decisions, but does not disclose the statistical denominators. The concrete engineering value is saving lawyers' final wording and reasons as material for future retrieval, rather than collecting only thumbs-up signals. “Self-learning” here mainly relies on retrieving feedback with time weighting; it does not mean the model is continuously trained or that past decisions automatically become new policy.",
+          "design": "A Word add-in reads tracked changes. Python and LangGraph analyze intent, risk, and policy in parallel; OpenSearch stores rules and feedback separately, while Redis maintains the session. The system retrieves similar experience, generates an edit, checks consistency with rules, and still leaves final confirmation to the lawyer. Historical feedback is time-decayed so old positions do not dominate context. The article does not fully disclose case-level permissions, isolation of feedback across teams, propagation of withdrawals, timeout handling, or crash recovery. The editorial recommendation is to separate and version approved rules and reference experience. Stop on a rule conflict or document-version change, and resume only after a lawyer checks the current text, so an earlier compromise cannot override a current hard requirement.",
+          "evidence": "Evidence level: engineering results self-reported by the deploying organization, without observed independent replication. The system was piloted in 2025 and reports an average review-time reduction of more than 20% and 91% decision accuracy. It describes feedback records, retrieval, and Word integration issues, but gives no contract count, lawyer count, observation period, definition of accuracy, or comparison assignment. What it cannot show: whether the time reduction includes review, correction, and maintenance, or whether errors cluster in high-risk clauses. An award is not reliability validation. Generalization limit: repeated negotiations over the same templates provide stable retrieval anchors; arbitrary third-party contracts may not. The article describes semantic matching, rule overrides, and a final LLM check, which together should not be treated as a formal compliance proof. Harness and legal-graph approaches remain exploratory.",
+          "idea": "Build a redlining recommender for one nondisclosure-agreement template used by procurement lawyers, covering only five frequently edited clause types. Legal staff maintain the rules, historical edits remain references only, and a lawyer must approve each item. Assess misses on serious clauses, rule conflicts, suggestion acceptance, minutes of human editing, citations to outdated experience, and total cost per completed review.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing related illustration of contract redlining and legal review",
+            "caption": "Existing related illustration; not an original image from this issue's source."
+          }
+        },
+        {
+          "type": "Enterprise deployment-case preprint + real support samples + appendix code and validation contract",
+          "source": "October 10, 2026 | Airbnb",
+          "title": "Airbnb Uses a Portable Skill to Generate Customer-Support Guidance: 99.2% Process Match, but Only 83.3% Sufficient Evidence",
+          "summary": "Airbnb's study packages customer-support guidance generation into operating instructions, deterministic scripts, configuration, and a knowledge base, then runs it in a general-purpose harness without training a separate task model. A generated wiki navigation layer finds material, while authoritative articles supply source text that can be quoted. At save time, a program verifies that excerpts really come from the corresponding articles. In 132 real cases, guidance matched the approved answer's process in 131, but in only 110 cases could the excerpts fully reconstruct the basis. This separates “the recommendation looks correct” from “the evidence is sufficient to act.” At about 90 seconds per case, the approach is much slower than the current production assistant and suits an internal workflow that tolerates waiting and human review of every case.",
+          "design": "De-identified cases contain contact reasons, agent notes, and conversations. The agent searches about 2,700 navigation pages, then reads 2,881 source articles, drafts steps, and extracts original text. An output script checks the schema and excerpt provenance; a navigation summary cannot serve as an authoritative quotation. After source-library updates, broken links need checking and another audit. The system assists support staff; it does not autonomously operate customer accounts. The paper does not fully disclose per-user data authorization or recovery from execution timeouts. The editorial recommendation is to pin the knowledge version and time budget. If evidence is insufficient or validation fails, do not save the result as executable guidance; show the missing pieces to the support agent. On resumption, fetch source articles again rather than filling in grounds from an old summary.",
+          "evidence": "Evidence level: an internal offline evaluation at one enterprise, not yet peer reviewed. Process matching was 131/132, with a 95% interval of 95.8%–99.9%; sufficient evidence was 110/132, with an interval of 76.1%–88.7%. Sufficient evidence fell to 59.8% after replacing retrieval with production RAG, but the two groups did not have matched execution-loop and query-reading budgets, so the difference cannot all be attributed to the wiki. Measurement limits: GPT-4.1 majority voting across three judgments still has estimated variation of about ±2–3 percentage points; the model snapshot was not fixed. Reference guidance came from prior human approvals, was not re-audited, and no new human answer scoring was performed. Cost boundary: the wiki method takes about 90 seconds, the retrieval replacement about 74 seconds, and the existing production assistant about 8–9 seconds. Internal samples and source articles are not public. There are no results for real resolution rates, customer harm, or long-term maintenance costs.",
+          "idea": "Create a read-only guidance Skill for 50 returns-support questions. An instruction file defines the workflow, a script requires verbatim source excerpts, and a support agent confirms the result before use; it must not issue refunds automatically. Compare with ordinary RAG, measuring step equivalence, evidence sufficiency, wrong versions, refusal when material is missing, human verification time, update-maintenance hours, and cost per qualified guidance item.",
+          "relatedLinks": [
+            {
+              "label": "Full text, comparison, and limitations"
+            },
+            {
+              "label": "Appendix Skill and validator"
+            }
+          ],
+          "image": {
+            "alt": "Existing related illustration of customer-support guidance and evidence checks",
+            "caption": "Existing related illustration; not an original image from this issue's source."
+          }
+        },
+        {
+          "type": "New preprint + open miniature enterprise environments + interactive risk diagnosis and repair retesting",
+          "source": "October 10, 2026 | Microsoft, University of Munich, and others",
+          "title": "EAIR Finds That Even When Each Agent Is Authorized to Act, Their Combined Actions Can Still Breach Total Limits and Delegation Boundaries",
+          "summary": "EAIR does not study only whether a single model refuses a dangerous request. It asks whether organizational rules continue to hold after handoffs among roles. For example, separate customer-service agents may each award compensation within their personal limit while their combined amount exceeds a shared cap. A highly privileged specialist delegated to look up information may forget that the original requester is not allowed to read it. The study uses five executable miniature environments to test aggregate amounts, authority influence, state drift, delegated authorization, and capability routing, recording process anomalies, final harm, and task completion separately. Its value is locating risk at specific interaction boundaries rather than attributing it vaguely to “multi-agent loss of control.” Failure rates in controlled settings are not enterprise production incident rates.",
+          "design": "The environments explicitly store roles, policies, permissions, source facts, and action traces. Aggregate-limit problems that can be judged from a ledger use deterministic scoring; semantic judgments go to a model. An audit agent must cite steps and handoff evidence. A repair agent changes the control logic, and runs are repeated after independent review; code review alone does not establish safety. Everything takes place in simulated environments, not with real customers. The editorial recommendation for deployment is a shared transactional ledger that calculates cumulative limits and carries the original requester's identity through delegation. If state is missing, authorization is unclear, or concurrent actions conflict, stop and hand off to a supervisor. Recompute global state before resuming, rather than letting each agent continue from local memory alone.",
+          "evidence": "Evidence level: open controlled research, not production-incident statistics. The main experiment spans ten model implementations and 1,158 valid runs. Aggregate-limit violations occurred in 47/60 runs, unauthorized information disclosure in 70/90, and final emails misstated approval status in 38/150. Repair evidence: 20 retests with new identities for each of five risk categories found 3 target failures in 100, all involving state drift, but a new audit also found 30 issues outside the target labels. Important limits: retesting used only one implementation and the original audit set was stratified and selected, so 44/100 versus 3/100 must not be treated as a general risk-reduction estimate. Some “completion” measures are response proxies. The environments, users, and some judges were model-generated, limiting generalization. Retaining only valid runs also constrains extrapolation. A locatable citation means a finding can be checked; it does not prove the diagnosis correct or exclude other risks.",
+          "idea": "Build a two-agent sandbox for after-sales compensation with a shared cap per order. Customer service may propose, but a supervisor approves; delegated queries always carry the original requester's permissions. Construct duplicate-request, concurrent-compensation, and state-handoff cases. Assess cumulative overspending, unauthorized disclosure, drift in approval status, correct escalation, completion of legitimate tasks, and recovery time.",
+          "relatedLinks": [
+            {
+              "label": "Full experiment and retesting"
+            },
+            {
+              "label": "EAIR open-source tools"
+            }
+          ],
+          "image": {
+            "alt": "Existing related illustration of multi-agent coordination and constraint checks",
+            "caption": "Existing related illustration; not an original image from this issue's source."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Evidence-Based Human Review Workbench",
+          "description": "Choose security investigations or customer-support guidance. Outputs must include original text, object version, unresolved items, and proposed actions; people separately record correctness, evidence sufficiency, and reasons for edits. Compare against a human-only baseline using total time including review and rework, serious misses, and cost per qualified artifact.",
+          "tags": [
+            "Human review",
+            "Evidence sufficiency"
+          ]
+        },
+        {
+          "title": "Cross-Agent Constraint Regression Gate",
+          "description": "For a compensation or procurement workflow, build a ledger of shared limits, the original requester's identity, and approval status. After every handoff, verify that these constraints have not been lost. After a fix, retest the original failure and scan for new ones, while retaining the completion rate for legitimate tasks so that blanket refusals do not count as “safety.”",
+          "tags": [
+            "Cross-agent constraints",
+            "Regression testing"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "76fd0bbf8304e2c3"
+}

@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-19",
+  "status": "published",
+  "siteVersion": 55,
+  "improvement": "Show archive month names in English when English is selected",
+  "translatedItems": [
+    { "date": "2026-08-21", "url": "https://arxiv.org/html/2605.05287v1" },
+    { "date": "2026-08-21", "url": "https://arxiv.org/html/2602.15859v1" }
+  ],
+  "verification": "Content validation and build passed; deployed site and custom domain show 2026-10-19; live JavaScript contains both English article translations and archive month formatting logic."
+}

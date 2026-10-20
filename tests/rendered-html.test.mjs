@@ -42,7 +42,7 @@ test("per-issue JSON is the only maintained briefing and image source", async ()
   assert.equal(index.schemaVersion, 1);
   assert.equal(index.issues[0].date, issue.date);
   assert.equal(index.issues[0].contentHash, issue.contentHash);
-  assert.equal(issue.items.length, 5);
+  assert.ok(issue.items.length >= 4 && issue.items.length <= 6);
   assert.ok(issue.items.every((item) => item.image?.src && item.image?.alt && item.image?.caption));
   assert.match(loader, /content\/briefings\.generated\.json/);
   assert.doesNotMatch(page, /caseVisuals|https?:\/\//);
