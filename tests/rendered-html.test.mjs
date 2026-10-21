@@ -25,6 +25,7 @@ test("server renders the latest structured briefing", async () => {
   assert.match(html, /<title>AI Field Notes｜从案例到方案<\/title>/);
   assert.ok(html.includes(issue.date.replaceAll(".", "-")));
   assert.ok(html.includes(issue.issue));
+  assert.ok(html.includes(`${issue.date}<!-- --> · <!-- -->${issue.issue}`));
   assert.ok(html.includes(issue.items[0].title));
   assert.ok(html.includes(issue.items[0].image.src));
   assert.ok(html.includes(issue.projectIdeas[0].title));

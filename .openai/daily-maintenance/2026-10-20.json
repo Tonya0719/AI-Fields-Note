@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-20",
+  "status": "published",
+  "siteVersion": 56,
+  "improvement": "Remember the reader's language choice across visits",
+  "translatedItems": [
+    { "date": "2026-08-21", "url": "https://arxiv.org/html/2606.04037v2" },
+    { "date": "2026-08-22", "url": "https://www.ncsc.gov.uk/blogs/managing-the-cyber-risk-of-agentic-ai" }
+  ],
+  "verification": "Content validation passed for 55 issues and 240 items; build and rendered HTML tests passed; public deployment succeeded; live HTML shows 2026-10-20 and the live client bundle contains both English article translations and language preference logic."
+}

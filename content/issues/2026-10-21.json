@@ -1,0 +1,221 @@
+{
+  "issue": "ISSUE 056",
+  "date": "2026.10.21",
+  "thesis": "本期纳入一项10月20日发布的法律分析、一项10月19日企业安全架构更新，以及两项此前未覆盖的实证研究。共同问题是“批准究竟覆盖什么”：授权浏览器完成预约，不等于允许它接受追踪或外传全部资料；批准Agent运行，不等于批准风险变化后的所有动作；同意一条命令，也不一定覆盖它间接读取的配置。可靠控制必须把用户目的、实时权限、实际输入集合和人工确认绑定起来，而不能只保存一次点击。",
+  "takeaways": [
+    "浏览器Agent替用户点击“同意”，任务授权不等于隐私授权",
+    "Microsoft提出动态收缩Agent权限，但尚未公布误判与停机数据",
+    "仅47.7%的开发者称会仔细读权限请求，33.6%会随使用变得松懈",
+    "只批准入口文件会漏掉54.6%的实际输入变更，Agent也不能稳定列全依赖"
+  ],
+  "contrarian": "四组材料把“用户已经批准”拆成四个不同问题。浏览器案例要求确认用户批准了哪些数据披露和法律选择；Microsoft架构要求权限能随任务风险收缩；开发者研究说明人会因重复提示和时间压力降低审查；权威输入集研究则证明，即使人认真批准，批准对象本身也可能少于实际执行对象。审批可靠性因此是范围、时效、可见性和执行绑定的乘积，而不是弹窗数量。 证据层级必须保持分离。法律分析识别真实产品与法规之间的未决边界，但不是判例结果；Microsoft给出完整控制面，却未公布有效性分母；开发者研究量化自报行为，不能替代日志观察；仓库研究提供最强的结构性实验，但样本集中且未覆盖动态依赖。跨来源最稳健的工程结论是：由可信执行层生成可核查的批准对象，人只审批有后果的差异，运行时权限仍可撤销，并把漏绑、误拒和人工负担一起测量。",
+  "items": [
+    {
+      "type": "法律分析＋真实产品文档＋隐私与代理授权边界",
+      "source": "2026年10月20日｜Reuters Legal；Google、Mozilla、美国隐私法规",
+      "title": "浏览器Agent替用户点击“同意”，任务授权不等于隐私授权",
+      "summary": "浏览器Agent已能在登录状态下选择网站、填写表格并分享可能敏感的信息，因而产生一个具体缺口：用户要求“预约诊所”，并不表示同意Agent接受每个Cookie横幅、覆盖全局退出信号，或向所有候选诊所提交会员号。美国合同法可能把电子Agent的点击归于用户，但隐私法规要求同意必须具体、知情且明确，目前没有判例划定任务授权与便利性披露的边界。对企业而言，网站日志中的一次“Accept All”已不能可靠证明是人作出的特定同意。",
+      "design": "用户给出目标后，浏览器Agent读取页面、登录会话及连接应用，自行选择网站和交互路径；网站通常只记录表单提交或同意按钮，没有区分人和Agent。来源未披露具体模型、权限令牌、字段筛选或失败恢复机制。编辑建议把任务授权转成结构化契约：列出允许的站点、数据字段、有效期和禁止决定；查询与比较可自动执行，接受追踪、覆盖隐私信号、同意条款及提交健康数据必须显示目的地和字段，由人逐次确认。页面变化、授权缺失或确认超时即停止，保留草稿而不发送。",
+      "evidence": "证据等级：律师署名分析与产品文档核对，不是法院最终裁判或事故统计。 Google文档确认Auto Browse可进入用户能访问的网站、调用连接应用并分享敏感信息，也警告可能误读请求或页面。文章援引2026年8月Perplexity案：第九巡回法院在特定案卷下将Agent视为用户工具，但明确没有解决隐私同意问题。确认事实： 多州法规要求敏感数据同意具有具体性，网站现有日志难以识别点击主体。局限： 文中的诊所流程是法律假设，没有用户样本、误同意率或损害分母；不同州法律和具体产品设置差异很大。材料能证明法律与审计缺口，不能断言所有Agent点击均无效或企业已经违法。",
+      "idea": "为差旅预订Agent建立“字段级同意收据”：只自动比较航班，提交护照号、接受追踪或购买不可退款票前展示站点、字段与后果。以未经确认的数据披露、同意主体识别率、重复确认、任务完成率、人工确认秒数及撤回成功率验收。",
+      "url": "https://www.reuters.com/legal/legalindustry/when-your-browser-starts-speaking-you-who-consented-consumer-or-ai--pracin-2026-10-20/",
+      "relatedLinks": [
+        {
+          "label": "NIST软件与AI Agent身份授权项目",
+          "url": "https://www.nccoe.nist.gov/projects/software-and-si-agent-identity-and-authorization"
+        }
+      ],
+      "image": {
+        "src": "/cases/colorbrowser-agent.jpg",
+        "alt": "浏览器Agent与网页交互相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "厂商安全架构更新＋Agent身份与动态权限产品路线",
+      "source": "2026年10月19日｜Microsoft Security、Microsoft官方博客",
+      "title": "Microsoft提出动态收缩Agent权限，但尚未公布误判与停机数据",
+      "summary": "Microsoft将企业Agent定义为一种“内部人”风险：它即使未被攻击，也可能因上下文变化、提示注入或目标漂移而越出原任务。Project Perception把Agent注册、独立身份、沙箱、动态权限、风险评分和条件访问串联，风险升高时可保留读取、撤销写入、缩小网络范围、要求人工批准或停止运行。相比一次性准入，最有价值的设计是权限可在任务中途收缩。不过公告没有提供客户实验、误阻率或响应时延，当前更接近产品架构与交付方向，而非有效性证明。",
+      "design": "Agent先被发现并登记独立身份，不继承员工全部权限；Execution Container隔离模型和Harness，Entra按任务签发限时权限，网络、数据及MCP调用进入外部控制面。Dynamic Agent Risk汇总身份、端点、云、网络、运行时和动作信号；条件访问据此降权，Guardian Agents按人工设定的Playbook调查或执行处置。高风险写入需可证明的人工批准，最高风险隔离运行时。公开资料没有说明评分阈值、信号冲突、跨平台旁路、部分事务补偿及恢复标准，不能假定所有调用均已覆盖。",
+      "evidence": "证据等级：厂商产品说明与内部规模主张，缺少独立效果评估。 Microsoft称Agent发现范围扩至60类本地Agent，并表示内部已运行数十万Agent；这些数字证明治理对象规模，不证明发现完整或风险控制有效。厂商主张： 动态权限可按任务和时间授予，风险变化可联动多个执行点，并把读取与写入分别处置。尚未披露： 功能逐项可用日期、受测Agent数、提示注入召回、正常任务误阻、权限撤销P95、在途写入、旁路率及事故前后对照均缺失。以模型思维信号判断意图也仍属推断，不能替代实际动作、目标对象和事务结果的确定性验证。",
+      "idea": "为费用报销Agent做三级动态权限试点：默认只读，低风险可建草稿，高风险或外部内容影响时撤销写入并转财务人员。用未登记Agent、旁路调用、错误降权、提示注入漏检、P95撤权、残留会话及合法报销完成率形成上线门。",
+      "url": "https://www.microsoft.com/en-us/security/blog/2026/10/19/agents-are-your-newest-insiders-security-must-move-at-their-speed/",
+      "relatedLinks": [
+        {
+          "label": "“Agentic Insider”治理说明",
+          "url": "https://blogs.microsoft.com/blog/2026/10/19/securing-the-agentic-insider/"
+        }
+      ],
+      "image": {
+        "src": "/cases/task-scoped-permissions.jpg",
+        "alt": "Agent任务权限控制相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "混合方法预印本＋18人访谈＋115名开发者调查",
+      "source": "2026年10月5日｜Chalmers University of Technology等",
+      "title": "仅47.7%的开发者称会仔细读权限请求，33.6%会随使用变得松懈",
+      "summary": "研究调查开发者如何批准Coding Agent修改文件、执行命令和访问外部资源。受访者往往只能检查可见输出，无法确认后台决策与数据流；47.7%称会仔细阅读请求，33.6%只浏览，20.6%默认批准。风险越高越谨慎，但重复提示、熟悉感和时间压力又会降低注意力，33.6%承认使用一段时间后变得不那么仔细。结果说明Human-in-the-loop不是在每个动作前弹窗即可成立：批准界面必须呈现真实作用范围，并避免把重复点击误认成稳定授权偏好。",
+      "design": "研究本身不实现Agent系统；它观察的通用链路是Agent提出文件、命令或网络权限，开发者依据范围、风险、任务契合度和环境作出允许或拒绝，再通过实时观察或事后Diff监督。生产设计应把模型解释与执行器计算的真实目标分开显示：文件集合、命令参数、网络目的地、可逆性及预期副作用由执行层生成；敏感动作逐次确认，低风险动作可在短期范围内授权。拒绝时还应区分“禁止这次调用”与“禁止整条方案”；Agent反复改写请求绕过拒绝时停止并交人员重新规划。",
+      "evidence": "证据等级：自报式混合方法研究，未直接观察生产日志。 先访谈18人，再调查115人；权限问题有效样本为107人。76.6%会更仔细检查写入、删除或提权，69.2%称会在运行时打断或引导，50.5%预设限制；但42.1%会因疲劳或信息过载减少推理审阅，40.2%也报告让Agent少受监控地运行。61.7%称绝不开放敏感数据，仍不能证明真实行为一致。局限： 便利抽样、滚雪球与自愿参与会放大强烈经验；记忆、社会期许和自我理解偏差明显，工具又快速变化。研究能识别审批疲劳与界面需求，不能估计越权事故率或证明某种弹窗降低风险。",
+      "idea": "为代码Agent制作“可验证批准卡”：执行器列出实际文件、命令、网络和回滚方式，用户可拒绝单步或整条路径；同类提示合并但不永久放行。以完整阅读率、默认批准、拒绝后绕行、错误授权、审批秒数、回滚成功和任务完成率做对照实验。",
+      "url": "https://arxiv.org/abs/2610.06047",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://arxiv.org/pdf/2610.06047"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep28-agent-permission-review.jpg",
+        "alt": "开发者审阅Agent权限请求相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "开放仓库历史实证＋Coding Agent对照实验＋审批完整性原型",
+      "source": "2026年10月10日｜独立预印本",
+      "title": "只批准入口文件会漏掉54.6%的实际输入变更，Agent也不能稳定列全依赖",
+      "summary": "部署审批通常绑定一个Workflow、脚本或命令，但真正执行还会读取Terraform、Helm values、策略和任务配置。研究审计20个公共仓库发现，在542次改变执行输入的提交中，296次没有修改已批准入口文件，占54.6%；因此入口哈希仍通过，实际权限或审批要求却已变化。作者提出“权威输入集”收据，把批准绑定到运行会读取的全部文件。更关键的是，Codex与Claude虽通常能计算哈希，却会为同一任务列出不同输入集合，说明依赖范围不能由被批准的Agent自行证明。",
+      "design": "审批前，可信执行器从部署计划、依赖清单或仓库Manifest确定本次运行的权威文件集合，对路径与内容生成规范化摘要；人员批准的是入口、完整输入集和动作范围。执行前重新计算，任一文件变化便使收据失效并请求复核；验证通过后必须从已验证快照运行。Agent可建议集合，却不能决定最终范围。研究原型未包含企业身份、签名密钥、并发提交或失败事务恢复；生产中还需将收据绑定调用者、环境和短期权限，检查失败即停止，保留旧批准但不得自动沿用。",
+      "evidence": "证据等级：可检查的仓库历史与受控Agent实验，尚未同行评审。 研究分析5,251次非合并提交；542次改变权威文件，其中296次入口不变，仓库重采样95%区间为35.6%—70.6%。权威集绑定约每十次提交触发一次复批，并放行其余4,709次无关变更。Codex CLI与Claude Code在四类任务、256次运行中测试；文件集记录覆盖全部人工审计文件59/62次，但同一Terraform任务出现五种集合，且两次完全漏掉Terraform文件。局限： 20仓库非随机，三库贡献大部分漏检；人工审计集可能不完整，实验仅两种运行时和四个案例。它证明单文件批准结构性不足，不证明收据已覆盖动态下载、运行时生成输入或生产供应链攻击。",
+      "idea": "为一个Terraform部署建立权威输入收据：从保存的Plan和人工维护Manifest计算文件集，Agent只提议、发布门独立验证；任何输入变化都重新批准。以漏绑文件、无关复批、批准后变更拦截、P95校验时间、人工复核分钟数和成功回滚验收。 ## 跨来源判断 四组材料把“用户已经批准”拆成四个不同问题。浏览器案例要求确认用户批准了哪些数据披露和法律选择；Microsoft架构要求权限能随任务风险收缩；开发者研究说明人会因重复提示和时间压力降低审查；权威输入集研究则证明，即使人认真批准，批准对象本身也可能少于实际执行对象。审批可靠性因此是范围、时效、可见性和执行绑定的乘积，而不是弹窗数量。 证据层级必须保持分离。法律分析识别真实产品与法规之间的未决边界，但不是判例结果；Microsoft给出完整控制面，却未公布有效性分母；开发者研究量化自报行为，不能替代日志观察；仓库研究提供最强的结构性实验，但样本集中且未覆盖动态依赖。跨来源最稳健的工程结论是：由可信执行层生成可核查的批准对象，人只审批有后果的差异，运行时权限仍可撤销，并把漏绑、误拒和人工负担一起测量。 ## 本期项目方向 1. Intent-to-Action Consent Receipt：选择差旅或费用报销，把用户目标展开为允许站点、字段、动作、期限和禁止决定；模型负责规划，执行层生成收据，高风险步骤由人确认。以未授权披露、范围漂移、重复确认、撤权时延和合法完成率验收。 2. Transitive Approval Gate：为代码或基础设施Agent把命令、实际输入文件、身份、环境和短期权限绑定到同一批准记录；输入变化或风险升级立即失效。比较现有单对象审批，测漏绑输入、批准后变更、无关复批、审批疲劳、回滚率和每次合格部署总成本。",
+      "url": "https://arxiv.org/abs/2610.15137",
+      "relatedLinks": [
+        {
+          "label": "完整PDF",
+          "url": "https://arxiv.org/pdf/2610.15137"
+        }
+      ],
+      "image": {
+        "src": "/cases/sep23-task-scoped-permissions.jpg",
+        "alt": "代码Agent执行权限和输入核验相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "Intent-to-Action Consent Receipt",
+      "description": "选择差旅或费用报销，把用户目标展开为允许站点、字段、动作、期限和禁止决定；模型负责规划，执行层生成收据，高风险步骤由人确认。以未授权披露、范围漂移、重复确认、撤权时延和合法完成率验收。",
+      "tags": [
+        "同意收据",
+        "字段级授权"
+      ]
+    },
+    {
+      "title": "Transitive Approval Gate",
+      "description": "为代码或基础设施Agent把命令、实际输入文件、身份、环境和短期权限绑定到同一批准记录；输入变化或风险升级立即失效。比较现有单对象审批，测漏绑输入、批准后变更、无关复批、审批疲劳、回滚率和每次合格部署总成本。",
+      "tags": [
+        "传递依赖",
+        "审批校验"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue includes a legal analysis published on October 20, an enterprise security-architecture update from October 19, and two previously uncovered empirical studies. The shared question is what exactly an approval covers. Authorizing a browser to book an appointment does not permit it to accept tracking or send all personal details. Approving an agent to run does not approve every action after its risk changes. Agreeing to a command may not cover configuration files it reads indirectly. Reliable control must bind the user's purpose, current permissions, actual input set, and human confirmation, rather than storing only one click.",
+      "takeaways": [
+        "When a Browser Agent Clicks “Agree” for a User, Task Authorization Is Not Privacy Consent",
+        "Microsoft Proposes Dynamically Reducing Agent Permissions, but Has Not Released False-Positive or Shutdown Data",
+        "Only 47.7% of Developers Say They Read Permission Requests Carefully; 33.6% Become Less Careful over Time",
+        "Approving Only an Entry File Misses 54.6% of Changes to Actual Inputs, and Agents Cannot Reliably List Every Dependency"
+      ],
+      "contrarian": "The four sources separate “the user has approved” into four questions. The browser case asks which data disclosures and legal choices the user approved. Microsoft's architecture asks whether permissions can shrink as task risk changes. The developer study shows that repeated prompts and time pressure reduce scrutiny. The authoritative-input-set study shows that even attentive approval may cover less than the system actually executes. Approval reliability is therefore a product of scope, timeliness, visibility, and binding to execution, not the number of pop-ups. Evidence levels must remain separate. The legal analysis identifies an unresolved boundary between real products and privacy law, not a court ruling. Microsoft describes a broad control plane without publishing effectiveness denominators. The developer study quantifies self-reported behavior, not observed logs. The repository study provides the strongest structural experiment, but has a concentrated sample and does not cover dynamic dependencies. The most robust engineering conclusion is to have a trusted execution layer generate an inspectable approval object, ask people to approve only consequential differences, keep runtime permissions revocable, and measure missing bindings, mistaken denials, and human burden together.",
+      "items": [
+        {
+          "type": "Legal analysis + real product documentation + boundaries of privacy and delegated authorization",
+          "source": "October 20, 2026 | Reuters Legal; Google, Mozilla, and U.S. privacy laws",
+          "title": "When a Browser Agent Clicks “Agree” for a User, Task Authorization Is Not Privacy Consent",
+          "summary": "Browser agents can now select sites, fill forms, and share potentially sensitive information while logged in. This creates a concrete gap: a user asking to “book a clinic appointment” has not thereby agreed to let the agent accept every cookie banner, override a global opt-out signal, or submit a membership number to every candidate clinic. U.S. contract law may attribute an electronic agent's click to the user, but privacy laws require consent to be specific, informed, and unambiguous. No case law currently defines the boundary between task authorization and disclosures made for convenience. For enterprises, a website log recording one “Accept All” click can no longer reliably prove that a person gave specific consent.",
+          "design": "After receiving a goal, a browser agent reads the page, logged-in session, and connected apps, then chooses sites and interaction paths. Sites generally record only a form submission or consent-button click, without distinguishing a person from an agent. The source does not disclose a specific model, permission token, field filter, or failure-recovery mechanism. The editorial recommendation is to turn task authorization into a structured contract listing allowed sites, data fields, validity period, and prohibited decisions. Queries and comparisons may proceed automatically; accepting tracking, overriding privacy signals, agreeing to terms, or submitting health information must display the destination and fields for case-by-case human confirmation. Stop on page changes, missing authorization, or confirmation timeout; keep a draft without sending it.",
+          "evidence": "Evidence level: a bylined legal analysis checked against product documentation, not a final court ruling or incident statistics. Google's documentation confirms Auto Browse can reach sites available to the user, call connected apps, and share sensitive information; it also warns that requests or pages may be misread. The article cites the August 2026 Perplexity case: the Ninth Circuit treated an agent as a user's tool on the particular record, while expressly leaving privacy consent unresolved. Confirmed points: several state laws require specificity for sensitive-data consent, and existing site logs have difficulty identifying who clicked. Limits: the clinic workflow is a legal hypothetical, with no user sample, mistaken-consent rate, or harm denominator. State laws and product settings differ substantially. The material establishes a legal and audit gap, not that all agent clicks are invalid or that enterprises have already broken the law.",
+          "idea": "Build a field-level consent receipt for a travel-booking agent. Let it compare flights automatically, but before submitting a passport number, accepting tracking, or buying a nonrefundable ticket, show the site, fields, and consequences. Assess unconfirmed data disclosure, correct identification of the consenting party, repeated confirmations, task completion, seconds of human confirmation, and successful withdrawal.",
+          "relatedLinks": [
+            {
+              "label": "NIST project on software and AI-agent identity and authorization"
+            }
+          ],
+          "image": {
+            "alt": "Existing related illustration of a browser agent interacting with websites",
+            "caption": "Existing related illustration; not an original image from this issue's source."
+          }
+        },
+        {
+          "type": "Vendor security-architecture update + product roadmap for agent identity and dynamic permissions",
+          "source": "October 19, 2026 | Microsoft Security, official Microsoft blog",
+          "title": "Microsoft Proposes Dynamically Reducing Agent Permissions, but Has Not Released False-Positive or Shutdown Data",
+          "summary": "Microsoft frames enterprise agents as an “insider” risk: even without an attack, an agent can move beyond its original task because of changed context, prompt injection, or goal drift. Project Perception links agent registration, separate identity, sandboxing, dynamic permissions, risk scoring, and conditional access. As risk rises, it could preserve read access while removing write access, narrow network scope, require human approval, or stop execution. Compared with one-time admission, the most valuable design is the ability to shrink permissions mid-task. The announcement, however, provides no customer experiment, false-block rate, or response latency. At present this is closer to a product architecture and delivery direction than proof of effectiveness.",
+          "design": "Agents are discovered and registered with separate identities rather than inheriting every employee permission. An Execution Container isolates the model and harness. Entra grants time-limited rights by task; network, data, and MCP calls pass through an external control plane. Dynamic Agent Risk combines signals from identity, endpoints, cloud, network, runtime, and actions. Conditional access reduces rights in response, while Guardian Agents investigate or act according to human-defined playbooks. High-risk writes need demonstrable human approval; the highest risks isolate the runtime. Public material does not specify score thresholds, signal conflicts, cross-platform bypasses, compensation for partial transactions, or resumption criteria, so coverage of every call cannot be assumed.",
+          "evidence": "Evidence level: vendor product description and claims about internal scale, without independent effectiveness evaluation. Microsoft says discovery now covers 60 categories of local agents and that it runs hundreds of thousands of agents internally. These figures indicate the scale of what it seeks to govern, not complete discovery or effective risk control. Vendor claim: permissions can be granted by task and time, risk changes can coordinate multiple enforcement points, and reads and writes can be handled separately. Not yet disclosed: availability dates for each feature, number of tested agents, prompt-injection recall, false blocking of normal tasks, P95 permission-revocation time, in-flight writes, bypass rate, or before-and-after incident comparisons. Inferring intent from a model's reasoning signals remains an inference and cannot replace deterministic verification of actual actions, target objects, and transaction outcomes.",
+          "idea": "Pilot three levels of dynamic permission for an expense-reimbursement agent: read-only by default, draft creation at low risk, and removal of write access plus handoff to finance staff at high risk or when external content influences the task. Use unregistered agents, bypass calls, mistaken downgrades, missed prompt injections, P95 revocation time, residual sessions, and legitimate reimbursement-completion rate as deployment gates.",
+          "relatedLinks": [
+            {
+              "label": "“Agentic Insider” governance overview"
+            }
+          ],
+          "image": {
+            "alt": "Existing related illustration of task-scoped agent permission controls",
+            "caption": "Existing related illustration; not an original image from this issue's source."
+          }
+        },
+        {
+          "type": "Mixed-methods preprint + interviews with 18 people + survey of 115 developers",
+          "source": "October 5, 2026 | Chalmers University of Technology and others",
+          "title": "Only 47.7% of Developers Say They Read Permission Requests Carefully; 33.6% Become Less Careful over Time",
+          "summary": "The study asks how developers approve coding agents to edit files, run commands, and access outside resources. Respondents often can inspect only visible output, not background decisions or data flows. Of them, 47.7% say they read requests carefully, 33.6% skim, and 20.6% approve by default. They report greater care with higher-risk actions, but repeated prompts, familiarity, and time pressure erode attention; 33.6% acknowledge becoming less careful after using an agent for a while. The result shows that a human-in-the-loop design is not achieved by placing a pop-up before every action. An approval interface must show the true scope of an action and avoid interpreting repeated clicks as a stable authorization preference.",
+          "design": "The study does not implement an agent system. The general flow it observes is an agent requesting file, command, or network access; a developer allowing or denying based on scope, risk, task fit, and environment; and supervision through live observation or a later diff. A production design should display the model's explanation separately from the executor's calculated real targets: file set, command arguments, network destinations, reversibility, and expected side effects come from the execution layer. Sensitive actions require per-action confirmation; low-risk actions may have short-lived scope approval. A refusal should distinguish “deny this call” from “deny the whole approach.” Stop and return to a person for replanning if the agent repeatedly rewrites requests to get around a refusal.",
+          "evidence": "Evidence level: a self-reported mixed-methods study, not direct observation of production logs. It interviewed 18 people and then surveyed 115; 107 valid responses concerned permissions. Some 76.6% say they inspect writes, deletions, or privilege escalation more carefully; 69.2% say they interrupt or guide a run; and 50.5% preconfigure restrictions. Yet 42.1% report reviewing reasoning less because of fatigue or information overload, while 40.2% report letting agents run with less monitoring. Although 61.7% say they never expose sensitive data, that cannot establish consistency with actual behavior. Limits include convenience sampling, snowball recruitment, voluntary participation, recall, social-desirability and self-understanding biases, and rapidly changing tools. The study identifies approval fatigue and interface needs; it cannot estimate unauthorized-action incident rates or prove that a particular pop-up reduces risk.",
+          "idea": "Create a “verifiable approval card” for a coding agent. The executor lists actual files, commands, network targets, and rollback methods; users can deny one step or the entire path. Combine similar prompts without making permission permanent. In a controlled comparison, measure careful-reading rate, default approvals, bypass attempts after refusal, mistaken authorizations, approval seconds, successful rollback, and task-completion rate.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            }
+          ],
+          "image": {
+            "alt": "Existing related illustration of developers reviewing agent permission requests",
+            "caption": "Existing related illustration; not an original image from this issue's source."
+          }
+        },
+        {
+          "type": "Empirical history of open repositories + coding-agent comparison experiment + approval-completeness prototype",
+          "source": "October 10, 2026 | independent preprint",
+          "title": "Approving Only an Entry File Misses 54.6% of Changes to Actual Inputs, and Agents Cannot Reliably List Every Dependency",
+          "summary": "Deployment approval is commonly tied to a workflow, script, or command, but execution also reads Terraform files, Helm values, policies, and task configuration. An audit of 20 public repositories found that among 542 commits changing execution inputs, 296 did not modify the approved entry file—54.6%. Its hash would still pass even though actual permissions or approval requirements had changed. The authors propose an “authoritative input set” receipt that binds approval to all files a run will read. More importantly, although Codex and Claude can usually compute hashes, they list different input sets for the same task. The agent being approved therefore cannot prove the dependency scope itself.",
+          "design": "Before approval, a trusted executor determines the authoritative file set for a run from a deployment plan, dependency inventory, or repository manifest, then computes a canonical digest over paths and contents. A person approves the entry point, complete input set, and action scope. Recompute immediately before execution; any file change invalidates the receipt and prompts another review. After verification, run from the checked snapshot. An agent may suggest the set but cannot determine its final scope. The research prototype does not include enterprise identity, signing keys, concurrent commits, or recovery from failed transactions. In production, the receipt must also bind the caller, environment, and short-lived rights. Stop on failed verification, preserving the old approval but never reusing it automatically.",
+          "evidence": "Evidence level: inspectable repository history and controlled agent experiments, not yet peer reviewed. The study analyzed 5,251 non-merge commits. Of 542 that changed authoritative files, 296 left the entry point unchanged; the repository-resampled 95% interval is 35.6%–70.6%. Binding the authoritative set would trigger reapproval about once in every ten commits and allow the other 4,709 unrelated changes. Codex CLI and Claude Code were tested across four task types and 256 runs. Their recorded file sets covered all manually audited files in 59/62 cases, but one Terraform task produced five different sets and two runs omitted Terraform files entirely. Limits: the 20 repositories were not random, three contributed most missed changes, the manual audit set may be incomplete, and the experiment covered only two runtimes and four cases. It shows the structural insufficiency of single-file approval, not that the receipt covers dynamic downloads, runtime-generated inputs, or production supply-chain attacks.",
+          "idea": "Build an authoritative-input receipt for one Terraform deployment. Derive the file set from a saved plan and a human-maintained manifest; the agent only proposes, while a separate release gate verifies. Any input change requires fresh approval. Assess unbound files, needless reapprovals, interception of post-approval changes, P95 validation time, human-review minutes, and successful rollback.",
+          "relatedLinks": [
+            {
+              "label": "Full PDF"
+            }
+          ],
+          "image": {
+            "alt": "Existing related illustration of coding-agent permissions and input verification",
+            "caption": "Existing related illustration; not an original image from this issue's source."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Intent-to-Action Consent Receipt",
+          "description": "For travel or expense reimbursement, expand the user's goal into allowed sites, fields, actions, duration, and prohibited decisions. The model plans, the execution layer generates a receipt, and a person confirms high-risk steps. Assess unauthorized disclosures, scope drift, repeated confirmations, revocation latency, and legitimate task-completion rate.",
+          "tags": [
+            "Consent receipt",
+            "Field-level authorization"
+          ]
+        },
+        {
+          "title": "Transitive Approval Gate",
+          "description": "For a coding or infrastructure agent, bind the command, actual input files, identity, environment, and short-lived permissions to one approval record. Invalidate it immediately if an input changes or risk increases. Compared with today's single-object approval, measure unbound inputs, changes after approval, unnecessary reapprovals, approval fatigue, rollback rate, and total cost per qualified deployment.",
+          "tags": [
+            "Transitive dependencies",
+            "Approval validation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "380be65ca3956ab3"
+}

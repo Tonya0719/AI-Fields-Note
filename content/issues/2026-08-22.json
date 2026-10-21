@@ -124,8 +124,42 @@
           "caption": "Least privilege, network isolation, human approval, and emergency stop form foundational security boundaries."
         }
         }
+      },
+      {
+        "index": 1,
+        "url": "https://arxiv.org/abs/2605.05253",
+        "translation": {
+          "type": "Paper / Open dataset",
+          "source": "EnterpriseRAG-Bench",
+          "title": "At Last, a Benchmark That Simulates the Real Mess of Enterprise Knowledge Bases",
+          "summary": "This public benchmark generates about 500,000 interconnected synthetic enterprise records and 500 questions across Slack, email, cloud documents, project tools, and CRM. It deliberately adds misplaced documents, near duplicates, conflicting information, and missing information.",
+          "design": "Synthetic enterprise background → generate data for nine application types → inject noise and conflicts → construct ten question types → run retrieval and answer systems → evaluate on a leaderboard.",
+          "evidence": "The data, code, and evaluation tools are all public and suitable for course experiments. But the data are still synthetic and cannot fully reproduce how real employees write, enterprise permission structures, or organizational politics.",
+          "idea": "Test whether RAG can identify conflicts and ask the user to confirm when emails, meeting notes, and project documents disagree.",
+          "image": {
+            "alt": "Diagram of the EnterpriseRAG-Bench enterprise-data generation and evaluation pipeline",
+            "caption": "The benchmark deliberately injects cross-application relationships, duplication, conflicts, and missing information to simulate messy enterprise knowledge bases."
+          }
+        }
+      },
+      {
+        "index": 2,
+        "url": "https://codeforamerica.org/explore/government-ai-landscape-assessment/",
+        "translation": {
+          "type": "Research report / Interactive map",
+          "source": "Code for America",
+          "title": "Public-Sector AI Adoption: What Is Really Missing Is Impact Evaluation, Not Pilots",
+          "summary": "An assessment of all 50 U.S. states and Washington, D.C. separates adoption into readiness, pilots, implementation, impact measurement, and learning. Even in leading jurisdictions, few continuously measure public value and revise governance accordingly.",
+          "design": "Governance and accountability → staff training → data and technical infrastructure → controlled pilots → outcome measurement and feedback.",
+          "evidence": "The assessment covers a wide area, but maturity scores depend on public materials and the research team's rubric. They cannot directly establish how much a particular AI system saved.",
+          "idea": "Extend project metrics into three layers: whether the task is correct, whether users adopt or edit the output, and whether the final process reduces time and omissions.",
+          "image": {
+            "alt": "Material from Code for America's government AI landscape assessment",
+            "caption": "The assessment extends from readiness, pilots, and implementation to impact measurement and ongoing learning."
+          }
+        }
       }
     ]
   },
-  "contentHash": "23dfbc15e9c24e68"
+  "contentHash": "e3f479473d53ac31"
 }
