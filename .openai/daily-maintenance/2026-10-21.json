@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-21",
+  "status": "published",
+  "siteVersion": 57,
+  "improvement": "Show each issue's date alongside its number in the issue picker",
+  "translatedItems": [
+    { "date": "2026-08-22", "url": "https://arxiv.org/abs/2605.05253" },
+    { "date": "2026-08-22", "url": "https://codeforamerica.org/explore/government-ai-landscape-assessment/" }
+  ],
+  "verification": "Content validation passed for 56 issues and 244 items; build and rendered HTML tests passed; public deployment succeeded; custom-domain HTML shows 2026-10-21 and dated issue-picker options, and the live client bundle contains both English article translations."
+}

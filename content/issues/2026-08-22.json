@@ -158,8 +158,42 @@
             "caption": "The assessment extends from readiness, pilots, and implementation to impact measurement and ongoing learning."
           }
         }
+      },
+      {
+        "index": 3,
+        "url": "https://www.appen.com/podcasts/future-of-ai-agents-long-context-benchmarks",
+        "translation": {
+          "type": "Podcast / Video",
+          "source": "Appen",
+          "title": "The Agent's Problem May Not Be Reasoning but Repeatedly Recovering Context",
+          "summary": "In long tasks, an agent may spend many steps rereading and reorganizing context instead of actually carrying out the work. Evaluation should cover not only the final answer but also tool choice, intermediate decisions, recovery from failure, compliance with permissions, and when to hand the task to a person.",
+          "design": "Keep a task ledger of sources already checked, steps completed, unresolved questions, and the next action, so the agent need not rebuild context from the beginning in every round.",
+          "evidence": "The guest has commercial interests. The result of up to 12 million tokens comes from a needle-in-a-haystack retrieval test and does not establish complex reasoning ability across an extremely long context.",
+          "idea": "Run a controlled comparison with and without a task ledger, measuring repeated retrievals, token use, and completed steps.",
+          "image": {
+            "alt": "Image from an Appen podcast about AI evaluation",
+            "caption": "Long-task evaluation should also observe context recovery, tool selection, failure recovery, and handoff timing."
+          }
+        }
+      },
+      {
+        "index": 4,
+        "url": "https://www.wearedevelopers.com/videos/100108-building-sovereign-ai-lessons-from-deploying-secure-rag-systems-using-confidential-computing",
+        "translation": {
+          "type": "Technical talk",
+          "source": "WeAreDevelopers",
+          "title": "For Sensitive Documents, Encryption at Rest Is Still Not Enough",
+          "summary": "Conventional private RAG protects data in transit and on disk, but inference and vector search still need to place data in memory. Confidential Computing seeks to protect data while it is in use as well.",
+          "design": "Ingest private documents → store them encrypted → parse, embed, and retrieve in a protected environment → run isolated inference → control and audit outputs.",
+          "evidence": "The public material is more useful as a threat-model and architecture reference; it lacks quantitative evidence for latency, cost, number of users, and business results.",
+          "idea": "A course MVP could use a simpler local-first approach: detect and replace sensitive text on the device, so only de-identified content can leave it.",
+          "image": {
+            "alt": "Scene from a technical talk about confidential computing and secure RAG",
+            "caption": "Sensitive data also needs isolation and protection during parsing, vector retrieval, and inference."
+          }
+        }
       }
     ]
   },
-  "contentHash": "e3f479473d53ac31"
+  "contentHash": "f74122439ae62a80"
 }
