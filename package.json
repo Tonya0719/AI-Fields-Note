@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vinext dev",
     "build": "npm run validate:content && vinext build",
+    "build:cloudflare": "npm run validate:content && node cloudflare/prepare.mjs && vite build --config cloudflare/vite.config.ts",
     "build:edgeone": "npm --prefix edgeone run build",
     "start": "vinext start",
     "content:build": "node scripts/build-content.mjs",

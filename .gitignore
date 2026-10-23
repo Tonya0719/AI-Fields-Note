@@ -38,6 +38,8 @@ yarn-error.log*
 /edgeone-dist/
 /edgeone/dist/
 /edgeone/src/
+/cloudflare/dist/
+/cloudflare/src/
 /.wrangler/
 /outputs/
 /work/
