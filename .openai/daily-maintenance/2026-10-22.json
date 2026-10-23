@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-22",
+  "status": "published",
+  "siteVersion": 58,
+  "improvement": "Localize the cases section's screen-reader label in English mode",
+  "translatedItems": [
+    {
+      "date": "2026-08-22",
+      "url": "https://www.appen.com/podcasts/future-of-ai-agents-long-context-benchmarks"
+    },
+    {
+      "date": "2026-08-22",
+      "url": "https://www.wearedevelopers.com/videos/100108-building-sovereign-ai-lessons-from-deploying-secure-rag-systems-using-confidential-computing"
+    }
+  ],
+  "verification": "Content validation passed for 57 issues and 248 items; Vinext build and rendered-HTML tests passed. Public Sites deployment v58 succeeded. The custom-domain HTML includes 2026.10.22 and the new issue title; its live page bundle contains the English case-section label and both old-article translations."
+}
