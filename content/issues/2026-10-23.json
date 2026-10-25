@@ -1,0 +1,210 @@
+{
+  "issue": "ISSUE 058",
+  "date": "2026.10.23",
+  "thesis": "本期包含一个10月23日发布的实际部署案例、两项本周产品更新，以及一篇10月初的补充研究，并非全部为当天新闻。跨来源核心判断是：企业智能体的价值，需要同时通过业务结果、执行过程、人工投入和总成本验证。部署案例、产品能力声明与实验结果的证据强度不同，不能互相替代。",
+  "takeaways": [
+    "先按检查性质分工，再决定智能体数量。 Broughton Partners 提供了规则与材料解释结合的部署样本，但18个智能体本身不是效果证据。可迁移的是任务边界、证据呈现和人工判断机制。",
+    "把费用对应到成功业务任务。 Cognizant 的产品方向值得跟踪，预算调查却不能证明治理平台的收益。成本比较必须包含重试、人工接管和返工，同时保持相近质量要求。",
+    "检索到讨论记录，不代表获得执行授权。 Zoom 的上下文方向扩大了信息利用机会；可靠执行仍需识别批准、变更与撤销，并继承原始资料权限。",
+    "结果与过程分别验收，过程偏差按后果分级。 本期研究说明最终数值正确仍可能遗漏检查，但评估器告警不等于业务事故。应优先验证数据范围、权限和关键写入，而非强制所有任务走相同路径。"
+  ],
+  "contrarian": "反向判断：对于边界清楚的流程，更完整的智能体平台未必是当前最值得投入的下一步。 本期材料容易形成一种直觉：增加智能体、统一上下文，再叠加成本治理和过程评估，就能提高业务价值。但现有证据没有共同证明这一整套组合的净收益。部署案例缺少独立的可比质量与成本数据，产品公告仍需客户效果验证，实验中的过程偏差也不全部等于真实损害。 编辑判断及成立条件： 当任务低频、规则稳定、异常较少，且跨系统协作并非主要瓶颈时，固定规则、有限模型调用和人工异常队列，可能更容易维护与验收。此时继续增加角色和平台层，可能先增加维护与复核成本。 可推翻该判断的证据： 在相近任务难度、业务量与质量要求下，更完整的方案持续降低了包含人工、维护、返工和事故损失的成功任务总成本，并且没有扩大权限风险。一旦获得这样的对照证据，就有理由扩大平台投入。不能仅凭模型单价下降、演示速度或角色数量作出相同结论。",
+  "items": [
+    {
+      "type": "实际部署／厂商客户案例",
+      "source": "2026年10月23日｜Salesforce、Broughton Partners",
+      "title": "Broughton Partners：18个智能体辅助案件材料审核",
+      "summary": "法律服务公司 Broughton Partners 披露，其案件材料审核流程已上线18个 Agentforce 智能体，覆盖身份、欺诈、合同及医疗信息检查。原来的五人团队需要逐案核对20多个检查点，处理分散的记录与证明材料。智能体承担证据整理和异常识别，人工保留重要判断，系统不会自行拒绝申请人。 这个案例值得关注的地方是任务拆分：将重复核对前移，让审核人员围绕证据与例外工作。对于材料量大、检查清单较稳定的流程，这种分工提供了可研究的实施样本。",
+      "design": "案例将明确规则交给 Salesforce Flow、Apex，将需要解释材料的部分交给智能体，并通过 MuleSoft 连接外部数据；结果及相关证据进入审核工作台。 对类似系统，我建议分别设计“规则通过”“证据不足”和“存在矛盾”三类输出，避免模型用一个置信分数代替业务状态。模型只读取当前案件所需材料；无法取得证据、工具超时或材料冲突时暂停相关检查并转人工。公开材料没有完整披露重试、权限隔离及故障恢复实现，上述处理方式属于项目建议。",
+      "evidence": "证据等级：部署方与供应商联合披露，缺少独立效果审计。 页面同时列出“核验案件增加70%”“日审核能力翻倍”和“每日审核工作减少60%”，但没有充分解释这些指标的周期、分母与对应关系，不能视为同一个吞吐量结论。 现有材料可以支持“存在已上线的业务工作流”，不足以确认净成本、误判率或质量改善幅度。我的评估判断是，试点必须同时抽查被标记与未被标记的案件；只复核异常队列，会低估漏检。还应记录案件难度和材料完整度，否则前后效率变化可能来自任务组成改变，而非系统能力提升。",
+      "idea": "面向需要反复核对材料的小型运营团队，制作一个固定清单的预审助手：输出检查结果、原文位置、缺失项及待人工决定事项，不自动拒绝申请。用同批材料比较人工与辅助流程，测量审核分钟数、漏检率、人工推翻率及每个完成案件的总成本，再决定是否扩大范围。",
+      "url": "https://www.salesforce.com/customer-stories/broughton-partners/",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/salesforce-koa.jpg",
+        "alt": "Salesforce 智能体工作流相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "企业产品发布／成本与质量治理",
+      "source": "2026年10月22日｜Cognizant",
+      "title": "Cognizant AI Nexus：把成本、质量与业务结果关联起来",
+      "summary": "Cognizant 发布 AI Nexus，将企业工作空间、智能体流程、成本归因、质量评估与模型路由组合为模块化运营层。公告试图回答的问题是：企业如何把模型和工具消耗对应到人员、项目及业务结果，而非只统计调用总量。 这项发布值得关注，因为“模型单价下降”与“业务任务成本下降”并不等价。重试、人工复核和返工都可能改变最终收益。当前应将它视为一个治理方向与产品能力声明，尚不能据此认定客户已经获得可验证的投资回报。",
+      "design": "公告中的 Reveal 关联 token、工具、费用与项目结果，Coach 评估上下文、执行方法及产出，Route 根据质量、成本和控制要求选择模型。 在自建方案中，我建议用统一任务编号连接输入、模型调用、工具操作、人工接管与最终验收。路由必须同时检查数据权限，不能在服务故障时将敏感任务切换到不符合要求的模型。触发预算上限或连续失败时，应保存进度并明确转人工。公开公告没有完整披露这些异常路径的实际实现，不能将建议写成已验证功能。",
+      "evidence": "证据等级：官方产品公告及自报调查，缺少客户对照验证。 官方引用250名 FinOps 负责人参与的调查，称72%的受访组织过去12个月超出 AI 预算；公告同时将模块能力描述为预期功能和潜在收益。 调查可以说明受访者报告了预算压力，不能证明所有企业存在同等问题，也不能证明产品已经解决问题。评估时还要防止成本口径偏差：仅记录模型调用，会遗漏人工接管、维护和返工；仅比较平均费用，则可能掩盖少量失控任务。应在相近业务难度、质量要求和观察周期下，比较成功任务单位成本及费用尾部风险。",
+      "idea": "选择一个可明确判定完成的工单流程，建立任务成本账，记录模型、工具、重试、人工处理及返工费用。先人工审核模型切换与高成本继续执行，再比较不同方案的成功率、质量、每个成功任务成本和预算超限比例。不要把提前停止的便宜任务计为效率改善。",
+      "url": "https://investors.cognizant.com/news-and-events/news/news-details/2026/Introducing-Cognizant-AI-Nexus-helping-enterprises-govern-the-cost-quality-and-results-of-AI/default.aspx",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/agent-ops.png",
+        "alt": "智能体运营与治理相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "产品与架构更新／企业上下文管理",
+      "source": "2026年10月20日｜Zoom",
+      "title": "Zoom：从会议摘要走向企业上下文层",
+      "summary": "Zoom 本周介绍 Unified Context Layer，尝试把会议、通话、聊天等交流信息，与企业文档及业务系统记录结合，为检索和后续动作提供上下文。其方向是让智能体理解讨论背景，而非只生成孤立的会议摘要。 这项更新的业务意义，在于探索口头交流如何进入正式流程：例如会后待办、客户跟进或记录更新。但讨论内容包含建议、犹豫和后来更改的决定，因此能检索信息与能可靠执行之间仍有明显距离。本项属于本周更新，并非10月23日当天发布。",
+      "design": "官方方案包含向外部应用提供上下文的接口能力，不同功能具有不同上线时间，不能将整套公告视为全部已经可用。 对类似项目，我建议让每条候选行动携带会议、发言者、时间及原文位置，并明确区分讨论、承诺、批准和撤销状态。读取权限应继承原始资料，写入业务系统则使用单独授权。遇到跨会议冲突、负责人不明或证据无法访问时，系统应停止自动写入并请求人工确认。这些是设计建议，公开材料不足以证明产品已完整实现相同的冲突处理机制。",
+      "evidence": "证据等级：官方产品说明，缺少针对新上下文层的独立业务评测。 发布材料可以用于确认产品方向及其声称的能力，但尚不足以推断错误率、任务完成率或净时间收益。 我的判断是，此类系统最容易被低估的风险并非摘要遗漏，而是把旧决定当成现行决定，或通过聚合结果扩大信息可见范围。试点应覆盖决定变更、同名人员、访问权限收回及资料删除等情形。还要计算人工核对草稿的时间；若用户必须逐条回听会议才能确认结果，自动生成待办的表面速度可能无法转化为整体效率提升。",
+      "idea": "面向会议较多的小团队，先做带原文出处的待办草稿工具，覆盖负责人、截止时间及决定状态，确认后再写入任务系统。使用含撤销、改期和未作决定的会议样本，测量错误建单率、出处准确率、权限泄露情况及人工确认耗时，验证后再增加自动化程度。",
+      "url": "https://news.zoom.com/zoomtopia-2026-ai/",
+      "relatedLinks": [
+        {
+          "label": "Zoomtopia 发布总览",
+          "url": "https://news.zoom.com/zoomtopia-2026-news/"
+        }
+      ],
+      "image": {
+        "src": "/cases/entcollabbench.jpg",
+        "alt": "企业协作与上下文相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "研究预印本／过程评估与回归测试",
+      "source": "2026年10月1日｜IBM及Georgia Institute of Technology相关作者",
+      "title": "企业智能体评估：最终答案正确，过程仍可能偏离要求",
+      "summary": "《Continuous Process-Level Evaluation for Evolving Enterprise AI Agent Skills》研究结果检查之外的过程偏差。240次实验中，175次通过最终数值检查，其中162次仍被评估器检测到至少一项额外偏差。 该研究值得补充阅读，因为企业任务往往同时要求正确答案和正确的数据处理方式。不过，92.6%是特定实验中评估器检测到偏差的比例，不能解释为真实业务事故率。其启发是为结果验证增加关键过程约束，而不是假定所有偏离预设轨迹的行为都具有同等风险。",
+      "design": "框架独立计算参考结果，结合工具选择、参数、执行顺序和数据库完整性检查；主要使用程序规则，在部分难以精确匹配的环节使用模型裁判。 可迁移的方案是把评估分成结果层和过程层，并让参考计算与被测智能体分离。对于自建试点，建议冻结输入快照，防止不同时间读取数据造成假差异；模型裁判只处理有限的语义等价判断。遇到证据缺失、日志不完整或裁判分歧时，不自动归因，由人工复核。权限边界与停止机制需要另行实现，不能由离线评估直接保证。",
+      "evidence": "证据等级：有限任务上的自动实验，尚未构成长期生产验证。 实验覆盖两个相关技能、两种规格版本、两个执行框架及三种模型；真实 API 持续变化下的纵向验证仍属于后续工作。 这些结果支持“数值检查会漏掉部分过程偏差”，不足以证明每项偏差造成业务损害，也不能直接用于判断所有框架的优劣。我的评估建议是按后果分级：权限越界、数据范围错误和关键写入缺失，应区别于无害的额外调用或等价顺序。同时审查规则本身，避免把实现者偏好的路径误当成唯一合规路径，导致高误报和不必要的人工复核。",
+      "idea": "为一个已有智能体增加三类关键检查：读取范围正确、重要写入后完成回读、权限与预算边界未被突破。使用固定样本，在模型、提示词或接口变更后重复运行；人工标注偏差是否有业务影响，比较严重问题召回率、误报率、结果准确率及复核成本。",
+      "url": "https://arxiv.org/abs/2610.01833",
+      "relatedLinks": [
+        {
+          "label": "HTML全文",
+          "url": "https://arxiv.org/html/2610.01833v1"
+        },
+        {
+          "label": "PDF",
+          "url": "https://arxiv.org/pdf/2610.01833"
+        }
+      ],
+      "image": {
+        "src": "/cases/agentcore-trace-evals.png",
+        "alt": "智能体轨迹评估相关既有示意图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "带证据的材料预审助手。",
+      "description": "面向需要重复核对申请材料的运营团队，限定一种业务和一份检查清单。工具只提出检查结果、缺失项与证据引用，人工作最终决定。通过同批材料对照，测量审核耗时、漏检率、人工推翻率和完成案件成本；未通过质量门槛时，不扩大自动处理权限。",
+      "tags": [
+        "材料预审",
+        "证据引用"
+      ]
+    },
+    {
+      "title": "智能体执行与成本账本。",
+      "description": "在一个现有工单智能体外围记录任务编号、工具调用、费用、重试、人工接管及关键过程检查，不先改造全部架构。以固定任务集比较不同版本的成功率、严重过程偏差、成功任务单位成本和复核分钟数，验证记录系统能否支持实际改进。",
+      "tags": [
+        "执行账本",
+        "任务成本"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue includes one real deployment case published on October 23, two product updates from this week, and a supplementary study from early October; not all four are news from today. The central cross-source judgment is that the value of enterprise AI agents must be tested against business outcomes, the execution process, human effort, and total cost together. Deployment cases, product capability claims, and experimental results have different evidentiary strength and cannot stand in for one another.",
+      "takeaways": [
+        "Divide work by the nature of each check before deciding how many agents to use. Broughton Partners offers a deployment example combining rules and interpretation of documents, but the presence of 18 agents is not itself evidence of effectiveness. The transferable elements are task boundaries, the presentation of evidence, and mechanisms for human judgment.",
+        "Attribute costs to successfully completed business tasks. Cognizant's product direction merits attention, but the budget survey does not prove the value of a governance platform. Cost comparisons must include retries, human handoffs, and rework while holding quality requirements broadly comparable.",
+        "Finding a record of a discussion does not grant authority to act. Zoom's context approach broadens opportunities to use information, but reliable execution still requires identifying approvals, changes, and revocations and inheriting permissions from the original material.",
+        "Validate outcomes and processes separately, and grade process deviations by consequence. This issue's study shows that a correct final numerical result can still miss checks, but an evaluator alert is not a business incident. Prioritize validation of data scope, permissions, and critical writes instead of forcing every task down the same path."
+      ],
+      "contrarian": "Counterview: For a process with clear boundaries, a more comprehensive agent platform may not be the most worthwhile next investment. This issue's material can create an intuition that more agents, unified context, cost governance, and process evaluation together will increase business value. Yet the available evidence does not jointly demonstrate a net benefit from that whole combination. The deployment case lacks independently comparable quality and cost data; product announcements still need customer outcome validation; and not every process deviation in an experiment amounts to real-world harm. Editorial judgment and conditions: When tasks are infrequent, rules are stable, exceptions are few, and cross-system collaboration is not the main bottleneck, fixed rules, limited model calls, and a human exception queue may be easier to maintain and validate. Adding roles and platform layers in those circumstances may initially raise maintenance and review costs. Evidence that would overturn this judgment: On tasks of comparable difficulty, volume, and quality requirements, a fuller solution consistently lowers the total cost per successful task—including human work, maintenance, rework, and incident losses—without increasing permission risk. With such controlled evidence, there would be reason to expand platform investment. A lower model unit price, a faster demo, or a larger number of roles alone cannot support the same conclusion.",
+      "items": [
+        {
+          "type": "Real deployment / vendor customer case",
+          "source": "October 23, 2026 | Salesforce and Broughton Partners",
+          "title": "Broughton Partners: 18 agents assist with case-file review",
+          "summary": "Legal services company Broughton Partners disclosed that 18 Agentforce agents are now in use in its case-file review process, covering identity, fraud, contract, and medical-information checks. Previously, a team of five had to check more than 20 points case by case while handling scattered records and supporting documents. The agents organize evidence and identify anomalies; humans retain important judgments, and the system does not reject applicants on its own. What makes this case notable is the division of work: repetitive checking moves earlier in the process, allowing reviewers to focus on evidence and exceptions. For workflows with large volumes of documents and relatively stable checklists, this division offers a deployment example worth studying.",
+          "design": "The case assigns explicit rules to Salesforce Flow and Apex, gives agents the parts that require interpreting documents, and connects external data through MuleSoft; results and related evidence are presented in a reviewer workbench. For a similar system, I recommend separate outputs for 'rule passed,' 'insufficient evidence,' and 'conflicting information,' rather than replacing business states with a single model confidence score. The model should read only the documents needed for the current case. When evidence is unavailable, a tool times out, or documents conflict, the relevant check should pause and move to a human. Public materials do not fully disclose how retries, permission isolation, or failure recovery were implemented; those handling measures are project recommendations.",
+          "evidence": "Evidence level: Joint disclosure by the deploying organization and its vendor, without an independent audit of outcomes. The page lists '70% more verified cases,' 'daily review capacity doubled,' and '60% less daily review work,' but does not adequately explain the periods, denominators, or relationship among these measures; they cannot be treated as a single throughput result. Available material supports the existence of a deployed business workflow, but not a conclusion about net cost, error rates, or the magnitude of quality improvement. My evaluation judgment is that a pilot must sample both flagged and unflagged cases; reviewing only the exception queue would understate missed cases. Case difficulty and document completeness should also be recorded, because a change in case mix rather than system capability could explain a before-and-after efficiency difference.",
+          "idea": "For a small operations team that repeatedly checks documents, build a pre-review assistant around a fixed checklist. It should output check results, source locations, missing items, and decisions reserved for a human, without automatically rejecting an application. Compare manual and assisted workflows on the same batch of documents, measuring review minutes, missed cases, human override rate, and total cost per completed case before deciding whether to expand the scope.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing illustration related to Salesforce agent workflows",
+            "caption": "Related existing illustration; not an image from this issue's source."
+          }
+        },
+        {
+          "type": "Enterprise product launch / cost and quality governance",
+          "source": "October 22, 2026 | Cognizant",
+          "title": "Cognizant AI Nexus: linking cost and quality to business outcomes",
+          "summary": "Cognizant launched AI Nexus, combining enterprise workspaces, agent workflows, cost attribution, quality evaluation, and model routing into a modular operating layer. The announcement asks how an enterprise can connect model and tool consumption to people, projects, and business results rather than merely counting total calls. This launch is worth watching because a lower model unit price is not the same as a lower cost per business task. Retries, human review, and rework can all change the eventual return. For now it should be treated as a governance direction and a claim about product capabilities, not as evidence that customers have already achieved a verifiable return on investment.",
+          "design": "In the announcement, Reveal connects tokens, tools, and expenses to projects and outcomes; Coach evaluates context, execution method, and output; and Route selects models according to quality, cost, and control requirements. For a system built in-house, I recommend a single task ID linking inputs, model calls, tool actions, human handoffs, and final acceptance. Routing must check data permissions as well; a service failure must not move a sensitive task to a model that fails its requirements. When a budget cap or repeated failures occur, the system should save progress and explicitly hand off to a human. The public announcement does not fully describe the actual implementation of these exception paths, so recommendations must not be presented as verified features.",
+          "evidence": "Evidence level: Official product announcement and self-reported survey, without a controlled customer comparison. The company cites a survey of 250 FinOps leaders in which 72% of respondents said their organizations had exceeded AI budgets in the preceding 12 months; the announcement also describes module capabilities as expected functionality and potential benefits. The survey shows reported budget pressure among respondents, but does not prove that all enterprises face the same problem or that the product has solved it. Evaluation must also guard against inconsistent cost accounting: model-call records alone omit human handoffs, maintenance, and rework, while averages can hide a small number of runaway tasks. Compare cost per successful task and tail-cost risk over similar business difficulty, quality requirements, and observation periods.",
+          "idea": "Choose a ticket workflow with a clear definition of completion and create a task-cost ledger that records model use, tools, retries, human processing, and rework. Initially require human approval for model switches and continued high-cost execution. Then compare success rate, quality, cost per successful task, and the share of tasks exceeding budget across approaches. Do not count a cheap task that stopped early as an efficiency gain.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing illustration of agent operations and governance",
+            "caption": "Related existing illustration; not an image from this issue's source."
+          }
+        },
+        {
+          "type": "Product and architecture update / enterprise context management",
+          "source": "October 20, 2026 | Zoom",
+          "title": "Zoom: moving from meeting summaries toward an enterprise context layer",
+          "summary": "This week Zoom introduced its Unified Context Layer, seeking to combine information from meetings, calls, chats, and other communications with enterprise documents and business-system records to provide context for retrieval and subsequent actions. Its direction is to let agents understand the background to a discussion rather than produce only an isolated meeting summary. The business significance of this update lies in exploring how spoken exchanges might enter formal workflows, such as post-meeting tasks, customer follow-up, or record updates. But discussions include suggestions, hesitation, and decisions later changed, so there is still a substantial gap between retrieving information and acting reliably on it. This was an update from this week, not a release on October 23.",
+          "design": "The official proposal includes interfaces for providing context to external applications, but different features have different release dates; the whole announcement cannot be treated as already available. For a similar project, I recommend that each proposed action carry the meeting, speaker, time, and position in the original record, and clearly distinguish discussion, commitment, approval, and revocation. Read permissions should be inherited from the source material, while writes to a business system require separate authorization. If meetings conflict, an owner is unclear, or evidence cannot be accessed, the system should stop automatic writes and seek human confirmation. These are design recommendations: the public material does not establish that the product has fully implemented the same conflict-handling mechanism.",
+          "evidence": "Evidence level: Official product description without independent business evaluation of the new context layer. The release material can confirm the product direction and claimed capabilities, but does not yet support conclusions about error rates, task completion, or net time savings. In my judgment, the most easily underestimated risk is not a missing point in a summary but treating an old decision as current, or making information more widely visible through aggregation. A pilot should cover changed decisions, people with identical names, revoked access, and deleted material. It must also count the time humans spend checking drafts: if users have to replay each meeting to confirm the output, the apparent speed of task generation may not translate into end-to-end efficiency.",
+          "idea": "For a small team with many meetings, first build a draft task tool that cites the original record and includes the owner, due date, and decision status; write to the task system only after confirmation. Test it on meetings with revoked decisions, rescheduled dates, and discussions that reached no decision. Measure incorrectly created tasks, citation accuracy, permission leaks, and time spent on human confirmation before increasing automation.",
+          "relatedLinks": [
+            {
+              "label": "Zoomtopia release overview"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise collaboration and context",
+            "caption": "Related existing illustration; not an image from this issue's source."
+          }
+        },
+        {
+          "type": "Research preprint / process evaluation and regression testing",
+          "source": "October 1, 2026 | Authors affiliated with IBM and Georgia Institute of Technology",
+          "title": "Enterprise-agent evaluation: a correct final answer can still mask process deviations",
+          "summary": "The study 'Continuous Process-Level Evaluation for Evolving Enterprise AI Agent Skills' examines process deviations beyond checks of the final result. Of 240 experiments, 175 passed the final numerical check, and in 162 of those runs the evaluator still detected at least one additional deviation. The study is useful supplementary reading because enterprise tasks often require both a correct answer and the right way of handling data. However, 92.6% is the proportion of deviations detected by an evaluator in this specific experiment; it must not be interpreted as the rate of actual business incidents. The lesson is to add checks for critical process constraints to result validation, not to assume that every departure from a prescribed path carries equal risk.",
+          "design": "The framework independently computes a reference result and checks tool selection, parameters, execution order, and database integrity. It relies mainly on programmatic rules and uses an LLM judge only where exact matching is difficult. A transferable design is to separate evaluation into an outcome layer and a process layer, keeping the reference computation separate from the agent under test. For an in-house pilot, I recommend freezing an input snapshot so reads at different times do not produce false differences; an LLM judge should handle only limited questions of semantic equivalence. When evidence is missing, logs are incomplete, or judges disagree, do not assign a cause automatically; send it for human review. Permission boundaries and stop mechanisms require separate implementation and cannot be guaranteed by offline evaluation.",
+          "evidence": "Evidence level: Automated experiments on a limited set of tasks, not long-term production validation. The experiments cover two related skills, two specification versions, two execution frameworks, and three models; longitudinal validation as real APIs continue to change remains future work. The results support the finding that numerical checks miss some process deviations, but do not show that every deviation caused business harm or establish a general ranking of frameworks. My recommendation is to grade findings by consequence: permission violations, incorrect data scope, and missing critical writes should be distinguished from harmless extra calls or an equivalent sequence of steps. Review the rules themselves too, so a preferred implementation path is not mistaken for the only compliant one, creating false positives and unnecessary human review.",
+          "idea": "Add three kinds of critical check to an existing agent: verify that the data read was within the correct scope, that important writes were followed by a readback, and that permission and budget boundaries were not crossed. Run a fixed set of examples again after changes to the model, prompt, or interfaces. Have humans label whether deviations have business impact, then compare recall of serious issues, false-positive rate, outcome accuracy, and review cost.",
+          "relatedLinks": [
+            {
+              "label": "HTML full text"
+            },
+            {
+              "label": "PDF"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to agent trace evaluation",
+            "caption": "Related existing illustration; not an image from this issue's source."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Evidence-linked document pre-review assistant.",
+          "description": "For an operations team that repeatedly checks application documents, limit the tool to one business process and one checklist. It should propose only check results, missing items, and evidence citations, with a human making the final decision. Compare the same batch of documents to measure review time, missed cases, human override rate, and cost per completed case. Do not expand automated processing authority if the quality threshold is not met.",
+          "tags": [
+            "Document pre-review",
+            "Evidence citations"
+          ]
+        },
+        {
+          "title": "Agent execution and cost ledger.",
+          "description": "Record the task ID, tool calls, costs, retries, human handoffs, and key process checks around one existing ticket-handling agent before redesigning the entire architecture. Use a fixed task set to compare the success rate, serious process deviations, unit cost per successful task, and review minutes of different versions, and test whether the ledger supports real improvement.",
+          "tags": [
+            "Execution ledger",
+            "Task cost"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "01894ca794cec5a9"
+}

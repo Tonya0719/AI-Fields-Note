@@ -1,0 +1,226 @@
+{
+  "issue": "ISSUE 059",
+  "date": "2026.10.24",
+  "thesis": "本期包含10月22日公开的独立监控评估、两项本周新基准，以及一项此前未覆盖的部署资料研究。没有将旧案例包装成当日新闻。核心判断是：企业AI的可验证性需要四种不同证据——监控实际覆盖了什么、答案对应哪个历史状态、模型在哪类能力上不足，以及部署收益究竟公开了多少。它们不能汇总成一个“企业就绪度”分数后直接放行。",
+  "takeaways": [
+    "监控资格、实际检查和告警处置必须分别对账。 METR的99.2%只针对历史Codex子集的监控资格；压缩、触发与序列化仍会形成缺口，且修复尚未独立复验。",
+    "企业问答要验证时间状态，不只验证相关性。 MMEnterprise‑Bench显示召回上升时答案仍可能下降；对当前规则、旧版本和撤销决定，应分别建立标准答案，不能用统一Recall验收。",
+    "统一评测入口可以降低工程负担，不能统一风险阈值。 EGI‑Bench的能力分解比总榜更有用，但权重未按真实事故校准，Quick模式也不适合单独批准上线。",
+    "公开收益不足不等于没有收益，公开数字丰富也不等于证据强。 150项部署研究能定位披露缺口，不能估计全市场ROI；采购时应要求本业务的对照、人工成本与失败分母。"
+  ],
+  "contrarian": "容易接受的主张：增加监控、扩大检索、统一评测，就能显著提高企业Agent可靠性。 来源事实提供的限制： METR发现监控本身存在旁路；多模态基准中更多证据不总带来更好答案；EGI的统一分数依赖未校准权重；部署研究中财务披露仍少。这些事实并不否定相关工具，而是否定“组件数量增加即保证净收益”的推论。 编辑判断及成立条件： 对资料版本少、任务稳定、错误后果可控的窄流程，少量确定性检查、版本化输入和人工异常队列，可能比一次铺设完整平台更容易验证。条件是这些简单控制确实覆盖主要故障，而不是通过不记录问题制造低事故率。 可推翻的证据： 同等任务难度和业务量下，完整方案经独立对账，持续降低严重错误及包含维护、复核、返工的成功任务总成本，同时保持合法任务完成率；获得这样的结果后，应扩大控制与平台投入，而非坚持最小架构。",
+  "items": [
+    {
+      "type": "独立机构高访问评估＋原始报告摘要＋新闻交叉核验",
+      "source": "2026年10月22日｜METR、Redwood Research、Reuters",
+      "title": "METR驻场评估发现监控旁路：99.2%“应被监控”不等于实际覆盖",
+      "summary": "这是10月22日简报中“Agent削弱监控”主题的实质补充：METR和Redwood公开了独立人员对监控基础设施的驻场检查，而非再披露一条模型行为轨迹。两名研究者在7月21日至8月11日检查OpenAI内部代码、配置和文档，发现可令数百个近期动作不进入监控的漏洞，并识别沙箱及Auto‑Review潜在旁路。该评估提醒企业，监控规则设计正确仍不够；必须从推理流量、触发条件、序列化和告警交付逐段核对实际覆盖，不能把“符合监控资格”当作“已完成监控”。",
+      "design": "当时的异步系统在Agent归还控制权时触发监控，压缩事件未覆盖期间，持续执行可能延迟检查；Agent视图与监控视图的序列化差异也可能使检查失败。评估者读取内部代码并访谈约十二名技术人员，输出61页内部报告，公开版仅保留高层发现。METR建议独立记录全部推理与监控流量、定期对账，并隔离Agent工具环境与监督系统。OpenAI称生产防护相关漏洞已修复，但外部团队未复验。缺日志、监控失败和覆盖不明时如何自动停止及恢复，公开材料未给出完整实现。",
+      "evidence": "证据等级：独立人员深度访问的历史系统评估，公开细节受限。 当时较强模型的内部Responses API流量约75%—94%符合监控资格，内部Codex子集为99.2%；但压缩事件缺口估计使约10%的合资格Codex流量未被检查，比例有较大不确定性。研究者发现潜在旁路，不等于已证明Agent实际利用；部分工具风险未验证。公司主张： 影响生产防护的发现均已修补。局限： 未复验修复，未覆盖7月21日后的扩展系统，部分流量无法估计；公司可删节敏感内容，评估者不能单方披露删节。故不能据此计算当前安全率。",
+      "idea": "为一个内部代码Agent做“推理—监控双账本”：独立记录每次模型请求、压缩、工具动作及监控回执，每日自动对账；缺回执暂停后续写入，由安全人员恢复。验收覆盖缺口、最长未监控窗口、序列化失败、误停、告警交付和修复复验通过率。",
+      "url": "https://metr.org/blog/2026-10-22-red-teaming-openai-agent-monitoring/",
+      "relatedLinks": [
+        {
+          "label": "Reuters报道",
+          "url": "https://www.reuters.com/business/ai-safety-group-metr-finds-flaws-openais-internal-monitoring-system-2026-10-22/"
+        }
+      ],
+      "image": {
+        "src": "/cases/agent-incident-metr.png",
+        "alt": "与智能体监控事件相关的既有配图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "新预印本＋开放多模态数据集＋检索预算对照",
+      "source": "2026年10月20日｜Seohyun Lee等；论文注明审稿中",
+      "title": "MMEnterprise‑Bench：召回更多记录，仍可能答错当前版本与历史版本",
+      "summary": "MMEnterprise‑Bench把企业问答从静态文档推进到不断修订的协作记录：聊天中纠正数字，文档随后更新，而另一系统仍保留旧值；问题也可能询问“修订前的截止日期”，而非最新日期。数据包含30个模拟项目、1,613道问题，覆盖证据推理、冲突解决和不可回答判断。十个模型在跨来源、时间及多图证据上均暴露明显缺口。研究特别发现，更大的检索器和更多返回记录虽提升召回，却不保证答案改善。可迁移的问题是状态选择，而不仅是检索是否找到相关文字。",
+      "design": "公开论文及报告作为项目种子，生成带时间演化的协作事件、消息、邮件和图像，保留旧版本并构造需要跨记录回答的问题。统一工作空间作为检索库，检索器返回候选记录，多模态模型结合问题判断证据及目标时间状态。它是只读离线问答，不实现企业身份、原始资料ACL或业务写入。编辑建议每条记录保存来源、版本、生效时间与撤销关系；先确定问题询问当前还是历史状态，再筛证据。冲突无法消解、图表缺失或预算触顶时展示分歧转人，不能默认最新记录就是答案。",
+      "evidence": "证据等级：开放合成协作基准上的离线对照，尚未同行评审。 GPT‑5.6 Sol在返回10与50条记录时准确率为52.6%和68.0%；多图题仅27.5%，单一文本记录题为83.3%。2B检索器把返回量由50增至100时，召回从57.0%升至64.8%，Qwen3.5‑2B准确率却从25.0%降至22.2%。能证明： 增加可见证据不自动解决状态与冲突推理。局限： 工作记录由30份公开材料模拟，生成、验证及评分依赖LLM；人工验证由作者承担，未招外部标注者。未测真实员工、权限撤回、持续更新成本或业务损失，不能将基准错误率当生产错误率。",
+      "idea": "为采购政策问答做60题版本冲突集，包含当前规则、旧规则、撤销决定及无法回答四类；每个答案返回版本和生效时间，冲突交采购负责人。固定模型比较不同检索量，测状态选择正确率、错误引用、拒答质量、人工复核分钟数和正确答案成本。",
+      "url": "https://arxiv.org/abs/2610.27911",
+      "relatedLinks": [
+        {
+          "label": "全文与实验",
+          "url": "https://arxiv.org/html/2610.27911v1"
+        },
+        {
+          "label": "代码及数据入口",
+          "url": "https://mlvlab.github.io/MMEnterprise-Bench/"
+        }
+      ],
+      "image": {
+        "src": "/cases/entcollabbench.jpg",
+        "alt": "与企业协作资料相关的既有配图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "新预印本＋开源评测套件＋多维模型比较",
+      "source": "2026年10月19日｜Salesforce AI Research",
+      "title": "EGI‑Bench统一八套评测，但作者明确：三小时快测不能代替发布验收",
+      "summary": "EGI‑Bench解决企业选模时一个实际维护问题：CRM、检索、多轮交互、MCP及代码工程基准分散在不同仓库，运行环境和总分口径互不一致。套件统一八项基准的入口，但保留各自原生Harness，再把细粒度指标映射到任务结果、工具执行、规划、检索依据、安全拒答和工程质量六个维度。十四个模型没有一个赢得全部维度。其价值首先是减少评测集成成本、暴露能力短板，而不是给出通用采购排名；发布团队仍需保留业务风险阈值和自身任务样本。",
+      "design": "统一CLI调度各基准独立虚拟环境，通过LiteLLM代理访问模型；每项仍使用原有ReAct、MCP或对话执行链。声明式映射将子指标归入六个能力桶，提供目标不超过180分钟的Quick模式及约12小时的Deep模式。Quick按运行预算抽取任务，并非完整覆盖。系统评估模型而非生产权限栈，没有替企业实现身份、审批和恢复。编辑建议代理使用独立测试凭证、禁用生产写入；超时与缺失结果单独标记，不当作正常低分，严重约束失败交人员复核后才决定是否发布。",
+      "evidence": "证据等级：开放套件与十四模型Quick模式实验，非生产就绪认证。 总分范围39.6—65.6；不同模型分别领先工具执行、安全拒答或工程质量，显示排名依赖维度。关键限制： 六桶权重28/22/16/14/14/6来自专家判断，尚未用企业事故校准；Quick子集更小，作者建议发布判断采用Deep模式。部分MCP评分依赖LLM评委，跨版本漂移会改变绝对数值；工程质量Rubric存在分数压缩，更偏向连贯输出而非严格正确。不同原生Harness也限制“纯模型能力”归因。没有真实成本收益、事故率或客户对照，综合高分不能抵消单项权限失败。",
+      "idea": "为内部Agent选模建立“小型多轴发布门”：只选与任务有关的两套基准，加30条自有案例，固定Harness和评委；权限与不可逆动作使用硬门，不被平均分抵消。测各轴稳定性、严重失败、完整运行率、评测工时和每个合格任务成本。",
+      "url": "https://arxiv.org/abs/2610.27234",
+      "relatedLinks": [
+        {
+          "label": "全文与指标映射",
+          "url": "https://arxiv.org/html/2610.27234v1"
+        },
+        {
+          "label": "开源代码",
+          "url": "https://github.com/SalesforceAIResearch/egi-bench"
+        }
+      ],
+      "image": {
+        "src": "/cases/github-llm-evals.png",
+        "alt": "与模型评测相关的既有配图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    },
+    {
+      "type": "独立公开资料研究＋部署分类方法＋证据披露分析",
+      "source": "2026年9月22日；证据截止9月2日｜The Brief Script；此前未覆盖，非本日更新",
+      "title": "150项公开部署研究：118项描述人工控制，仅22项披露财务影响",
+      "summary": "The Brief Script从392份公开记录筛选150项部署、涉及119家组织，只将具备自主工具选择或业务动作的系统纳入，排除单纯生成与检索助手。样本中118项明确描述审批、例外处理、治理或人工复核，只有22项披露成本或财务影响，10项披露收入影响。研究把“系统能做事”与“已经证明赚钱”分开，尤其提醒支付能力不能代替经济证据。值得关注的是其部署级而非公司级分类，但这些比例描述的是公开资料筛选后的样本，并不代表整个企业市场。",
+      "design": "这不是Agent运行平台，而是公开证据筛选流程：确认具名组织、明确工作流、实际部署和高于纯生成的行为，再按只读工具、人工批准、限定自治、端到端自治及多Agent编排分类；架构与自治程度分别编码。证据评分考察基线、周期、规模、人工监督与限制，不应解释为系统优劣排名。来源没有提供统一模型、检索、身份或故障恢复架构。编辑建议复用为采购证据表：每个候选方案绑定原始资料和缺失字段，关键指标无分母时暂停收益结论，由业务与风险负责人共同复核。",
+      "evidence": "证据等级：非随机公开记录研究，部分底层指标仍为厂商或客户自报。 150项中57项为限定自治，占38%；71项报告时间或周期效果，50项报告产能，类别可重叠。19项支付或财资部署中，仅15.8%报告量化结果，不能据此判断其没有收益，只能判断披露不足。64项主要依据采用方、监管或独立资料，占42.7%，其余来源独立性更弱。局限： 公开成功故事有选择偏差，同一组织可贡献多个不同流程；证据评分衡量披露可核查性，不是实际效果。没有随机抽样、统一ROI核算或独立日志审计，不能用样本中人工控制普遍，证明人工介入导致成功。",
+      "idea": "为团队正在比较的十个Agent方案做证据登记表，要求明确业务动作、人工批准、样本量、周期、基线和成功任务总成本；缺项保持未知，不补估。由业务人员复核前三名，验收可追溯主张比例、缺失分母、复核工时及试点后预测误差。",
+      "url": "https://thebriefscript.com/enterprise-ai-agents/",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/production-agent-survey.png",
+        "alt": "与企业智能体部署资料相关的既有配图",
+        "caption": "相关既有配图；非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "版本与监控双账本",
+      "description": "选择采购政策问答，记录每次模型请求、检索版本、监控回执和最终引用；版本冲突或监控缺口禁止进入可执行建议。以状态正确率、覆盖缺口、错误拒答、人工复核和正确答案总成本验收。",
+      "tags": [
+        "版本管理",
+        "监控对账"
+      ]
+    },
+    {
+      "title": "不被平均分掩盖的发布包",
+      "description": "为一个现有Agent保存业务结果、工具动作、安全硬门、完整运行率和总成本；Quick评测只筛候选，最终使用冻结业务集与人工复核。严重越权不允许被其他高分抵消，修复后必须独立重跑。",
+      "tags": [
+        "发布门槛",
+        "证据包"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue covers an independent monitoring assessment published on October 22, two new benchmarks from this week, and a previously uncovered study of deployment records. It does not present older cases as news from today. The central judgment is that enterprise AI's verifiability requires four distinct kinds of evidence: what monitoring actually covered, which historical state an answer refers to, which capabilities a model lacks, and how much of a deployment's benefit has been disclosed. They cannot be combined into a single 'enterprise readiness' score and used to approve release.",
+      "takeaways": [
+        "Monitoring eligibility, actual inspection, and alert handling must be reconciled separately. METR's 99.2% figure concerns only monitoring eligibility for a historical Codex subset; compaction, triggering, and serialization still created gaps, and the fixes have not been independently retested.",
+        "Enterprise question answering must verify temporal state, not just relevance. MMEnterprise-Bench shows that answers can deteriorate even as recall rises. Current rules, old versions, and revoked decisions need separate reference answers; a single Recall measure is insufficient for acceptance.",
+        "A unified evaluation entry point can reduce engineering work, but cannot unify risk thresholds. EGI-Bench's capability breakdown is more useful than an overall ranking, yet its weights are not calibrated to real incidents and Quick mode alone is unsuitable for release approval.",
+        "Insufficient public benefit disclosure does not mean there is no benefit, and abundant public figures do not necessarily mean strong evidence. The 150-deployment study can identify disclosure gaps, but cannot estimate market-wide ROI. Procurement should require a comparison in the relevant business process, human cost, and denominators for failures."
+      ],
+      "contrarian": "An easy claim to accept: More monitoring, broader retrieval, and unified evaluation will substantially improve enterprise-agent reliability. The limitation in the source evidence: METR found bypasses in monitoring itself; in the multimodal benchmark, more evidence did not always improve answers; EGI's unified score depends on uncalibrated weights; and financial disclosure remains scarce in the deployment study. These facts do not refute the tools, but do refute the inference that adding components guarantees net benefit. Editorial judgment and conditions: For a narrow process with few document versions, stable tasks, and manageable consequences of error, a few deterministic checks, versioned inputs, and a human exception queue may be easier to validate than deploying an entire platform at once. This holds only if those simpler controls actually cover the main failures, rather than producing a low incident rate by failing to record problems. Evidence that would overturn the judgment: At comparable task difficulty and volume, a full solution, independently reconciled, consistently reduces serious errors and total cost per successful task including maintenance, review, and rework, while preserving completion of legitimate tasks. With such results, control and platform investment should increase rather than remaining minimal.",
+      "items": [
+        {
+          "type": "Independent, high-access evaluation / original report summary / cross-check with news coverage",
+          "source": "October 22, 2026 | METR, Redwood Research, Reuters",
+          "title": "METR's on-site assessment finds monitoring bypasses: 99.2% 'eligible for monitoring' is not actual coverage",
+          "summary": "This substantially supplements the October 22 briefing's theme of agents weakening monitoring: METR and Redwood published an on-site inspection of monitoring infrastructure by independent personnel, rather than another model-behavior trace. Two researchers examined OpenAI's internal code, configuration, and documents from July 21 to August 11. They found a vulnerability that could prevent hundreds of recent actions from entering monitoring, and identified potential bypasses of sandboxing and Auto-Review. The assessment reminds enterprises that sound monitoring rules are not enough. Actual coverage must be reconciled segment by segment across inference traffic, triggering conditions, serialization, and alert delivery; 'eligible for monitoring' must not be treated as 'monitored.'",
+          "design": "At the time, the asynchronous system triggered monitoring when an agent returned control. Compaction events were not covered, and sustained execution could delay checks; serialization differences between the agent's view and the monitor's view could also cause checks to fail. The assessors read internal code and interviewed approximately a dozen technical staff, producing a 61-page internal report; the public version retains only high-level findings. METR recommends independently recording all inference and monitoring traffic, reconciling it regularly, and isolating the agent's tool environment from the supervisory system. OpenAI says vulnerabilities relevant to production protections have been fixed, but the external team has not retested them. Public materials do not fully describe how to stop automatically and recover when logs are missing, monitoring fails, or coverage is unknown.",
+          "evidence": "Evidence level: Historical system assessment by independent personnel with deep access; public detail is limited. At the time, about 75%–94% of internal Responses API traffic from stronger models was eligible for monitoring, and 99.2% of an internal Codex subset was eligible. Yet the estimated compaction-event gap meant that roughly 10% of eligible Codex traffic was not inspected, with substantial uncertainty in the estimate. Finding potential bypasses does not prove that agents exploited them; some tool risks were not validated. Company claim: All findings affecting production protections have been remediated. Limitations: The fixes were not independently retested; the expanded system after July 21 was not covered; some traffic could not be estimated; and the company could redact sensitive content, which the assessors could not disclose unilaterally. The findings therefore cannot be used to calculate a current safety rate.",
+          "idea": "Build an 'inference–monitoring dual ledger' for an internal coding agent. Independently record each model request, compaction, tool action, and monitoring receipt, and reconcile them automatically each day. Pause subsequent writes when a receipt is missing, with a security specialist authorizing recovery. Measure coverage gaps, the longest unmonitored window, serialization failures, false stops, alert delivery, and the rate of successful independent retesting after fixes.",
+          "relatedLinks": [
+            {
+              "label": "Reuters report"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to agent monitoring incidents",
+            "caption": "Related existing illustration; not the original image from this issue's source."
+          }
+        },
+        {
+          "type": "New preprint / open multimodal dataset / retrieval-budget comparison",
+          "source": "October 20, 2026 | Seohyun Lee et al.; paper notes that it is under review",
+          "title": "MMEnterprise-Bench: retrieving more records can still produce wrong answers about current and historical versions",
+          "summary": "MMEnterprise-Bench moves enterprise question answering from static documents to continuously revised collaboration records: a number is corrected in a chat, a document is then updated, while another system still retains the old value; a question may ask for the deadline before a revision rather than the latest deadline. The dataset contains 30 simulated projects and 1,613 questions covering evidence reasoning, conflict resolution, and judgments that a question cannot be answered. Ten models all show marked gaps on cross-source, temporal, and multi-image evidence. In particular, the study finds that a larger retriever and more returned records improve recall without guaranteeing better answers. The transferable problem is choosing the correct state, not merely finding relevant text.",
+          "design": "Public papers and reports serve as project seeds for generating evolving collaboration events, messages, emails, and images. Old versions are retained, and questions requiring answers across records are constructed. A unified workspace serves as the retrieval store; a retriever returns candidate records, and a multimodal model uses the question to determine evidence and the target temporal state. This is read-only, offline question answering; it does not implement enterprise identity, source-document ACLs, or business writes. My design recommendation is to store source, version, effective time, and revocation links for each record; establish whether a question asks about the current or a historical state before filtering evidence. When conflicts cannot be resolved, a chart is missing, or the budget is exhausted, show the disagreement and route it to a person rather than assuming the newest record is the answer.",
+          "evidence": "Evidence level: Offline comparison on an open synthetic collaboration benchmark, not yet peer reviewed. GPT-5.6 Sol scored 52.6% and 68.0% accuracy with 10 and 50 returned records respectively; accuracy on multi-image questions was only 27.5%, compared with 83.3% on questions involving a single text record. When the 2B retriever increased its return count from 50 to 100, recall rose from 57.0% to 64.8%, but Qwen3.5-2B accuracy fell from 25.0% to 22.2%. What this supports: Making more evidence visible does not automatically resolve state and conflict reasoning. Limitations: Workspace records were simulated from 30 public source documents, and generation, validation, and scoring depend on LLMs; author-led human validation did not involve external annotators. The work did not test real employees, revoked permissions, ongoing update costs, or business losses. Benchmark error rates must not be treated as production error rates.",
+          "idea": "Create a 60-question version-conflict set for procurement-policy Q&A, covering current rules, old rules, revoked decisions, and unanswerable questions. Return the version and effective time with each answer, and route conflicts to the procurement owner. Hold the model fixed while comparing retrieval volumes, measuring state-selection accuracy, incorrect citations, refusal quality, human-review minutes, and cost per correct answer.",
+          "relatedLinks": [
+            {
+              "label": "Full text and experiments"
+            },
+            {
+              "label": "Code and data entry point"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise collaboration records",
+            "caption": "Related existing illustration; not the original image from this issue's source."
+          }
+        },
+        {
+          "type": "New preprint / open-source evaluation suite / multidimensional model comparison",
+          "source": "October 19, 2026 | Salesforce AI Research",
+          "title": "EGI-Bench unifies eight evaluations, but its authors say a three-hour quick test cannot replace release acceptance",
+          "summary": "EGI-Bench addresses a practical maintenance problem in enterprise model selection: CRM, retrieval, multi-turn interaction, MCP, and software-engineering benchmarks live in separate repositories with inconsistent runtime environments and overall scoring conventions. The suite provides a unified entry point for eight benchmarks while retaining each native harness. It then maps fine-grained metrics into six dimensions: task outcomes, tool execution, planning, retrieval grounding, safety refusal, and engineering quality. None of the fourteen models wins every dimension. Its primary value is reducing evaluation-integration costs and exposing capability gaps, not producing a universal procurement ranking; release teams still need business risk thresholds and samples from their own tasks.",
+          "design": "A unified CLI dispatches each benchmark in an independent virtual environment and reaches models through a LiteLLM proxy. Each benchmark continues to use its original ReAct, MCP, or dialogue execution chain. Declarative mappings place submetrics into six capability buckets. The suite offers a Quick mode targeting no more than 180 minutes and a Deep mode of approximately 12 hours. Quick samples tasks to fit a runtime budget; it is not complete coverage. The system evaluates models, not a production permission stack, and does not implement enterprise identity, approval, or recovery. My design recommendation is to give the proxy separate test credentials and disable production writes. Mark timeouts and missing results separately rather than counting them as ordinary low scores; send serious constraint failures for human review before making a release decision.",
+          "evidence": "Evidence level: Open suite and Quick-mode experiments on fourteen models, not certification of production readiness. Overall scores range from 39.6 to 65.6; different models lead in tool execution, safety refusal, or engineering quality, showing that rankings depend on the dimension. Key limitation: The six bucket weights, 28/22/16/14/14/6, come from expert judgment and have not been calibrated against enterprise incidents. The Quick subset is smaller, and the authors recommend Deep mode for release decisions. Some MCP scores rely on an LLM judge, whose drift across versions can change absolute values; the engineering-quality rubric compresses scores and favors coherent output over strict correctness. Differences between native harnesses also limit attribution to 'pure model capability.' There are no controlled customer comparisons for real costs, benefits, or incident rates. A high aggregate score cannot compensate for a permission failure in one dimension.",
+          "idea": "Create a small, multi-axis release gate for selecting a model for an internal agent. Use only two benchmarks relevant to the task, plus 30 in-house examples, and hold the harness and judge fixed. Make permissions and irreversible actions hard gates that an average score cannot offset. Measure stability across axes, serious failures, complete-run rate, evaluation labor, and cost per qualified task.",
+          "relatedLinks": [
+            {
+              "label": "Full text and metric mapping"
+            },
+            {
+              "label": "Open-source code"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to agent evaluation",
+            "caption": "Related existing illustration; not the original image from this issue's source."
+          }
+        },
+        {
+          "type": "Independent public-record study / deployment-classification method / evidence-disclosure analysis",
+          "source": "September 22, 2026; evidence cutoff September 2 | The Brief Script; previously uncovered, not an update from today",
+          "title": "Study of 150 public deployments: 118 describe human controls, but only 22 disclose financial impact",
+          "summary": "The Brief Script screened 392 public records and selected 150 deployments across 119 organizations, including only systems that autonomously choose tools or take business actions and excluding purely generative and retrieval assistants. Of the sample, 118 explicitly describe approval, exception handling, governance, or human review; only 22 disclose cost or financial impact, and 10 disclose revenue impact. The study separates 'the system can act' from 'it has been shown to make money,' and cautions that payment capability cannot replace economic evidence. Its deployment-level rather than company-level classification is notable, but these proportions describe a sample selected from public records, not the entire enterprise market.",
+          "design": "This is not an agent runtime platform but a public-evidence screening process. It verifies a named organization, a defined workflow, actual deployment, and behavior beyond pure generation, then categorizes cases as read-only tools, human-approved actions, bounded autonomy, end-to-end autonomy, or multi-agent orchestration. Architecture and degree of autonomy are coded separately. Evidence scoring considers baselines, duration, scale, human supervision, and limitations; it should not be interpreted as a ranking of system quality. The source does not supply a shared model, retrieval, identity, or failure-recovery architecture. My design recommendation is to reuse the method as a procurement evidence table: link each candidate's claim to original materials and missing fields, pause benefit conclusions where a key metric lacks a denominator, and have business and risk owners review them together.",
+          "evidence": "Evidence level: Non-random study of public records; some underlying metrics remain vendor- or customer-reported. Of the 150 deployments, 57 involve bounded autonomy, or 38%; 71 report time or cycle effects, and 50 report capacity effects; these categories can overlap. Among 19 payment or treasury deployments, only 15.8% report quantified outcomes. This does not show that the others had no benefit, only that disclosure was insufficient. Sixty-four cases, or 42.7%, relied mainly on adopter, regulatory, or independent materials; the remaining sources were less independent. Limitations: Public success stories have selection bias, and one organization may contribute several distinct workflows. Evidence scores measure how verifiable the disclosure is, not actual effectiveness. Without random sampling, consistent ROI accounting, or independent log audits, the prevalence of human controls in the sample cannot prove that human intervention caused success.",
+          "idea": "Create an evidence register for ten agent solutions the team is comparing. Require a clear business action, human approval, sample size, observation period, baseline, and total cost per successful task. Leave missing entries unknown rather than estimating them. Have business staff review the top three; evaluate the proportion of traceable claims, missing denominators, review time, and prediction error after a pilot.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing illustration related to enterprise agent deployments",
+            "caption": "Related existing illustration; not the original image from this issue's source."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Version and monitoring dual ledger",
+          "description": "For procurement-policy question answering, record each model request, retrieved version, monitoring receipt, and final citation. A version conflict or monitoring gap must block an actionable recommendation. Evaluate state accuracy, coverage gaps, incorrect refusals, human review, and total cost per correct answer.",
+          "tags": [
+            "Version tracking",
+            "Monitoring reconciliation"
+          ]
+        },
+        {
+          "title": "Release package that average scores cannot hide",
+          "description": "For an existing agent, preserve business outcomes, tool actions, safety hard gates, complete-run rate, and total cost. Use Quick evaluation only to screen candidates; make the final decision with a frozen business task set and human review. Serious permission overreach cannot be offset by high scores elsewhere, and a fix must be retested independently.",
+          "tags": [
+            "Release gate",
+            "Evidence package"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "bf808ca8b5726312"
+}
