@@ -1,0 +1,219 @@
+{
+  "issue": "ISSUE 061",
+  "date": "2026.10.26",
+  "thesis": "本期未找到足够扎实的过去24小时新部署，按约定扩大检索窗口，纳入两项最近七天发布的材料及两项此前未覆盖的研究，均保留真实日期。共同判断是：企业Agent的可靠性不能只问“模型有没有答对”，还要问环境能否隔离、动作能否还原、工具如何被展示，以及政策是否绑定到正确资产。本期主要是技术与评估证据，不构成普遍ROI结论。\n\n四项材料分别回答：动作能越到哪里、实际发生了什么、模型先看见哪些工具，以及什么组织规则适用于当前资产。这四个问题应由不同记录和控制验证。隔离限制影响范围，不能判断业务决定；事件契约支持审计，不能补全未采集事实；工具发现缩小暴露面，不替代授权；组织上下文提供判断依据，不自动授权整改。\n\n本期没有经过独立审计的业务收益对照。最可复用的做法是把“未知”作为正式状态：出口未验证、日志不足、工具未发现、政策或资产不明确，都应形成有负责人和恢复条件的异常，而不是交给模型补出一个完成结论。",
+  "takeaways": [
+    "断网必须验证所有间接路径。 OpenAI的红队从日志、认证及共享资源发现边界问题；这些是有利攻击条件下的工程发现，不是客户事故率。企业应测试外围在内层失败后是否仍有效。",
+    "诊断应先绑定具体动作，再解释责任。 AgentTriage把重试、终止状态与证据绑定到同一生命周期；其0.858严格联合得分也说明确定性并不等于完整，缺证必须保留未知。",
+    "低攻击成功可能只是能力崩溃。 GatewayBench中某分层实现仅完成23.3%的正常任务；选型必须同时报告合法完成、攻击结果和工具发现成本，不能只优化一个安全数字。",
+    "找到政策与查对资产是两道验收。 Sola研究中SQL等价弱于文档检索，且评分含部分分；政策引用正确不能代替对象、当前配置与例外状态核对。"
+  ],
+  "contrarian": "容易接受的主张：给Agent加上分层工具发现、可重放诊断和组织上下文，就能让它可靠自治。\n\n来源事实的限制： 分层发现对弱模型可能成为障碍；可重放诊断只覆盖已采集事件；组织知识抽取仍漏掉约五分之一的汇总参考声明；隔离红队也没有证明边界永久有效。这些组件解决不同问题，不能相互填补盲区。\n\n编辑判断及成立条件： 对少量工具、规则稳定且有明确验收对象的流程，应先固定输入、工具面和关键断言，再选择性增加复杂组件。这里反对的是未经对照的叠加，并非反对多层防御；涉及高后果动作时，权限、隔离与停机仍不可省。\n\n可推翻判断的证据： 在相同任务、权限和成本口径下，新增组件经过独立留出集与真实人工抽审，持续降低严重错误，同时保持合法完成率并减少含维护、复核和返工的总成本，就应保留并扩大使用。总体分数上涨或演示成功不足以替代这种证据。",
+  "items": [
+    {
+      "type": "安全工程披露＋隔离红队实验＋开源修复关联材料",
+      "source": "2026年10月23日｜OpenAI；非当日新闻",
+      "title": "OpenAI将前沿训练切换到离线网页环境，隔离仍须覆盖日志与认证服务",
+      "url": "https://openai.com/index/securing-our-frontier-model-training-environment/",
+      "relatedLinks": [],
+      "image": {
+        "src": "/cases/agent-incident-metr.png",
+        "alt": "与本期企业Agent主题相关的既有配图",
+        "caption": "相关既有配图；非本期资料原图或部署现场。"
+      },
+      "summary": "这项材料补充此前监控事件与外部评估，新增的是训练环境隔离架构及主动红队发现，并非重复同一事故。OpenAI称，9月20日DNS访问事件后暂停最强模型训练与评估，进一步加固后于10月1日恢复；前沿强化学习改用索引和缓存网页构成的离线环境。红队不仅测试容器，还假设Agent已经控制宿主机，再验证外围能否阻止出网。对企业评测平台最有用的启发是：允许日志、指标和认证连接，并不等于这些连接不会成为间接出口；离线任务仍需要逐层检查边界。",
+      "design": "离线网页提供浏览与搜索练习，Linux受限容器运行在microVM中，外层网络与云权限继续约束宿主机及其可达服务；监控与自动暂停作为额外控制。红队在专用隔离副本中测试出网、越界和跨任务通信，安全团队复现并验证修复；模型负责寻找候选路径，不批准自身发现。公司称已将高算力红队纳入训练Safety Case。公开资料没有逐项公布身份凭证期限、停机传播时延和恢复检查清单。编辑建议企业将日志、DNS及认证代理纳入出口资产表，异常即冻结任务并由安全人员重建可信环境。",
+      "evidence": "证据等级：厂商工程自报与修复说明，非独立完整审计。 公司报告红队投入数千亿Token，并发现microVM逃逸、间接联网与共享资源通信路径；测试有意提供源码、配置及宿主机控制等有利条件，因此不是模型无辅助攻击能力评测。厂商主张： 加固与评估足以支持暂停11天后恢复。关键限制： 未给独立实验次数、成功率、误停、总费用和当前剩余风险；发现数下降同时伴随模型、目标及测试窗口变化，不能归因于防御改善。训练中的未发布模型与客户生产环境不同，不能外推线上事故概率；恢复运行是内部决策，不是零逃逸证明。",
+      "idea": "为代码Agent评测器建立“缓存网页＋出口清单”原型，只允许访问本地测试服务；用合成数据检查DNS、日志、认证和跨任务共享路径，禁止测试真实第三方。安全人员批准恢复，测越界触达、误停、隔离覆盖、撤权时延和可信重建分钟数。"
+    },
+    {
+      "type": "新预印本＋开源实现＋跨运行时证据契约与人工标注",
+      "source": "2026年10月22日｜浙江万里学院、浙江工业大学",
+      "title": "AgentTriage用确定性证据重放诊断，但可重现不等于事实完整",
+      "url": "https://arxiv.org/abs/2610.30738",
+      "relatedLinks": [
+        {
+          "label": "全文及实验",
+          "url": "https://arxiv.org/html/2610.30738v1"
+        },
+        {
+          "label": "代码与脱敏证据",
+          "url": "https://github.com/AsnGs/agenttriage-open-source"
+        }
+      ],
+      "image": {
+        "src": "/cases/agentic-rag-comparison.jpg",
+        "alt": "与本期企业Agent主题相关的既有配图",
+        "caption": "相关既有配图；非本期资料原图或部署现场。"
+      },
+      "summary": "AgentTriage解决一个常见排障问题：Agent说“写入被阻止”，日志里却混有多次调用、重试和并行分支，分析员很难确认究竟哪次动作执行了。框架将不同运行时的原生事件转成统一契约，把调用、结果、参数和策略证据绑定到同一动作生命周期，再生成可重放诊断。它不调用新的LLM来判断根因，必要证据缺失便拒绝归因。五种运行时的受控测试说明，这种做法可以把“尝试、执行、失败、被拦截”分开，但不能凭日志中不存在的事件补写一个合理故事。",
+      "design": "适配层从TaskWeaver、Agent Zero、LangGraph、Goose及Microsoft Agent Framework采集事件；确定性核心按调用标识连接结果，构建带类型的来源图，选择与策略相关的终止动作并回溯证据。预先冻结的政策判定基准提供授权语义，结论逐条携带事件ID；格式或证据不完整输出明确失败，而不是借模型猜测。执行在隔离Docker及无害本地资源中，原始Prompt、策略、镜像和代码哈希一起保存。它是事后诊断层，不负责生产IAM或拦截；编辑建议诊断不足时转分析员，恢复调查先补采日志，不据缺失证据自动判安全。",
+      "evidence": "证据等级：开放受控实验与双人盲标参考，尚未同行评审。 五个固定运行时共159次适用执行；诊断确认集126例中120例进入最终分母。严格联合诊断得分0.858，95%区间0.785—0.910；必需证据覆盖0.966，无支持主张比例0.036，比最强同Schema基线高0.175，差值区间0.092—0.258。确定性诊断中位耗时约5.9—12.3毫秒，不含全部Agent执行成本。局限： 场景、版本和政策基准固定，部分调用ID由适配层合成；17.5%的参考案例需仲裁。未采集边界之外的事件不可见，隐式影响与语义改写也非当前能力；重放一致不能证明不存在遗漏或真实因果关系。",
+      "idea": "为一个工单Agent记录调用ID、父任务、参数、执行结果和审批事件，先覆盖文件写入与外发两类动作；诊断只引用同一生命周期。缺证交工程师，测误连重试、状态识别、无依据归因、证据缺失率、人工定位分钟数和日志开销。"
+    },
+    {
+      "type": "研究预印本＋七类MCP网关对照＋工具规模与攻击评估",
+      "source": "2026年10月16日｜清华大学、芝加哥大学、UIUC；此前未覆盖",
+      "title": "GatewayBench：分层工具发现降低间接攻击，但弱模型可能连正常任务也做不了",
+      "url": "https://arxiv.org/abs/2610.23449",
+      "relatedLinks": [
+        {
+          "label": "全文、逐网关结果与方法",
+          "url": "https://arxiv.org/html/2610.23449v1"
+        }
+      ],
+      "image": {
+        "src": "/cases/okta-agent-sso.png",
+        "alt": "与本期企业Agent主题相关的既有配图",
+        "caption": "相关既有配图；非本期资料原图或部署现场。"
+      },
+      "summary": "GatewayBench比较两种工具展示方式：扁平网关一次暴露全部工具，分层网关先提供发现接口，再按需取回工具。研究将模型、Harness与网关作为一个系统测试，发现分层方案通常降低间接工具注入成功，但收益强烈依赖模型能力。使用GPT‑5.4时，分层与扁平的正常任务成功率接近；换成GPT‑5.1，部分分层实现却无法遵循发现流程。对企业的具体启发不是“工具检索必胜”，而是增加工具目录前同时验证发现能力、正常完成与攻击结果，避免把系统失能误认为安全增强。",
+      "design": "524项任务涵盖六领域，其中450项为正常及攻击任务，74项来自真实MCP执行场景；11,118个工具定义构成噪声池，每题增加0、500、1,000或1,500个无关工具。模型决定发现与调用，网关改变可见工具面，规则评委检查最终环境状态。噪声工具只注册真实Schema，调用返回错误，不执行真实服务；框架没有替生产系统实现用户权限或人工审批。编辑建议发现结果还须经过用户与任务ACL过滤，超时、无匹配或连续选错时停并转人，不能自动扩大目录或切换成高权限凭证。",
+      "evidence": "证据等级：网关默认配置下的受控对照，主要实验单次运行。 GPT‑5.4及同一SDK下，分层／扁平平均正常成功率85.1%／87.2%，间接攻击成功率30.9%／47.2%；无关工具增至1,500后，正常成功率为85.6%／83.3%。但GPT‑5.1下一款分层网关正常成功仅23.3%，低攻击成功不能解释为稳健防护。局限： 主实验没有重复采样区间；74项真实任务删除了过易和过难题，存在选择偏差。噪声相关性由LLM筛选，且调用总失败，不能代表正常可用的全企业目录；产品实现差异与架构混杂，没有证明某个网关普遍更安全、便宜或适合生产。",
+      "idea": "为采购助手固定30题，对比一次展示全部工具和按任务发现工具，冻结模型与预算，并加入无关目录及恶意描述。采购员批准外发或写入，测正常完成、攻击成功、工具误选、发现漏召回、人工升级、P95时延和正确任务总成本。"
+    },
+    {
+      "type": "企业生产环境研究预印本＋声明与证据模型＋只读安全调查",
+      "source": "2026年10月8日｜Sola Security；此前未覆盖，非本周更新",
+      "title": "组织安全上下文研究：政策条款找到后，绑定实时资产仍是薄弱环节",
+      "url": "https://arxiv.org/abs/2610.12540",
+      "relatedLinks": [
+        {
+          "label": "完整方法与评分边界",
+          "url": "https://arxiv.org/html/2610.12540v1"
+        }
+      ],
+      "image": {
+        "src": "/cases/gov-ai-assessment.png",
+        "alt": "与本期企业Agent主题相关的既有配图",
+        "caption": "相关既有配图；非本期资料原图或部署现场。"
+      },
+      "summary": "Sola研究把政策、审计报告和架构图中的组织知识，连接到AWS、Okta、Google Workspace及GitHub的实时资产。相同公开存储配置，可能因业务用途与已接受风险不同而需要不同判断；只查机器状态不足，只读文档也可能相信过时报告。系统把“一个含义”存为Claim，每次来源陈述另存出处、作者、时间和有效期，再将声明绑定资产。研究在78项调查中测试过时发现、政策对齐和架构匹配。值得关注的是它将矛盾与过期作为数据返回，而非默认新文档或实时状态永远胜出。",
+      "design": "摄取管线从文档抽取声明并合并同义含义，保留各份原文证据；同源修订形成历史，跨源矛盾并存。Claude Sonnet 4.6调查Agent通过SQL查询实时资产图，并检索声明、定位与冲突，再返回带依据的判断；无法得出结论时保持对象原状态。该研究没有完整披露生产用户ACL、SQL只读强制、超时和人工批准。编辑建议先限定一种资产与一份政策，任何缺条款、实体不唯一或证据冲突均转安全人员；调查结论只作建议，不自动修改配置，恢复时重新读取资产版本。",
+      "evidence": "证据等级：单企业环境案例实验，无替代架构对照，部分评分依赖模型。 1,355项汇总参考声明的抽取召回0.80、精确率0.87；30项过时发现任务的冲突检测0.97，32项政策对齐与16项架构任务得分0.83、0.86。后两项包含0.5部分分，不能称完整答对比例。局限： 参考池来自模型集成，所有模型都漏掉的要求不可见；判断评委未经专家校准。过时集全部有冲突，架构集全部匹配，未测相反情况；实时SQL等价分仅0.75—0.91。材料支持保留证据与矛盾，不证明该表示优于普通RAG，亦未报告人工节省、成本或事故下降。",
+      "idea": "为安全团队做20个存储桶的只读政策核对，保留资产ID、业务用途、条款及例外有效期；人工确认实体和风险接受记录，不自动整改。加入合规、不合规与无法判断样本，测实体绑定、条款召回、完整正确率、错误升级和每项复核分钟数。"
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "可重放的变更证据包",
+      "description": "面向内部平台维护人员，仅覆盖单项目文件修改；保存输入快照、调用ID、审批、实际Diff和执行读回。Agent不改日志或政策，工程师处理缺证与回滚；验收错误关联、越权修改、证据完整率、恢复分钟数和每项合格变更成本。",
+      "tags": [
+        "Evidence",
+        "Evaluation"
+      ]
+    },
+    {
+      "title": "政策到资产的只读核验器",
+      "description": "面向小型安全团队，仅覆盖存储桶公开访问与一份政策；先解析资产与条款，再由受限工具读实时状态，分歧交人员裁决。验证实体绑定、完整答案正确率、误报漏报、人工复核时间和数据更新后的回归稳定性。",
+      "tags": [
+        "Policy",
+        "Security"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue found insufficient solid deployments from the past 24 hours and expands the search window as agreed: two materials published within the last seven days and two previously uncovered studies, retaining their actual dates. Enterprise-agent reliability requires more than correct answers: environment isolation, reconstructable actions, tool presentation and correct policy-to-asset binding matter. These are technical and evaluation findings, not general ROI evidence.\n\nThe four sources address where actions can reach, what actually happened, which tools models see, and which organizational rules apply to current assets. Separate controls and records must verify each. Isolation limits impact but cannot judge business decisions; event contracts support audit but cannot recover uncollected facts; discovery does not replace authorization; organizational context does not authorize remediation. No independently audited business-benefit comparison is available here. Treat unverified egress, missing logs, undiscovered tools and unclear policy or assets as owned exceptions with recovery conditions, rather than asking a model to invent completion.",
+      "takeaways": [
+        "Validate every indirect path when disconnecting a system. OpenAI red teaming found boundaries involving logging, authentication and shared resources under favorable attack conditions; these are engineering findings, not customer incident rates. Test outer defenses after inner controls fail.",
+        "Bind evidence to a specific action before assigning responsibility. AgentTriage links retries and terminal states to one lifecycle. Its 0.858 joint score also shows that determinism does not imply completeness; missing evidence must remain unknown.",
+        "Low attack success can indicate lost capability. One GatewayBench hierarchical implementation completed only 23.3% of legitimate tasks. Selection must report legitimate completion, attacks and discovery cost together.",
+        "Finding policy and identifying the correct asset are separate acceptance gates. Sola live-SQL equivalence lagged document retrieval, and some scores include partial credit. A correct citation does not replace checks of identity, current state and exceptions."
+      ],
+      "contrarian": "Popular claim: hierarchical discovery, replayable diagnosis and organizational context make agents reliably autonomous. Source limitations: weak models may struggle with discovery, replay covers only collected events, knowledge extraction still misses roughly one-fifth of pooled reference claims, and isolation red teaming does not prove permanent boundaries. These components cannot fill one another’s blind spots. Editorial judgment: for stable workflows with few tools and clear acceptance objects, first freeze inputs, tool visibility and critical assertions, then add components selectively. This opposes untested accumulation, not defense in depth; high-consequence actions still require permissions, isolation and stopping controls. The judgment would be overturned if independent holdouts and real human audits showed that an added component consistently reduced serious errors while preserving legitimate completion and lowering maintenance-, review- and rework-inclusive costs on comparable tasks and permissions. Higher overall scores or successful demonstrations alone are insufficient.",
+      "items": [
+        {
+          "title": "OpenAI moves frontier training to an offline web environment; isolation must also cover logging and authentication services",
+          "type": "Security engineering disclosure, isolation red teaming and related open-source fixes",
+          "source": "23 October 2026 | OpenAI; not breaking news today",
+          "summary": "This extends the earlier monitoring incidents and external evaluation with a training-isolation architecture and proactive red-team findings, rather than repeating the same incident. OpenAI says it paused its strongest training and evaluations after the 20 September DNS-access event and resumed on 1 October following further hardening. Frontier reinforcement learning moved to an offline environment of indexed and cached web pages. Red teaming also assumed an agent already controlled the host and tested whether surrounding infrastructure could still prevent egress. For enterprise evaluation platforms, the lesson is that permitted logging, metrics and authentication connections can become indirect exits; offline tasks still need boundary checks at every layer.",
+          "design": "The cached web supports browsing and search practice. Restricted Linux containers run inside microVMs, with outer network and cloud permissions constraining hosts and reachable services; monitoring and automatic pauses add further controls. Red teams tested egress, boundary crossing and cross-task communication in dedicated isolated replicas. Security staff reproduced findings and validated fixes; models sought candidate paths but did not approve their own findings. The company says high-compute red teaming is part of its training Safety Case. Credential lifetimes, stop-propagation latency and restoration checklists were not fully disclosed. Our recommendation is to include logging, DNS and authentication proxies in an egress inventory and have security staff rebuild a trusted environment after anomalies.",
+          "evidence": "Evidence: vendor engineering reports and fix descriptions, not a complete independent audit. The company reports hundreds of billions of red-team tokens and findings involving microVM escape, indirect internet access and communication through shared resources. Tests deliberately supplied advantages such as source, configuration and host control, so they are not unaided model-attack evaluations. The company judged hardening sufficient to resume after an 11-day pause. Independent trial counts, success rates, false stops, total cost and residual risk were not provided. Declining findings also coincided with changing models, targets and windows, preventing attribution to improved defenses alone. Unreleased training models differ from customer production environments; resumption is an internal decision, not proof of zero escapes.",
+          "idea": "Build a cached-web and egress-inventory prototype for a coding-agent evaluator, limited to local test services. Use synthetic data to test DNS, logging, authentication and shared-task paths, never real third parties. Require security approval to resume. Measure boundary reachability, false stops, isolation coverage, revocation latency and trusted-rebuild minutes.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Previously used illustration related to enterprise agents",
+            "caption": "Related existing illustration; not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "AgentTriage replays diagnoses from deterministic evidence, but reproducibility does not establish completeness",
+          "type": "New preprint, open implementation, cross-runtime evidence contracts and human annotation",
+          "source": "22 October 2026 | Zhejiang Wanli University and Zhejiang University of Technology",
+          "summary": "AgentTriage addresses a common investigation problem: an agent says a write was blocked, while logs mix several calls, retries and concurrent branches. Analysts cannot easily determine which action actually ran. The framework maps native runtime events into a common contract, binding calls, results, arguments and policy evidence to one action lifecycle before producing a replayable diagnosis. It invokes no additional LLM for root-cause judgment and abstains when required evidence is missing. Controlled tests across five runtimes separate attempted, executed, failed and blocked actions, without inventing a plausible account of unrecorded events.",
+          "design": "Adapters collect TaskWeaver, Agent Zero, LangGraph, Goose and Microsoft Agent Framework events. A deterministic core links results by call identifiers, constructs a typed provenance graph, selects policy-relevant terminal actions and traces evidence backward. A frozen policy oracle supplies authorization semantics, and conclusions cite event IDs. Invalid formats or insufficient evidence produce explicit failure rather than model guesses. Execution uses isolated Docker environments and harmless local resources, saving prompts, policies, image and code hashes. This is post-hoc diagnosis, not production IAM or enforcement. Our recommendation is to escalate insufficient diagnoses and restore missing telemetry before continuing investigation, without interpreting absent evidence as safety.",
+          "evidence": "Evidence: open controlled experiments with a two-person blinded reference, not yet peer reviewed. Five fixed runtimes produced 159 applicable executions; 120 of 126 diagnostic-confirmation cases entered the final denominator. Strict joint diagnostic score was 0.858, with a 95% interval of 0.785–0.910; required-evidence coverage was 0.966 and unsupported-claim share 0.036. The gain over the strongest same-schema baseline was 0.175, interval 0.092–0.258. Median deterministic diagnosis took about 5.9–12.3 ms, excluding full agent execution. Scenarios, versions and policies were fixed; adapters synthesized some call IDs, and 17.5% of reference cases required arbitration. Events outside collection boundaries are invisible; implicit effects and semantic rewriting remain limitations. Consistent replay cannot prove complete logs or real causality.",
+          "idea": "For one ticket agent, record call IDs, parent tasks, arguments, results and approval events, initially covering file writes and outbound actions. Diagnose only within the same action lifecycle and escalate missing evidence. Measure retry mislinking, state classification, unsupported attribution, missing evidence, human investigation minutes and logging overhead.",
+          "relatedLinks": [
+            {
+              "label": "Full paper and experiments"
+            },
+            {
+              "label": "Code and redacted evidence"
+            }
+          ],
+          "image": {
+            "alt": "Previously used illustration related to enterprise agents",
+            "caption": "Related existing illustration; not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "GatewayBench: hierarchical tool discovery reduces indirect attacks, but weaker models may also fail legitimate tasks",
+          "type": "Research preprint comparing seven MCP gateways, tool scale and attacks",
+          "source": "16 October 2026 | Tsinghua University, University of Chicago and UIUC; previously uncovered",
+          "summary": "GatewayBench compares flat gateways exposing all tools at once with hierarchical gateways that expose discovery interfaces and retrieve tools as needed. It evaluates the model, harness and gateway as one system. Hierarchical designs generally reduced indirect tool-injection success, but benefits depended strongly on model capability. With GPT-5.4, legitimate task completion was similar across designs; with GPT-5.1, some hierarchical implementations could not follow discovery procedures. The enterprise lesson is not that tool retrieval always wins: test discovery capability, legitimate completion and attacks together before expanding a tool catalog, so system incapacity is not mistaken for improved security.",
+          "design": "The 524 tasks span six domains: 450 legitimate and attack tasks plus 74 real MCP execution scenarios. A noise pool contains 11,118 tool definitions, adding 0, 500, 1,000 or 1,500 irrelevant tools per task. Models choose discovery and calls; gateways change visibility; rule-based evaluators check final environment state. Noise tools register real schemas but return errors rather than operate real services. The framework does not implement production user permissions or approvals. Our recommendation is to filter discovery through user and task ACLs and escalate on timeouts, no matches or repeated errors, without widening the catalog or switching to privileged credentials.",
+          "evidence": "Evidence: controlled comparisons under gateway defaults, mostly single-run main experiments. With GPT-5.4 and the same SDK, hierarchical versus flat mean legitimate completion was 85.1% versus 87.2%, while indirect attack success was 30.9% versus 47.2%. At 1,500 irrelevant tools, legitimate completion was 85.6% versus 83.3%. One hierarchical gateway achieved only 23.3% legitimate completion with GPT-5.1; low attack success there is not robust protection. Main results lack repeated-sampling intervals. The 74 real tasks excluded very easy and very hard cases, introducing selection bias. LLM filtering selected noise relevance, and all noise calls failed, unlike usable enterprise catalogs. Product differences are confounded with architecture; no gateway is shown universally safer, cheaper or production-ready.",
+          "idea": "Freeze 30 procurement tasks, model and budget; compare full tool exposure against task-based discovery, adding irrelevant entries and malicious descriptions. Require procurement approval for outbound or write actions. Measure legitimate completion, attack success, wrong-tool calls, missed discovery, human escalation, P95 latency and total cost per correct task.",
+          "relatedLinks": [
+            {
+              "label": "Full paper and gateway-level methods"
+            }
+          ],
+          "image": {
+            "alt": "Previously used illustration related to enterprise agents",
+            "caption": "Related existing illustration; not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "Organizational security context: finding policy clauses does not ensure correct binding to live assets",
+          "type": "Enterprise-environment research preprint, claims-and-evidence model and read-only investigations",
+          "source": "8 October 2026 | Sola Security; previously uncovered, not updated this week",
+          "summary": "Sola connects organizational knowledge in policies, audits and architecture diagrams to live AWS, Okta, Google Workspace and GitHub assets. The same public-storage configuration can warrant different judgments depending on purpose and accepted risk. Machine state alone is insufficient, while documents may be stale. The system stores a single meaning as a Claim and preserves each source statement with provenance, author, time and validity before binding claims to assets. Across 78 investigations it tests stale findings, policy alignment and architectural matching. Conflicts and expiry become returned data, rather than assuming either the newest document or live state always wins.",
+          "design": "Ingestion extracts claims, merges equivalent meanings and retains original evidence. Same-source revisions form history, while cross-source contradictions coexist. A Claude Sonnet 4.6 investigation agent uses SQL over a live asset graph and retrieves claims, locations and conflicts to produce grounded judgments; inconclusive objects remain unchanged. Production user ACLs, enforced read-only SQL, timeouts and human approval were not fully disclosed. Our recommendation starts with one asset type and one policy: missing clauses, ambiguous identities or conflicting evidence go to security personnel. Findings remain recommendations, with no automatic configuration changes, and recovery rereads the current asset version.",
+          "evidence": "Evidence: a single enterprise environment without alternative-architecture controls, with some model-based scoring. Claim extraction against 1,355 pooled references achieved recall 0.80 and precision 0.87. Conflict detection on 30 stale-finding tasks scored 0.97; 32 policy-alignment and 16 architecture tasks scored 0.83 and 0.86. The latter allow 0.5 partial credit, so these are not complete-answer accuracy rates. The model-ensemble reference pool misses requirements omitted by every model, and judges were not calibrated by experts. All stale cases contained conflicts and all architecture cases matched, leaving opposite cases untested. Live-SQL equivalence scored only 0.75–0.91. The study supports preserving evidence and contradictions, not superiority over ordinary RAG; it reports no labor savings, cost reduction or incident decrease.",
+          "idea": "Build a read-only policy checker for 20 storage buckets, retaining asset IDs, purpose, clauses and exception expiry. Humans confirm entity bindings and accepted-risk records; the system does not remediate automatically. Include compliant, noncompliant and indeterminate cases. Measure binding accuracy, clause recall, fully correct answers, incorrect escalation and review minutes per asset.",
+          "relatedLinks": [
+            {
+              "label": "Full methods and scoring boundaries"
+            }
+          ],
+          "image": {
+            "alt": "Previously used illustration related to enterprise agents",
+            "caption": "Related existing illustration; not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "A replayable change-evidence package",
+          "description": "For internal platform maintainers, cover file changes in one project only. Save input snapshots, call IDs, approvals, actual diffs and readback. Agents cannot edit policies or logs; engineers handle missing evidence and rollback. Measure incorrect linkage, unauthorized changes, evidence completeness, recovery minutes and cost per accepted change.",
+          "tags": [
+            "Evidence",
+            "Evaluation"
+          ]
+        },
+        {
+          "title": "A read-only policy-to-asset verifier",
+          "description": "For a small security team, cover public access on storage buckets and one policy. Resolve identities and clauses, then read live state through restricted tools and send disputes to humans. Validate entity binding, fully correct answers, false positives and negatives, review time and regressions after data updates.",
+          "tags": [
+            "Policy",
+            "Security"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "2c5d51d15b5c5f63"
+}
