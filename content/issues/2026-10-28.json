@@ -1,0 +1,210 @@
+{
+  "issue": "ISSUE 063",
+  "date": "2026.10.28",
+  "thesis": "本期选入一项10月27日更新、两项最近七天研究，以及一项此前未覆盖的10月1日工程案例，不将旧材料包装成当天新闻。核心判断是：企业AI的控制不能只在启动时成立，还要承受工具目录、代码、人员决策和评估结果的变化。产品已宣布、功能已交付、真实流程已采用、业务收益已证实，是四种不同状态；本期没有独立验证的端到端ROI结论。\n\n四组材料分别涉及评估状态、工具状态、人工规划状态和执行证据状态。可靠工作流应允许它们各自更新，并重新验证受影响的动作，而不是把启动时的批准无限续用。注册表要记录所有者与配置版本，规划器要保存人工修订，编码器要重新取得当前证据，评估层则要证明干预确实抵达执行层。\n\n本期最接近业务证据的是销售规划生产比较，但不是随机对照；最可检查的是开放代码评测，但不是真实协作事故；两项工程或产品说明则没有完整有效性分母。组合这些材料支持设计更好的验收方法，不支持宣称企业自治已经普遍可靠或已取得统一投资回报。",
+  "takeaways": [
+    "有停机工具不等于评估驱动停机已经交付。 Salesforce把普通开关、预算组件与未来自动触发能力分列日期；采购与上线验收应逐组件确认可用性，不能把明年路线图当今日保障。",
+    "工具自动发现应增加审查队列，而非自动增加权限。 Uber默认禁用与描述差异审批明确了所有者责任，但没有公开漏检效果；工具目录应与原生日志对账，确认旧接口没有成为旁路。",
+    "生产分数低于回测不必然说明系统退步。 Databricks真实计划经历人工取舍，合规改善17%而非回测78%；应检查取舍记录和最终业务结果，不能混用两个分母，也不能只凭人工参与就认定收益成立。",
+    "通过旧测试不能证明当前工作完成。 SWE-Shift显示配对变化后成功下降，但数据仍是设计情景；可直接迁移的是对当前版本、保留修改和新鲜证据的检查，而非把实验失败率当生产预测。"
+  ],
+  "contrarian": "主流主张是：企业应尽可能减少人工关口，让Agent持续自主工作。 本期来源提供的限制是：Uber仍让所有者批准工具开放；Databricks把人工修改作为下轮优化必须尊重的规划意图；SWE-Shift则展示变化中覆盖有效工作或使用旧证据的风险。Salesforce也没有把所有干预都设为无需批准。\n\n编辑判断： 在工具持续变化、结果不可逆、局部业务规则难以完整编码时，人工关口不是等待消除的落后环节，而可能是保证任务定义仍然正确的机制。成立条件是审批者确实看到变更、拥有责任且复核成本可承受；机械点击、无限积压和无上下文签字不构成有效控制。\n\n推翻条件： 同任务与风险口径下，独立影子运行或随机试点证明去掉某关口后严重错误不增、合法完成更高，并降低含等待、审核与返工的总成本，就应移除或自动化该关口。单纯工具数量、Token减少或静态成功率不足以支持放权。",
+  "items": [
+    {
+      "title": "Salesforce把评估连到干预，但自动触发停机仍待明年正式可用",
+      "type": "产品更新＋运行时评估与预算控制＋路线图核验",
+      "source": "2026年10月27日｜Salesforce、MuleSoft",
+      "url": "https://www.salesforce.com/news/stories/agent-fabric-catch-failures-control-ai-costs/",
+      "relatedLinks": [],
+      "summary": "Salesforce为Agent Fabric宣布Agent Evals、API Evals与成本控制，试图把发现质量下降、通知负责人、请求批准和隔离Agent串成闭环。值得关注的窄场景是客服切换便宜模型后，延迟订单回答变差：系统应先隔离，再修正提示并重新评测，而不是只发告警继续服务。不过公告中的零售流程是示例，不是客户对照实验；两类评估要到十一月测试、明年一月正式可用，不能按标题理解为今天已有完整自动防故障能力。当前应分开验收预算门、人工停机与评估触发三段链路，还须验证告警是否真正阻止后续调用。",
+      "design": "公告描述在部署前生成测试，运行后按质量阈值评估Agent、模型与MCP服务，并触发预定义干预；团队政策要求时先取得人工批准。接口评估从API规范生成测试，预算钱包在超额前拒绝请求。模型具体版本、评委校准、生产流量抽样、权限撤销传播和在途事务恢复未披露。这里的评估结果是干预信号，不应自动获得业务写权限。编辑建议订单客服只读试点先固定错误类型与负责人，低置信或模型切换即转人；隔离后保留未决工单，经过独立回归和人工签字才能恢复。",
+      "evidence": "证据等级：厂商发布与客户意向引述，无独立效果对照。 Agent Evals、API Evals计划2026年11月Beta、2027年1月正式可用；普通Kill Switch与预算组件已正式可用，但Triggered-Agent Kill Switch要到2027年1月。公告称测试场景Token最多减少75%，没有公开样本、质量损失和生产账单；日均12亿请求也不是新评估覆盖量。编辑判断： 架构方向可供设计参考，不能据此确认停机漏报或成本净收益。还缺误隔离率、严重错误召回、撤权时延、业务完成率和恢复工时；客户支持性发言无法替代上线后的事故分母，未来交付时间也可能变化。即使预算门正常工作，也不能防止预算以内的错误动作；评估服务故障、未抽中请求和跨平台旁路仍需专门演练。",
+      "idea": "为订单客服负责人做“换模回归—人工隔离”试点，仅覆盖延迟订单查询，不自动退款；固定五十题和质量底线，触发后由值班人员批准隔离、复测及恢复。验收严重错误召回、误隔离、告警到停机时延、未决工单数、人工分钟与每个正确答复总成本，保留错误原样。",
+      "image": {
+        "src": "/cases/salesforce-durable-workflows.png",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "Uber把接口自动发现与开放权限分开，工具描述变更也要所有者批准",
+      "type": "生产工程博客＋MCP注册表与网关＋工具发布治理",
+      "source": "2026年10月1日｜Uber Engineering；此前未覆盖的历史材料",
+      "url": "https://www.uber.com/us/en/blog/designing-mcp-gateway/",
+      "relatedLinks": [],
+      "summary": "这项材料不同于此前报道的Uber短期身份凭证：它处理怎样把大量既有接口变成Agent工具，同时不把“发现到”误当成“已经授权”。自动爬取器从服务接口定义和原生MCP服务生成工具，注册时一律禁用，由服务所有者检查后开启；工具描述修改也产生差异并等待批准。对内部平台最实用的不是快速扩充工具数量，而是让接口语义与开放责任有明确归属。批量生成可以降低接入工作，但不能替人员确认工具究竟会做什么，也不能让新目录绕开运行时权限检查。",
+      "design": "输入为接口定义、注释及原生服务的工具列表；爬取器解析Schema，模型补充描述，注册表保存所有权、配置与启用状态。代理层把MCP请求转换成既有协议，依据调用者是人员、服务还是Agent执行工具级授权，并对响应脱敏。服务所有者批准描述与配置变更，可回退旧版本；模型不批准自身生成的工具。渐进发现再按需获取工具定义，避免把整个目录塞入上下文。网关故障默认拒绝与否、配置同步时延、部分写入补偿及自动生成描述的正确率未披露；编辑建议出现语义变化或审批缺失即停用并转所有者。",
+      "evidence": "证据等级：部署方工程自报，非独立安全审计。 文中称网关承载超过800个MCP服务、5,000个工具，并把代码模式设为编码Agent的默认工具入口；这些数字证明接入规模，不证明任务正确或越权为零。公开设计清楚区分自动发现、所有者启用与运行时授权，但没有未登记接口漏发现、描述误导、策略漏检、脱敏漏报或用户任务对照。编辑判断： 默认禁用值得复用，却只能控制登记路径；能否绕过网关直接调用旧服务仍需独立对账。模型生成描述还可能引入错误承诺，审批是否有效必须抽查批准记录与实际接口行为，不能用工具总数或统一入口代替安全效果。也未给出公开版本的压力测试。",
+      "idea": "为内部平台团队建立二十个只读接口的工具注册表，生成后默认禁用；所有者核对参数、返回字段和用途，再批准开放，描述更新重新审阅。禁止接入生产写接口，测描述错误、未批启用、目录漂移、原生日志旁路、审批分钟数和工具任务成功率，安排定期抽审。",
+      "image": {
+        "src": "/cases/okta-agent-sso.png",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "Databricks用可审方案改造销售分区，生产改善远小于回测并非失败",
+      "type": "企业生产决策系统预印本＋历史回测＋人工迭代规划",
+      "source": "2026年10月21日｜Databricks，Nan Wang、Mitchell Turiel",
+      "url": "https://arxiv.org/abs/2610.31701",
+      "relatedLinks": [
+        {
+          "label": "全文与生产、回测口径",
+          "url": "https://arxiv.org/html/2610.31701v1"
+        }
+      ],
+      "summary": "销售分区不仅要给高价值客户安排负责人，还要考虑销售容量、机会均衡和更换负责人对客户关系的影响。Databricks把客户评分、关系连续性估计和约束优化组合成可比较方案，而非让语言模型直接分配客户。规划人员审阅后可以调整，下一轮求解保留这些明确修改，避免算法反复覆盖专家决定。值得关注的是工作流设计：算法提供一致基线，人负责未被数据表达的当地约束；生产结果因此不必追求回测中的最大分数，而应明确保留哪些人工取舍，以及这些取舍造成的可量化影响。",
+      "design": "输入为客户价值信号、历史消耗、当前归属、销售容量和资格规则；预测评分形成可比较价值，观察性合成对照估计交接损失，优化器平衡收益、连续性与机会分布。硬规则保住锁定分配，另用保留意图项维护本轮专家修改。输出先作为规划情景供人员选择、修改或仅作参考，不直接写成最终归属。这里没有生成式模型负责执行，也没有检索式授权机制。论文未披露实际账户访问控制、审批身份、失败重试和回滚接口；对于无可行解、稀疏区域或未编码的语言地理规则，交人工审阅，不应让模型补造可行性。",
+      "evidence": "证据等级：部署方生产前后比较与历史回测；预印本，无随机因果验证。 固定历史条件回测称分配合规改善78%，求解窗口四小时；实际采用方案相对前期计划合规改善17%、机会均衡改善7%。这些是文中相对改善口径，不是百分点，也不是收入增长。局限： 未公开完整账户数、指标绝对基线和外部复现数据；周期间客户构成、规则及人员行为可能变化。交接损失仍受未观测选择与跨客户影响干扰，不能视为已识别因果。编辑判断： 人工保留局部业务判断可以解释部分分数让步，但还需记录审阅时间、客户损失和后续执行结果，才能判断是否净增价值，也未测人员接受率。",
+      "idea": "为小型销售运营团队做单一区域、一百个合成客户的分配比较器，仅输出三个可行情景；负责人锁定重要关系和本轮修改，再运行优化。测硬约束违规、机会偏差、客户转移数、人工修改保留率、规划工时及后续结果，先不接正式客户归属写入，保留人工基线。",
+      "image": {
+        "src": "/cases/procurement-agentic-ai.jpg",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "SWE-Shift让代码、会话和证据在中途变化，静态成功不能代表协作可靠",
+      "type": "开放评测预印本＋配对执行＋开源仓库与演示",
+      "source": "2026年10月23日｜Huang等，SWE-Shift研究团队",
+      "url": "https://arxiv.org/abs/2610.32196",
+      "relatedLinks": [
+        {
+          "label": "完整评测与限制",
+          "url": "https://arxiv.org/html/2610.32196v1"
+        },
+        {
+          "label": "代码、文档及演示",
+          "url": "https://github.com/JeixHuang/SWE-Shift"
+        }
+      ],
+      "summary": "SWE-Shift测试编码Agent工作过程中代码、需求或工具会话突然变化时，是否还能完成当前任务并保住别人已经做对的修改。它从同一个已保存状态分成两条续跑：一条保持不变，一条加入可恢复且与任务相关的更新，从而区别原本不会做和被变化打断。实际意义是把测试对象从最终补丁扩展到协作过程：原测试通过，也可能因为Agent删掉了同事的有效变更，或拿旧分支上的测试结果宣称成功。企业应把保留有效工作、重新读取状态和证据绑定一起列入验收，而非只统计修复率。",
+      "design": "研究从既有仓库任务构造变更情景，保存历史与工作区后配对续跑，按更新后的要求检查任务、状态、保留义务和证据。工具会话失效时必须发现并使用当前许可接口；旧证据失效时必须重新观察，不能复用此前成功声明。原生应用与开放模型系统一起受测，结果属于模型与Harness组合，不是纯模型能力。实验没有生产多人身份授权或在线人工接管。编辑建议真实团队在分支、Schema或用户目标变化时暂停写入，向人员展示差异，再用当前版本测试；读回失败或无法判定修改归属时保留现场转人。",
+      "evidence": "证据等级：开放受控配对基准，尚无独立生产复验。 120情景来自17仓库、23个任务根，覆盖12类变化、九个干预位置；17套系统变化后均下降。GPT‑6 Astra不变续跑成功67.35%，变化后24.79%，配对指标20.34%；每次续跑预算为累计输入输出一百万Token，并非独立任务数。局限： 多情景共享任务根，每次只改一处，不能按独立真实工单外推事故率；模型随机性未控制，原生应用与本地部署也不同。成功须通过额外保留和证据检查，比普通单元测试更严。代码开放支持检查方法，不证明结果已复现；还缺真实协作周期、人工修复成本及跨版本稳定性。实验未证明重读状态必然修复全部错误，也没有测量真实缺陷逃逸。",
+      "idea": "为代码维护团队做二十个配对回归任务，分别注入同事修改、工具参数变更和旧测试报告；Agent只改临时分支，遇到冲突由维护者裁决。验收变化前后成功、有效修改保留、当前版本证据率、错误完成声明、人工恢复分钟和每个合格补丁成本，保留人工基线。",
+      "image": {
+        "src": "/cases/github-llm-evals.png",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "工具变更准入台",
+      "description": "面向内部平台团队，最小范围为二十个只读工具；记录所有者、Schema、描述差异和批准版本，默认禁用新增项，接口变化后重新验收。所有者处理冲突，Agent不能自行启用；测未批开放、语义错误、旁路调用、审阅时长和正常任务完成率。",
+      "tags": [
+        "工具治理",
+        "审批"
+      ]
+    },
+    {
+      "title": "保留人工意图的协作回归器",
+      "description": "面向规划或代码维护团队，最小范围为二十个配对任务；保存人员锁定项与当前版本，注入一次变化后检查是否被错误覆盖。人员裁决新旧约束，输出只作建议；测有效工作保留、更新后正确率、证据过期、人工恢复时间和合格结果总成本。",
+      "tags": [
+        "协作回归",
+        "人工审核"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue includes an October 27 update, two studies from the past seven days and a previously uncovered October 1 engineering case; older material is not presented as today's news. Enterprise AI controls must survive changes to tools, code, human decisions and evaluation results. Announcement, delivery, operational adoption and proven business value are different states. No source establishes independently verified end-to-end ROI.\n\nThe sources concern evaluation state, tool state, human planning state and execution-evidence state. Each should update independently, with affected actions revalidated rather than indefinitely reusing startup approval. Registries need owners and configuration versions; planners need retained human edits; coding agents need fresh evidence; evaluators must demonstrate that intervention reaches execution.\n\nSales planning provides the closest business evidence but is not randomized. The open benchmark is inspectable but not a production incident study. The engineering and product descriptions lack complete effectiveness denominators. Together they support better acceptance methods, not universal claims of reliable autonomy or investment returns.",
+      "takeaways": [
+        "A stop tool does not mean evaluation-triggered stopping is already delivered. Salesforce lists different dates for the ordinary switch, budget components and future triggered intervention. Procurement and deployment checks must verify component availability rather than treating next year's roadmap as today's protection.",
+        "Automatic discovery should add review work, not permissions. Uber's disabled defaults and description-diff approval assign ownership, but their effectiveness is unmeasured. Reconcile tool catalogs against native service logs to detect bypasses through old interfaces.",
+        "A lower production score than a backtest need not mean regression. Databricks' adopted plans incorporate human tradeoffs, with 17% compliance improvement versus 78% in backtesting. Inspect decisions and business outcomes, keep denominators distinct, and do not assume human involvement proves benefits.",
+        "Passing old tests does not prove current completion. SWE-Shift reports lower success after paired interventions, but these remain designed scenarios. Transfer current-version, preservation and fresh-evidence checks, not experimental failure rates as production forecasts."
+      ],
+      "contrarian": "The mainstream proposition is that enterprises should remove human gates so Agents can work continuously. Source limitations: Uber still requires owner approval for tool exposure; Databricks preserves human edits as planning intent; SWE-Shift exposes overwritten valid work and stale evidence. Salesforce does not make every intervention approval-free.\n\nEditorial judgment: when tools change, actions are irreversible and local rules are incompletely encoded, human gates can preserve the correctness of the task definition rather than represent obsolete friction. This requires reviewers to see changes, hold responsibility and sustain affordable review. Mechanical clicking, indefinite queues and context-free signoff are not controls.\n\nWhat would overturn this judgment: independent shadow runs or randomized pilots showing that removing a specific gate does not increase severe errors, improves authorized completion and reduces waiting, review and rework costs under matched tasks and risk. Tool counts, token reductions or static success alone do not justify delegation.",
+      "items": [
+        {
+          "type": "Product update + runtime evaluation and budget controls + availability verification",
+          "source": "October 27, 2026 | Salesforce and MuleSoft",
+          "title": "Salesforce connects evaluation to intervention, but triggered stopping is not generally available until next year",
+          "summary": "Salesforce announced Agent Evals, API Evals and cost controls for Agent Fabric, connecting detection, owner notification, approval and quarantine. A narrow example is an order-support Agent whose delayed-order answers worsen after switching to a cheaper model: quarantine, revise instructions and reevaluate rather than merely alert while continuing service. However, the retail workflow is illustrative, not a controlled customer deployment. Both evaluation products enter beta in November and general availability in January 2027; the headline does not establish a complete automatic prevention loop today. Evaluate budget gates, human stopping and evaluation triggers separately. Verify that alerts stop subsequent calls.",
+          "design": "The announcement describes generated predeployment tests, runtime quality thresholds for Agents, models and MCP servers, and predefined interventions with approval when policy requires it. API tests derive from specifications; a model wallet rejects requests before budget overruns. Model versions, judge calibration, live-traffic sampling, revocation propagation and in-flight transaction recovery are undisclosed. Evaluation is a signal, not authority to write business data. Editorial recommendation: fix error categories and ownership for a read-only order pilot; escalate uncertainty or model switches. Preserve pending tickets during quarantine and require independent regression checks and human signoff before resumption.",
+          "evidence": "Evidence grade: vendor announcement and customer-intent quotations, without independent effectiveness controls. Agent Evals and API Evals are planned for November 2026 beta and January 2027 general availability. The ordinary Kill Switch and budget components are available, but Triggered-Agent Kill Switch is planned for January 2027. The claim of up to 75% fewer tokens comes from undisclosed test scenarios, not public quality-adjusted bills; 1.2 billion daily requests is not evaluation coverage. Editorial judgment: the architecture is a reference, not evidence of stop recall or net savings. Missing measures include false quarantine, severe-error recall, revocation delay, business completion and recovery labor. Supportive customer quotes do not supply incident denominators, and delivery dates may change. A budget gate cannot prevent within-budget mistakes; evaluation outages, unsampled requests and bypasses need drills.",
+          "idea": "For order-support owners, pilot model-switch regression plus human quarantine on delayed-order queries only, with no automatic refunds. Fix 50 tasks and quality floors; on a trigger the on-call person approves isolation, retesting and resumption. Measure severe-error recall, false quarantine, alert-to-stop delay, pending tickets, human minutes and total cost per correct answer. Retain original errors.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Production engineering blog + MCP registry and gateway + tool-release governance",
+          "source": "October 1, 2026 | Uber Engineering; previously uncovered historical material",
+          "title": "Uber separates API discovery from exposure and requires owner approval even for tool-description changes",
+          "summary": "Unlike the previously covered Uber short-lived identity credentials, this case addresses turning existing APIs into Agent tools without treating discovery as authorization. Crawlers generate tools from interface definitions and native MCP services, registering them disabled until owners review and enable them. Description changes also produce diffs requiring approval. The practical contribution is not rapid tool-count growth but explicit ownership of interface semantics and exposure. Generation can reduce integration work without replacing human confirmation of what a tool does, and catalog expansion must not bypass runtime authorization.",
+          "design": "Inputs are interface definitions, comments and native tool lists. A crawler parses schemas, a model enriches descriptions, and the registry retains ownership, configuration and enablement. The proxy translates MCP requests into existing protocols, enforces tool-level authorization by human, service or Agent actor, and redacts responses. Owners approve description/configuration changes and can roll back; the model does not approve its own tools. Progressive discovery fetches definitions as needed rather than filling context with the whole catalog. Fail-closed behavior, configuration propagation, partial-write compensation and generated-description accuracy are undisclosed. Editorial recommendation: disable and escalate on semantic changes or missing approvals.",
+          "evidence": "Evidence grade: operator engineering report, not an independent security audit. Uber reports over 800 MCP servers and 5,000 tools, with code mode the default MCP entry for coding Agents. These measure integration scale, not correctness or zero unauthorized access. The design distinguishes discovery, owner enablement and runtime authorization, but reports no missed unregistered interfaces, misleading descriptions, policy failures, redaction misses or user-task controls. Editorial judgment: disabled defaults are reusable but govern registered paths only; direct calls to legacy services need independent log reconciliation. Model-generated descriptions may introduce incorrect promises. Sample approvals against actual API behavior; neither catalog size nor a unified entry point establishes effective security. Public-version stress testing is also undisclosed.",
+          "idea": "For an internal platform team, register 20 read-only APIs with generated tools disabled by default. Owners verify parameters, returned fields and purpose before exposure, reviewing later description changes again. Exclude production writes. Measure description errors, unapproved enablement, catalog drift, bypasses in native logs, approval minutes and task success. Schedule regular sampling.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Production decision-system preprint + historical backtest + iterative human planning",
+          "source": "October 21, 2026 | Databricks, Nan Wang and Mitchell Turiel",
+          "title": "Databricks uses inspectable scenarios for sales territories; smaller production gains than backtest gains are not necessarily failure",
+          "summary": "Sales territories require capacity, balanced opportunity and relationship continuity, not simply assigning valuable accounts. Databricks combines account scoring, continuity estimation and constrained optimization into comparable plans, rather than having a language model assign customers. Planners review and edit recommendations; subsequent optimization retains deliberate edits instead of repeatedly undoing expert decisions. The transferable workflow gives algorithms a consistent baseline while humans supply local constraints absent from data. Production need not maximize a backtest score, but must make retained human tradeoffs and their measurable impact explicit.",
+          "design": "Inputs include account-value signals, historical consumption, incumbency, capacity and eligibility. Predictive scoring supplies comparable values; observational synthetic-control-style estimates value handoff disruption; an optimizer trades opportunity, continuity and balance. Hard rules preserve locked assignments, while an intent-to-keep term preserves current-cycle expert edits. Outputs are scenarios people adopt, adjust or reference, not automatic final assignments. No generative model executes actions or retrieval-based authorization is provided. Account access, approver identity, retries and rollback interfaces are undisclosed. Infeasibility, sparse districts and unencoded geography or language rules require human review, not model-invented feasibility.",
+          "evidence": "Evidence grade: operator production before/after comparison and historical backtest; a preprint without randomized causal validation. Under fixed historical conditions, reported assignment-compliance improvement is 78% with a four-hour solver window. Adopted production plans improve compliance 17% and opportunity balance 7% relative to the preceding plan. These are reported relative improvements, not percentage points or revenue growth. Limitations: full account counts, absolute metric baselines and reproduction data are unavailable. Account mix, rules and behavior can change across cycles. Handoff estimates remain vulnerable to unobserved selection and cross-account spillovers, so causality is not identified. Editorial judgment: local human decisions can explain some score concessions, but review labor, customer losses and downstream outcomes are still needed to establish net value. User acceptance is unmeasured.",
+          "idea": "For a small sales-operations team, compare three feasible plans for one region and 100 synthetic accounts. The owner locks important relationships and current edits before reoptimization. Track hard-constraint violations, opportunity disparity, account movement, retained human edits, planning time and downstream outcomes. Do not write formal customer ownership. Retain a human baseline.",
+          "relatedLinks": [
+            {
+              "label": "Full paper and measurement definitions"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Open benchmark preprint + paired execution + open repository and demo",
+          "source": "October 23, 2026 | Huang et al., SWE-Shift research team",
+          "title": "SWE-Shift changes code, sessions and evidence mid-task: static success is not collaborative reliability",
+          "summary": "SWE-Shift tests whether coding Agents can finish after code, requirements or tool sessions change while preserving others' valid work. It forks a saved state into unchanged and shifted continuations, injecting a recoverable task-relevant update in the latter to distinguish underlying inability from disruption. It expands assessment from the final patch to collaboration: original tests can pass because an Agent removed valid colleague edits or relied on another branch's old test report. Enterprises should jointly check preservation, current state and bound evidence rather than count repairs alone.",
+          "design": "The study constructs changes from repository tasks, saves history and workspace, and evaluates matched continuations against updated task, state, preservation and evidence requirements. Invalidated sessions require discovering the current permitted interface; stale evidence requires fresh observation, not reuse of an old completion claim. Native applications and open-model systems are tested, so results concern model–Harness combinations. No production multi-user authorization or online takeover is implemented. Editorial recommendation: pause writes when branches, schemas or goals change, show diffs to a person, and test the current version. Preserve the scene and escalate when readback fails or edit ownership is unclear.",
+          "evidence": "Evidence grade: open controlled paired benchmark, without independent production replication. Its 120 scenarios derive from 17 repositories and 23 task roots, covering 12 change families and nine intervention positions. All 17 systems decline after changes. GPT-6 Astra scores 67.35% unchanged, 24.79% shifted and 20.34% on the paired metric. Each continuation has one million cumulative input/output tokens, not one million independent tasks. Limitations: shared roots, one update per run and designed interventions prevent production incident-rate extrapolation. Model randomness is uncontrolled, and native versus local deployments differ. Success adds preservation and evidence checks beyond ordinary tests. Open code enables method inspection, not proof of replication. Real collaboration duration, repair labor and version-to-version stability remain unmeasured. Rereading state is not proven to fix all errors, and real defect escape is unmeasured.",
+          "idea": "For maintainers, create 20 paired regressions injecting colleague edits, tool-parameter changes and old test reports. Agents modify temporary branches only; maintainers resolve conflicts. Measure unchanged/shifted success, valid-edit preservation, current-version evidence, false completion, human recovery minutes and total cost per accepted patch. Retain a human baseline.",
+          "relatedLinks": [
+            {
+              "label": "Full evaluation and limitations"
+            },
+            {
+              "label": "Code, documentation and demo"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Tool-change admission desk",
+          "description": "For an internal platform team, scope to 20 read-only tools. Record owners, schemas, description diffs and approved versions. Disable new entries by default and requalify interface changes. Owners resolve conflicts; Agents cannot enable themselves. Measure unapproved exposure, semantic errors, bypass calls, review time and normal task completion.",
+          "tags": [
+            "Tool governance",
+            "Approval"
+          ]
+        },
+        {
+          "title": "Collaborative regression with retained human intent",
+          "description": "For planning or code-maintenance teams, scope to 20 paired tasks. Save human locks and current versions, inject one change and check for incorrect overwrites. Humans adjudicate old and new constraints; outputs remain recommendations. Measure preservation, post-update correctness, stale evidence, recovery time and full cost per acceptable result.",
+          "tags": [
+            "Collaborative regression",
+            "Human review"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "e785c74e7bf1aba6"
+}
