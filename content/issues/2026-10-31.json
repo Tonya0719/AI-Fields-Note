@@ -1,0 +1,226 @@
+{
+  "issue": "ISSUE 066",
+  "date": "2026.10.31",
+  "thesis": "本期纳入三项最近七天的产品与架构材料，并补入一项此前未覆盖的10月18日零售RAG研究，不将历史材料包装成当天新闻。核心判断是：同一业务流程中，“能找到对象”“能调用代理”“能生成代码”和“能正确完成业务”是四种不同资格。主数据发布默认值、用户授权、笔记本批准与跨源证据链必须分别验收；本期没有独立验证的生产投资回报结论。\n\n四组资料串起“对象—身份—执行—证据”的控制链：主数据回答操作哪个客户，用户身份限定能做什么，批准约束代码何时运行，证据链说明结论如何得到。任何一层都不能为另一层担保；统一客户记录可能是错误记录，合法用户可能提出错误查询，成功代码可能使用错误日期，引用完整也可能聚合错误。\n\n证据强度并不对称：三个产品来源主要证明功能设计与交付计划，没有独立收益对照；零售研究提供共同底座与人工抽审，却没有真实业务干预。企业应保留误合并、越权、数值错误与人工恢复四套分母，再看端到端合格结果成本，不能把这些指标合成一个没有审计路径的“可信分”。",
+  "takeaways": [
+    "Ataccama的人工审核能力与自主发布默认值并非一回事；云端工具默认开启仍受用户权限约束，试点必须同时检查工具暴露、连接身份和实际审批状态，不能只读“人在控制中”的宣传。",
+    "SAP明确技术令牌可以发现、业务调用需要用户令牌，说明可见性不是授权。协议与网关设计提供可检查边界，但示例采购数量、日期和创建回执不构成生产效果数据。",
+    "BQuant把读取与执行都放到批准流程，但用户同意不是数值正确的证明。领域文档、代码运行和分析口径应分开回归；超过22,000个字段不能作为可靠性样本。",
+    "RetailRAG以更少调用获得更高问答分数仍只有42.9%的语义评委正确率，且来自模拟数据。可迁移的是跨源标识和证据链检查，不是把论文成功率当真实运营自动化门槛。"
+  ],
+  "contrarian": "本期容易接受的主张是“接通可信数据与标准协议后，代理就能安全地做业务”。来源事实给出限制：主数据自身可被代理发布改变，发现目录仍需独立授权，批准过的代码仍可能口径错误，跨源问答在受控环境也大量失败。编辑判断是，窄业务试点最先值得投资的可能不是更多连接器，而是动作前对象核对、授权绑定和结果对账。成立条件是任务涉及多源标识或持久变更，且能以少量人工复核建立基线；如果独立同任务试验证明仅增加连接器、在不增加这些检查的情况下持续降低严重错误与总成本，并保持权限与恢复表现，这一优先级就应调整。",
+  "items": [
+    {
+      "title": "Ataccama让代理维护客户主数据，云端自主发布工具默认开启值得检查",
+      "type": "产品发布＋版本说明＋主数据治理工程说明",
+      "source": "2026年10月28日公告；17.2版本说明日期为10月23日｜Ataccama",
+      "url": "https://www.ataccama.com/news/ataccama-launches-headless-mdm-to-bring-trusted-golden-records-and-data-stewardship-work-into-agentic-workflows",
+      "relatedLinks": [
+        {
+          "label": "17.2版本说明与默认权限边界",
+          "url": "https://docs.ataccama.com/one/latest/release-notes/ataccama-17.2.0-release-notes.html"
+        },
+        {
+          "label": "主数据工作流说明",
+          "url": "https://www.ataccama.com/blog/what-is-headless-mdm-how-ai-agents-use-and-maintain-your-golden-records"
+        }
+      ],
+      "summary": "Ataccama把主数据管理从专用界面延伸到代理工作流：客户开户前可以查统一客户记录，数据管理员也能让代理批量检查疑似重复项、准备合并并创建人工审核任务。值得关注的不是多了一个聊天入口，而是代理开始维护自己依赖的数据，错误合并可能影响所有下游消费者。版本说明还披露自主拒绝匹配、发布草稿的工具在云端默认开启，自管理部署默认关闭；它们仍受用户权限与双人复核流程约束。因此不能把“支持人工审批”理解为每个环境都默认只生成草稿，上线前需要核查实际工具和工作流配置。",
+      "design": "输入包括客户记录、来源实例、匹配建议、规则及清洗代码；代理通过主数据协议服务器或接口读取证据，解释候选匹配，准备合并或拆分草稿，并在原界面中交管理员审阅。调用沿用连接用户权限，已有双人复核流程同样约束代理；监测记录工具调用，限流可独立限制协议请求。模型版本、匹配置信校准和错误合并恢复未完整披露，不能把解释文本当成匹配真值。编辑建议试点关闭自主发布，仅允许草稿与审核任务，来源冲突或对象版本变化立即转人；批准前重取记录，执行后核对下游变化，超时先查询任务状态再重试，避免重复合并。",
+      "evidence": "证据等级：官方发布与可检查版本文档，无独立效果实验。公告和说明共同确认读写、审核任务及既有权限约束；自主决策工具的云端／自管理默认差异由版本说明披露，不能混同数据质量模块的只读模式。客户iA Financial Group谈及既有主数据环境及对新服务器的期待，不是新功能已改善效率的对照。厂商称可减少重复数据与审核劳动，但没有匹配对数、误合并、漏匹配、审批推翻、下游事故或每例成本。编辑判断是把实体解析放在业务动作前很有价值，但统一记录也可能统一传播错误。尚未证明自动发布优于人工审核，双人流程是否配置、服务账户是否过权及撤权是否及时，仍须以实际环境验证，不能用产品支持这些能力代替已生效。",
+      "idea": "为客户数据管理员做五十对合成重复记录的审核台，只读来源并生成合并草稿，不直接发布；人员确认保留字段与对象版本，冲突交数据所有者。验收误合并、漏匹配、审批推翻、重复执行、下游字段一致率、审核分钟和每个正确合并成本，并单独记录自主工具是否实际关闭。",
+      "image": {
+        "src": "/cases/erp-schema-selector.jpg",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "SAP入站A2A把目录发现与业务执行分开，采购示例仍不是客户实绩",
+      "type": "官方架构说明＋开放发现规范＋代理互操作发布",
+      "source": "2026年10月27日｜SAP Architecture Center",
+      "url": "https://architecture.learning.sap.com/news/2026/10/27/a2a-agent-gateway-interoperability",
+      "relatedLinks": [
+        {
+          "label": "ARD开放发现规范",
+          "url": "https://github.com/ards-project/ard-spec"
+        }
+      ],
+      "summary": "SAP宣布入站代理互操作在十月正式可用，允许外部助手把任务交给受支持的SAP代理，再把结果返回原界面。最实用的窄场景是从协作助手发起采购询价草稿，业务人员检查后才在采购系统创建事件。架构没有把发现目录等同于获得执行权限：技术令牌可用于查找代理，业务调用需要用户令牌并遵守用户业务授权。它降低应用切换的潜力值得关注，但互操作不意味着任意代理可以互相调用，也不意味着所有采购步骤无人监督。公开黑五采购故事明确为示例，不能写成已验证客户部署或节省工时。",
+      "design": "设计时管理员登记外部客户端，依次建立单租户身份、网关信任和代理访问清单；发现目录按租户及清单过滤，代理卡提供能力与调用端点。运行时外部助手携带用户相关令牌发起请求，网关逐次验证令牌、租户和清单，只有通过者才路由；目标代理再按用户业务权限执行。采购示例在创建事件前由人员确认草稿，返回事件编号与链接。发现、认证和业务审批职责分离，不能让模型选择工具代替授权。资料未完整说明令牌撤销传播、在途取消、重复创建及部分失败补偿；编辑建议超时后先查事件状态，身份或数量变化即重新批准，无法确定是否已创建时停止重试并转采购负责人。",
+      "evidence": "证据等级：官方架构与规范材料，非独立生产验证。确认内容包括十月入站能力正式可用、发现与执行令牌分工及逐次访问检查；开放发现规范能检查接口设计，但本期没有执行互操作测试。厂商示例为采购6,000件、要求11月16日前交付，人员批准后创建询价事件；这些数字只是故事参数，不是订单量或效果样本。没有端到端完成率、越权召回、误拒、事件重复率、用户等待或总成本。编辑判断是让外部界面复用原系统业务权限优于复制一套授权，但依赖客户端、身份服务及下游代理正确传递用户上下文；技术身份本身不足以代表业务同意。尚无证据证明所有代理类型与客户配置均支持，也不能把协议兼容等同于跨系统事务一致性。",
+      "idea": "为采购运营团队做一个外部助手到测试采购代理的接口，只支持询价草稿和状态查询；采购员批准数量、交期与供应商后才创建测试事件。用无权调用、跨租户请求、撤权后调用、重复事件、超时恢复、审批修改率与每次合格创建耗时验收，不接正式订单或付款。",
+      "image": {
+        "src": "/cases/procurement-agentic-ai.jpg",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "BQuant把读写笔记本也放入批准步骤，领域接地不等于分析正确",
+      "type": "原始产品新闻稿＋领域检索与编码工作流＋人工批准",
+      "source": "2026年10月28日｜Bloomberg；PR Newswire分发",
+      "url": "https://www.prnewswire.com/news-releases/bloomberg-introduces-bquant-assistant-to-help-financial-professionals-accelerate-data-analysis-and-coding-workflows-302921555.html",
+      "relatedLinks": [],
+      "summary": "Bloomberg发布嵌入现有分析环境的BQuant Assistant，用自然语言生成查询与Python代码，检索帮助中心、示例笔记本和库说明，并辅助调试与画图。其窄价值是减少分析人员在文档、数据查询和代码之间来回切换，而不是自动给投资结论。公告明确，助手提出动作后，读取或写入笔记本前要请求批准，插入和运行代码也受用户同意约束。这将人工介入提前到上下文读取与执行，而不只是最终报告。企业版正式可用、桌面版有限测试都计划在月底，公告日期不能当成所有订阅者已经获得完整生产能力的证据。",
+      "design": "用户提出分析问题，助手检索产品文档、代码示例与库指南，生成领域查询及Python建议，在活动项目中经批准插入、运行和调试；代码位于既有沙箱，结果可形成图表或后续分析。检索负责接口与用法接地，执行工具取数及计算，人员批准动作并解释业务含义，三者不能互相替代。具体底层模型、沙箱网络和文件权限、批准粒度、撤销及超时处理未公开；也未证明生成查询自动满足历史时点、币种和样本筛选要求。编辑建议先做只读历史数据分析，人员核对查询范围与日期后运行；异常中止并保存错误与代码差异，结果对账通过前不得进入对外报告或交易流程。",
+      "evidence": "证据等级：厂商原始公告，无独立准确率或节时对照。确认材料描述领域检索、批准后执行及月底分阶段提供；覆盖超过22,000个数据字段是查询范围，不是已测试字段数、回答样本或正确率。厂商称比通用编码助手更贴合领域，却未公开对照任务、错误率、运行费用、等待时间或用户修改量。新闻稿分发和重复报道不是第二组独立实验。编辑判断是批准读写有助于让用户看清动作，但批准并不验证代码、数据权限及统计口径都正确；沙箱也不能自动排除数据泄露与错误分析。尚缺时点泄漏、幸存者偏差、数值对账、引用一致性及失败恢复证据，不能以代码能运行推导投资有效，也不能把产品承诺写成已经实现的业务收益。",
+      "idea": "为内部分析师做十道固定历史数据题的笔记本助手，只生成查询和图表，不给交易建议；读取、插入与运行分别展示批准项，分析师核对口径。验收数值对账、日期与币种错误、越权读取、代码修改分钟、批准等待、重复执行和每个合格分析成本，结果仅作内部草稿。",
+      "image": {
+        "src": "/cases/github-llm-evals.png",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "RetailBridge把订单与客服文本串起来，模型评委42.9%仍远非可靠业务执行",
+      "type": "零售RAG预印本＋公开数据与代码＋人工核验",
+      "source": "2026年10月18日｜RetailBridge／RetailRAG研究团队；此前未覆盖的历史材料",
+      "url": "https://arxiv.org/abs/2610.25096",
+      "relatedLinks": [
+        {
+          "label": "实验、人工核验与评委分析",
+          "url": "https://arxiv.org/html/2610.25096v1"
+        },
+        {
+          "label": "数据与代码",
+          "url": "https://github.com/DISL-Lab/RetailBridge"
+        }
+      ],
+      "summary": "RetailBridge研究一个具体的零售运营问题：要回答某卖家退款率最高商品的评价，必须先在订单中聚合，再把商品标识传到评价文本，单次向量检索无法完成整条证据链。团队用模拟买卖互动构造多源数据和组合问题，并提出先读数据结构、按来源规划、局部修正失败步骤的RetailRAG。它在同模型比较中优于多种检索基线，但平均模型评委正确率仅42.9%。值得借鉴的是把检索失败拆到来源、连接与中间结果，而非更换大模型后只看总分；材料是模拟问答基准，不是退款处理或真实店铺经营部署。",
+      "design": "数据来自人物设定驱动的零售模拟，映射到五类表格与三类文本，订单、产品和客户互动通过标识关联。规划器先获取结构、实体关系与分析约束，逐步路由到结构查询或文本检索，把上一步结果作为下一步输入；诊断器只修改失败步骤，保留已完成部分。基线比较共用模型、嵌入与评委，减少底层能力差异。系统输出答案而非执行业务写入，没有真实员工身份、字段权限或人工批准链。编辑建议运营试点只读脱敏数据，逐步记录查询、对象标识和证据版本；空结果、关系冲突及重试上限触发人工检查，不自动放宽业务条件求得答案，失败明确留下未解决步骤。",
+      "evidence": "证据等级：未同行评审的受控问答实验，非生产对照。共1,680题，三名研究人员筛选，行业专家抽审120题认为90%有实际提问价值；这验证题目合理性，不代表真实业务分布。相同底座下，模型评委正确率42.9%，强基线29.3%；平均模型调用7.45与25.21次，调用数不等于账单或端到端时延。字符串口径正确率仅29.8%，与语义评委不可混用。评委对250题、十模型共2,500答案的人审一致性较高，但仍是同团队审计。模拟数据、合成题、单一领域和基线适配限制外推；没有权限泄露、真实退款错误、人工节时或利润证据。编辑判断是分阶段证据账本值得试验，不能把基准优势当生产可用性，本期也未独立复现。",
+      "idea": "为零售运营做二十题只读回归，连接一张订单表、一张商品表与一组脱敏客服文本；每步返回对象标识、查询和证据，运营员处理空结果与冲突。分别测来源路由、标识连接、聚合数值、证据完整、最终正确、人工分钟、模型调用和合格答案总成本，不自动退款。",
+      "image": {
+        "src": "/cases/agentic-rag-comparison.jpg",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "客户对象核对与草稿门",
+      "description": "面向客户运营和数据管理员；最小范围五十对合成客户记录与一个开户草稿流程，先查统一对象、再生成合并建议，禁止自动发布。数据所有者确认字段与版本；测误合并、漏匹配、错对象动作、审批推翻、重复提交、审核时间与每例合格结果成本。",
+      "tags": [
+        "实体核对",
+        "人工审核"
+      ]
+    },
+    {
+      "title": "跨源分析证据账本",
+      "description": "面向采购或零售分析师；最小范围二十个只读问题、一组结构表和文本，保存每步身份、对象、查询、批准与证据版本。人员裁决冲突，运行失败不自动扩大范围；测越权、标识连接、数值对账、证据缺失、恢复分钟及合格分析总成本。",
+      "tags": [
+        "跨源分析",
+        "证据账本"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue includes three product and architecture sources from the past seven days and one previously uncovered October 18 retail RAG study, without presenting historical material as today's news. Finding an entity, invoking an agent, generating code and correctly completing business work are four different qualifications. Master-data publishing defaults, user authorization, notebook approval and cross-source evidence chains need separate acceptance tests. None establishes independently verified production ROI.\n\nCross-source assessment: The sources form an entity–identity–execution–evidence chain. Master data identifies the customer; user identity limits permitted actions; approval controls when code runs; evidence explains the conclusion. None guarantees the others: a unified record can be wrong, an authorized user can request a flawed query, executable code can use the wrong date and fully cited answers can aggregate incorrectly.\n\nEvidence is asymmetric. Three product sources mainly establish design and delivery plans, without independent benefit comparisons. The retail study supplies shared-backbone comparisons and human audits, but no real business intervention. Retain separate denominators for incorrect merges, unauthorized access, numerical errors and human recovery, then measure cost per accepted end-to-end outcome rather than an unauditable composite trust score.",
+      "takeaways": [
+        "Ataccama's human-review support is distinct from autonomous-publishing defaults. Cloud tools enabled by default remain subject to user permissions. Pilots must inspect exposed tools, connected identity and actual approval states rather than rely on human-control messaging.",
+        "SAP separates discovery with technical tokens from business calls requiring user tokens: visibility is not authorization. Its protocol and gateway design provide inspectable boundaries, but illustrative procurement quantities, dates and receipts are not production results.",
+        "BQuant gates reading and execution behind approval, but consent does not establish numerical correctness. Domain documentation, runnable code and analytical definitions require separate regressions; more than 22,000 fields is not a reliability sample.",
+        "RetailRAG improves question-answering scores with fewer calls yet reaches only 42.9% semantic-judge accuracy on simulated data. Transfer identifier and evidence-chain checks, not the paper's success rate as a production automation threshold."
+      ],
+      "contrarian": "The tempting claim is that trusted data and standard protocols make agents safe for business execution. The sources limit it: agents can change master data through publishing, discovery still needs separate authorization, approved code can use incorrect definitions and controlled cross-source QA still fails frequently. Our editorial judgment is to prioritize pre-action entity checks, authorization binding and result reconciliation over additional connectors in narrow pilots. This applies to tasks involving cross-source identifiers or persistent changes where modest human review can establish a baseline. Independent matched-task trials showing that connectors alone, without these checks, persistently reduce serious errors and total cost while preserving permission and recovery performance would change that priority.",
+      "items": [
+        {
+          "type": "Product announcement + release notes + master-data governance engineering explanation",
+          "source": "Announcement October 28, 2026; version 17.2 release notes dated October 23 | Ataccama",
+          "title": "Ataccama lets agents maintain customer master data: inspect cloud-default autonomous publishing tools",
+          "summary": "Ataccama extends master-data management beyond a dedicated UI into agent workflows. Onboarding can query a unified customer record; stewards can ask agents to triage suspected duplicates, prepare merges and create human-review tasks. The change is not merely a chat entry point: agents maintain the data they rely on, so a wrong merge can affect downstream consumers. Release notes state that autonomous proposal rejection and draft-publishing tools default on in Cloud and off in self-managed deployments, while remaining constrained by user permissions and four-eyes workflows. Human-approval support does not mean every environment defaults to drafts only. Inspect actual tools and workflow configuration before deployment.",
+          "design": "Inputs include customer records, source instances, match proposals, rules and cleansing code. Agents read evidence through the MDM MCP server or API, explain candidate matches, prepare merge/split drafts and send them to stewards in the existing UI. Calls inherit connected-user permissions; existing four-eyes workflows constrain agents too. Monitoring records calls and rate limiting can independently cap MCP traffic. Models, confidence calibration and erroneous-merge recovery are not fully disclosed; explanations are not match truth. Our pilot proposal disables autonomous publishing and permits only drafts and review tasks. Conflicting sources or changed object versions go to people. Re-read records before approval, reconcile downstream changes afterward and query task state before retrying timeouts to avoid duplicate merges.",
+          "evidence": "Evidence grade: official announcement and inspectable release documentation, without independent effectiveness experiments. Both confirm read/write, review tasks and existing permissions; release notes disclose the Cloud/self-managed default difference, which must not be confused with DQ&C's read-only mode. iA Financial Group discusses its existing MDM environment and expectations for the new server, not a comparison showing new efficiency gains. Ataccama claims reduced duplication and stewardship work without match-pair counts, false merges, missed matches, approval reversals, downstream incidents or per-case costs. Entity resolution before business action is promising, but a unified record can propagate a unified error. Automated publishing has not been shown superior to review. Actual four-eyes configuration, service-account privilege and timely revocation require environmental verification; product support is not proof of enforcement.",
+          "idea": "Build a review console for customer-data stewards using 50 synthetic duplicate-record pairs. Read sources and generate merge drafts without publishing. People confirm retained fields and versions; conflicts go to data owners. Measure false merges, misses, approval reversals, duplicate execution, downstream field consistency, review minutes and cost per correct merge. Separately record whether autonomous tools are actually disabled.",
+          "relatedLinks": [
+            {
+              "label": "17.2 release notes and permission defaults"
+            },
+            {
+              "label": "Master-data workflow"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Official architecture + open discovery specification + agent-interoperability release",
+          "source": "October 27, 2026 | SAP Architecture Center",
+          "title": "SAP inbound A2A separates discovery from business execution; procurement remains illustrative",
+          "summary": "SAP announced October general availability of inbound interoperability, allowing external assistants to delegate to supported SAP agents and receive results in the originating UI. A narrow use case is initiating an RFP draft from a collaboration assistant, then having staff review before creating the sourcing event. Discovery does not authorize execution: a technical token can discover agents, whereas invocation requires a user token and applicable business authorization. Reduced application switching is plausible, but interoperability neither permits arbitrary agent-to-agent calls nor removes procurement supervision. The Black Friday procurement story is explicitly illustrative, not verified customer deployment or measured time savings.",
+          "design": "Administrators register an external client, then configure single-tenant identity, gateway trust and an agent access list. Discovery is tenant- and ACL-filtered; AgentCards expose capabilities and endpoints. At runtime, an external assistant sends a user-related token. The gateway validates token, tenant and ACL on every call before routing; the target agent executes within the user's business permissions. The procurement example requires draft confirmation before creation and returns an event ID and link. Discovery, authentication and approval are separate: model tool selection cannot replace authorization. Revocation propagation, in-flight cancellation, duplicate creation and partial-failure compensation are not fully specified. Our proposal queries status after timeouts, requires renewed approval for identity or quantity changes and stops retries for a procurement owner when creation status is unknown.",
+          "evidence": "Evidence grade: official architecture and specification, not independent production validation. Confirmed descriptions include October inbound availability, discovery/invocation token separation and per-call checks. The open discovery specification permits interface inspection; we did not execute interoperability tests. The vendor's example concerns 6,000 units due November 16 and creates an event after staff approval; those are story parameters, not order-volume or outcome samples. End-to-end success, unauthorized-call detection, false denials, duplicate events, waiting time and total cost are absent. Reusing existing business permissions across interfaces appears preferable to duplicating authorization, but depends on clients, identity services and agents correctly preserving user context. Technical identity alone is not business consent. Universal support across agent types and customer configurations is unproven, and protocol compatibility is not cross-system transaction consistency.",
+          "idea": "For procurement operations, connect one external assistant to a test sourcing agent for RFP drafts and status queries only. Buyers approve quantity, deadline and suppliers before creating test events. Measure unauthorized and cross-tenant calls, calls after revocation, duplicate events, timeout recovery, approval modifications and accepted-creation time. Do not connect production orders or payments.",
+          "relatedLinks": [
+            {
+              "label": "Open ARD discovery specification"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Original product press release + domain retrieval and coding workflow + human approval",
+          "source": "October 28, 2026 | Bloomberg; distributed by PR Newswire",
+          "title": "BQuant gates notebook reads and writes: domain grounding does not establish correct analysis",
+          "summary": "Bloomberg introduced BQuant Assistant inside its existing analytics environment to generate queries and Python, retrieve help, notebook examples and library guides, and assist debugging and visualization. Its narrow value is reducing switches among documentation, queries and code, not autonomously delivering investment conclusions. The announcement says actions are proposed and permission requested before notebook reads or writes; inserting and running code also require user approval. Human intervention therefore starts with context access and execution rather than only the final report. Enterprise general availability and Desktop limited beta are planned for month-end. The announcement date does not prove all subscribers already have full production functionality.",
+          "design": "A user poses an analytical question. The assistant retrieves documentation, examples and library guidance, proposes domain queries and Python, and inserts, executes and debugs in the active project with approval. Code runs in the existing sandbox and yields charts or further analysis. Retrieval grounds interfaces and usage, tools retrieve and calculate, while people approve actions and interpret business meaning. Models, sandbox networking and filesystem permissions, approval granularity, revocation and timeout handling are undisclosed. Generated queries are not proven to respect historical as-of dates, currency or population definitions. Our proposal starts with read-only historical analysis: staff approve query scope and dates before execution. Stop on anomalies, preserve errors and diffs, and prohibit external reports or trading use until reconciliation passes.",
+          "evidence": "Evidence grade: original vendor announcement, without independent accuracy or time-saving comparison. It describes domain retrieval, approval-gated execution and staged month-end availability. More than 22,000 available data fields describes query scope, not tested fields, answer samples or accuracy. Bloomberg claims greater domain relevance than general coding assistants without publishing matched tasks, errors, execution costs, waiting time or user-edit effort. Press-release distribution and repeated reporting are not a second independent experiment. Approval can make actions visible, but does not validate code, data permissions or statistical definitions; a sandbox does not automatically eliminate leakage or analytical error. Evidence is missing for temporal leakage, survivorship bias, numerical reconciliation, citation consistency and recovery. Runnable code cannot establish investment validity, and promised benefits are not measured business results.",
+          "idea": "Build a notebook assistant for internal analysts around ten fixed historical-data questions. Generate queries and charts without trading recommendations; show separate approvals for reading, insertion and execution. Analysts check definitions. Measure reconciliation, date/currency errors, unauthorized reads, editing minutes, approval wait, repeated execution and cost per accepted analysis. Keep outputs as internal drafts.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Retail RAG preprint + public data and code + human verification",
+          "source": "October 18, 2026 | RetailBridge / RetailRAG team; previously uncovered historical material",
+          "title": "RetailBridge chains orders with service text: 42.9% judge accuracy remains far from reliable execution",
+          "summary": "RetailBridge examines a concrete operations question: finding reviews of a seller's highest-refund-rate product first requires order aggregation and then passing product identifiers into review retrieval. One vector search cannot complete that evidence chain. The team builds multi-source data and compositional questions from simulated buyer–seller interactions, then proposes RetailRAG with schema briefing, source-specific planning and local failed-step revision. It beats multiple retrieval baselines under a shared backbone, but mean semantic-judge accuracy is only 42.9%. Transfer the diagnosis of source, join and intermediate-result failures rather than replacing a model and watching aggregate scores. This is a simulated QA benchmark, not refund execution or live retail operations.",
+          "design": "Persona-driven simulations map to five tabular and three textual sources linked by order, product and interaction identifiers. A planner receives schemas, entity relationships and analytical constraints, then routes steps to SQL or text retrieval, passing intermediate results forward. A diagnostician revises only failed steps while preserving completed work. Shared backbone, embeddings and judge reduce underlying-model differences in baseline comparisons. The system answers questions without business writes and has no real employee identities, field permissions or approval chain. Our proposal uses read-only de-identified operations data, recording queries, identifiers and evidence versions per step. Empty results, conflicting links or retry caps trigger human review, never automatic relaxation of business conditions to force an answer; unresolved steps remain explicit.",
+          "evidence": "Evidence grade: non-peer-reviewed controlled QA study, not a production comparison. There are 1,680 questions selected by three researchers; an industry expert audited 120 and judged 90% practically relevant. This supports question plausibility, not real-workload distribution. Under the same backbone, semantic-judge accuracy is 42.9% versus 29.3% for the strong baseline, with 7.45 versus 25.21 mean model calls. Calls are not bills or end-to-end latency. String-containment accuracy is only 29.8% and must not be mixed with semantic grading. Judge agreement with human labels is high on 250 questions across ten models, totaling 2,500 answers, but remains an audit by the study team. Simulated data, synthetic questions, one domain and baseline adaptation limit generalization. Permission leakage, real refund errors, staff time and profit are unmeasured. A staged evidence ledger warrants testing, not a production-readiness claim; we did not independently reproduce it.",
+          "idea": "For retail operations, create 20 read-only regression questions over an order table, product table and de-identified service texts. Return identifiers, queries and evidence at every step; staff resolve empty results and conflicts. Measure routing, identifier joins, aggregation, evidence completeness, final correctness, human minutes, calls and total cost per accepted answer. Never issue refunds.",
+          "relatedLinks": [
+            {
+              "label": "Experiments, human review and judge analysis"
+            },
+            {
+              "label": "Data and code"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Customer Entity Check and Draft Gate",
+          "description": "For customer operations and data stewards. Scope: 50 synthetic customer pairs and one onboarding-draft workflow. Resolve the unified entity before proposing merges; no automatic publication. Data owners confirm fields and versions. Measure false merges, misses, wrong-entity actions, approval reversals, duplicate submissions, review time and cost per accepted result.",
+          "tags": [
+            "Entity checking",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Cross-Source Analysis Evidence Ledger",
+          "description": "For procurement or retail analysts. Scope: 20 read-only questions over structured tables and texts. Save identity, entity, query, approval and evidence version for each step. People adjudicate conflicts; failures never automatically widen scope. Measure unauthorized access, joins, numerical reconciliation, missing evidence, recovery minutes and total cost per accepted analysis.",
+          "tags": [
+            "Cross-source analysis",
+            "Evidence ledger"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "736b39437537cea6"
+}
