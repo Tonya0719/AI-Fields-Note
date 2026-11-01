@@ -1,0 +1,212 @@
+{
+  "issue": "ISSUE 067",
+  "date": "2026.11.01",
+  "thesis": "本期聚焦四种不能混为一谈的验收：凭证是否仍被滥用、批准是否真的覆盖当前动作、答案是否符合业务口径，以及防护产品是否经过有效性验证。当日新资料不足以支撑四篇，因此纳入10月30日调查，并扩展到此前未覆盖的10月23日、21日和16日材料，均保留实际日期。最重要的跨来源判断是：合法调用、人工批准、绿色监控和产品可购买，都不是业务结果正确的充分条件。\n\n四项材料分别检查连接身份、派发资格、答案口径与运行行为，没有任何一项覆盖完整生命周期。最值得保留的是证据的独立性：云调用日志证明是否仍在花钱，状态检查器证明是否写对订单，业务金标准证明是否答对口径，端点轨迹证明实际执行了什么。多个模型一致回答“完成”，不能替代这些独立事实。\n\n本期没有可跨企业外推的投入产出结论。真实事件提供损失路径而非发生率，合成实验提供边界检验而非生产安全率，内部工程复盘提供组织方法而非独立对照，产品公告提供待验收承诺而非效果。小项目应优先把一种风险的分母、失败状态和人工恢复做完整，再扩大自动化范围。",
+  "takeaways": [
+    "Wiz两案显示低频验活与后续放量之间存在处置窗口；它不是所有泄露都会遵循的固定时序。企业应分别测低频检测和撤权后的残留调用，不能只设消费突增告警。",
+    "Touba采购实验说明批准、授权与业务正确性是三种不同验收。其形式保证依赖完整中介和正确守卫，不能替代订单内容核对，也不能推导为真实人工批准有效。",
+    "AWS的冻结工具回放适合比较推理变化，线上监测则要承担真实数据与工具变化。两者互补；内部发布拦截案例还不足以计算整体漏检率或销售收益。",
+    "SentinelOne公布的因果图与隔离能力应转成采购测试，而非直接进入“已验证控制”清单。没有正常任务分母时，更快停机可能只是更快误停。"
+  ],
+  "contrarian": "容易接受的主张是：给Agent加更多批准、评委和检测层就会更安全。来源事实却是，Touba中已有批准的订单仍可能不合条件，AWS的回放刻意排除了在线工具波动，SentinelOne还没有公布误停分母。编辑判断是：若各层只是复用同一份不完整上下文，额外控制可能增加延迟和虚假信心，而没有减少错误业务效果。这个判断限于缺乏独立状态核验、权限闭合和恢复演练的系统，并不否定分层防御。若匹配对照实验能在真实任务分布上显示新增控制持续降低严重错误，同时披露误停、恢复成本和残留副作用，它就应被修正。",
+  "items": [
+    {
+      "title": "被盗模型凭证先低频验活再放量，区域限制不是费用止损线",
+      "type": "安全厂商一手调查＋平台事故通报＋真实凭证滥用观察",
+      "source": "2026年10月30日｜Wiz Research；关联通报为Railway于10月22日发布、10月26日更新",
+      "url": "https://www.wiz.io/blog/black-october-for-ai-developer-platforms",
+      "relatedLinks": [
+        {
+          "label": "Railway初步事故报告与恢复更新",
+          "url": "https://blog.railway.com/p/preliminary-report-october-security-incident"
+        }
+      ],
+      "summary": "企业把模型密钥交给开发平台后，风险不只发生在平台被攻破的一刻。Wiz观察到两组企业凭证遭滥用：先以每天少量请求检查密钥是否仍有效，之后转为大规模模型调用；其中一组虽限制推理区域，攻击者调整调用方式后仍获得大量成功响应。这项调查值得关注的不是把多起事故包装成同一场攻击，而是揭示凭证泄露后的业务窗口：企业可能有时间撤销授权，却因低频调用未触发告警而错过。关联平台通报也表明，大范围预防性撤权与确认受影响范围必须分开解释。",
+      "design": "调查重建的是凭证外泄、验活、权限探测和推理放量链路，不是可供采购的防护系统。输入证据主要是企业云端调用活动与平台披露，未公布完整原始日志。编辑建议将密钥按供应商和用途隔离，以短期身份调用模型；出口层记录调用者、区域、模型及累计消耗，规则同时检查异常低频验活和突发放量，模型只辅助归并线索，不决定放行。安全人员确认异常后撤权、核验旧凭证确已失效，再恢复业务连接；不能只在已失陷平台内换钥。具体自动停机阈值、误报处理和客户恢复时间，调查没有披露。",
+      "evidence": "证据等级：一手事件观察，非独立复现实验。Wiz报告两案首次异常调用均出现在平台所报凭证访问后30分钟内，随后每天14—120次验活；甲案约30小时80万次调用，约九成成功；乙案约13小时170万次，成功超过100万次。超过10万美元是按标价估算的用量，不是已确认账单或净损失。Railway另行确认部分加密环境变量被解密，并说明收到撤权通知不等于密钥已被证实泄露；它没有确认自己就是上述两案来源。两种材料可相互支持供应商凭证风险的存在，不能证明所有平台由同一攻击者攻陷。原始日志、总体受害分母和检测漏报均未公开，不能估算企业事故概率或区域限制的平均效果。",
+      "idea": "为共享模型账户的工程与安全团队做“供应商凭证验活监测”：最小范围只接一个供应商、一个云账户和只读调用日志，不接真实攻击流量。规则发现异常先冻结该连接并由值班人员复核；用合成日志与专用测试身份验证低频异常召回、误冻结率、撤权传播秒数、残留调用量和恢复分钟数。",
+      "image": {
+        "src": "/cases/shieldmcp.jpg",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "Touba把批准与权限拆开：允许执行仍可能下错采购单",
+      "type": "开放预印本＋可检查运行时设计＋合成业务实验",
+      "source": "2026年10月23日｜Khadim Lo等；魁北克大学三河分校",
+      "url": "https://arxiv.org/abs/2610.33312",
+      "relatedLinks": [
+        {
+          "label": "完整实验、拒绝轨迹与限制",
+          "url": "https://arxiv.org/html/2610.33312v1"
+        }
+      ],
+      "summary": "这项研究试图把散落在提示词、代码和日志中的责任边界变成显式程序契约：谁委派任务、谁拥有工具权限、何时需要批准，以及执行后应留下什么证据。其参考实现Touba在工具派发前检查这些条件，而不依赖模型自觉遵守。最有价值的结果并非框架排名，而是采购案例揭示的分离：即使操作前已有批准，最终订单仍可能不符合业务条件。因此，人工确认和权限检查需要回答不同问题，状态验收还必须检查实际落库结果，不能仅凭模型宣称完成就关闭任务。",
+      "design": "输入为任务、类型化参数和声明的资源契约；模型提出工具选择，内核在派发前核对当前代理、可调用关系、资源授权、操作绑定的批准及预算。人工检查点可以暂停并恢复后续程序，但同意继续不等于补发缺失权限；父代理持有秘密也不代表子代理获准使用。轨迹记录拒绝原因，独立状态检查器核验实际写入。预算耗尽或授权缺失时停止派发，暂停恢复不会重置计数。已完成的首次写入不会因第二次调用被拒而自动回滚，业务去重和补偿仍需另外设计。形式安全依赖守卫正确且所有执行均经过内核，不涵盖任意旁路。",
+      "evidence": "证据等级：未同行评审的合成实验与确定性实现测试。七个业务案例、七个模型、五种方法、各重复五次，共评估1,225次；每案共享24次模型请求、12次服务操作预算，请求超时120秒。共有67次失败，其中31次业务结果不符、36次预算耗尽。原生接口五次失败均发生于小模型采购案例，已有批准但记录值仍不满足条件。作者报告配对案例差异区间全部包含零，不支持宣称框架普遍优胜。案例开发期间可见、方法顺序轮转而非随机，人工采购批准由确定性模拟器承担；真实拒绝路径另由脚本测试，不能把业务实验当成对抗防护成功率。也没有生产环境成本或实际事故率证据。",
+      "idea": "为采购运营做“批准绑定到订单”的沙箱：只支持创建草稿和一项模拟下单，批准记录绑定供应商、金额、对象版本及动作摘要。任何字段改变都请采购员重批，超时保留待办而非重置预算；以过期批准复用、越权派发、重复写入、落库条件错误、人工复核分钟数和合格订单成本验收。",
+      "image": {
+        "src": "/cases/procurement-agentic-ai.jpg",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "AWS销售Agent把口径错误纳入发布门，但冻结工具回放不等于线上可用",
+      "type": "厂商内部生产工程复盘＋评测架构＋服务文档",
+      "source": "2026年10月16日｜AWS销售运营团队；服务文档于本期核查",
+      "url": "https://aws.amazon.com/blogs/machine-learning/building-trust-in-ai-agents-a-production-ready-evaluation-framework-with-amazon-bedrock-agentcore/",
+      "relatedLinks": [
+        {
+          "label": "AgentCore Evaluations机制与访问策略",
+          "url": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html"
+        }
+      ],
+      "summary": "销售数据助手最危险的错误可能不是虚构数字，而是把真实数字放到错误客户、期间、单位或组织层级。AWS介绍其内部销售多代理系统如何把这些错误定义为发布失败，而不满足于相关性、流畅度和正常响应。团队将评测覆盖工具、单代理和多代理编排，并串联发布前回归与上线后监测。材料的实用价值是把“正确回答”拆成业务可判定的条件；但它也明确揭示测试边界：发布门中的工具返回来自冻结数据，能够隔离推理变化，却不能证明真实服务延迟、可用性和最新数据仍然正确。",
+      "design": "销售人员从自然语言入口查询，专门代理分别处理业绩、客户信息和结构化数据查询，答案按用户辖区与角色限制。评测先单测实体解析、检索等工具，再冻结已验证返回，供候选代理回放；自定义业务评委与通用评委共同检查口径、依据和指令遵循，结果进入发布门与审计存储。线上另跑真实流量和合成案例监测，异常交值班工程师定位。服务文档确认自定义评估资源受显式访问策略控制，但这不是底层业务数据授权的替代品。文章未完整披露所有停机阈值、人工复核规则和失败事务恢复，不能推定答案异常后会自动安全回滚。",
+      "evidence": "证据等级：厂商内部部署自述，文档可核对机制，无独立效果验证。作者报告一次预生产配套变更错位令通过率由78%降至38%；持续集成哨兵含15例，完整发布门另以200个留出问题及模型评委评分。它还报告客户消歧错误曾被自动阻止发布。上述数字没有公开原始样本、置信区间、评委人工校准或独立复现；图中示意数值也不能当成收益。固定正确工具返回使候选比较更稳定，却排除了在线工具波动；十五例通过不意味着覆盖所有客户和查询。文章没有公开销售准备时长的对照实验、误放行率或单位有效答案成本，因而只能支持评测分层的工程可行性，不能证明业务回报。",
+      "idea": "为销售运营做一个只读营收问答发布门：先固定客户、期间、币种、指标四项标准，十五个高风险案例每次改动必跑，另留未参与调参的验收题。候选先回放再接真实只读工具，口径冲突交分析师；以错客户率、单位错误、检索依据正确率、回归漏检、线上尾延迟和每个合格答案成本验收。",
+      "image": {
+        "src": "/cases/amazon-agent-evals.png",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "SentinelOne把Agent意图与进程行为串联，但早期开放不是防护有效性证据",
+      "type": "安全产品原始公告＋运行时检测与响应架构＋可用性核查",
+      "source": "2026年10月21日｜SentinelOne；Singularity ADR早期开放",
+      "url": "https://www.sentinelone.com/press/sentinelone-launches-singularity-agentic-detection-and-response-to-stop-rogue-and-malicious-ai-agents-at-machine-speed/",
+      "relatedLinks": [],
+      "summary": "只在工具网关检查请求，可能看不到代理随后启动了什么进程、读取了哪些文件，以及哪些身份继续执行。SentinelOne推出的运行时防护把代理清单、工具权限、行为轨迹和端点检测联系起来，主张让安全人员在同一执行图里追溯用户请求到系统动作，并只隔离出问题的代理。选入它是为了提出具体采购验收问题，而不是确认其防护效果：产品可用状态是早期开放，发布资料没有给出可核验的漏检、误阻断或隔离传播数据。企业应先验证它能解释哪一次真实动作，再讨论是否自动停机。",
+      "design": "按公告，输入包括代理及工具清单、使用者身份、请求和运行事件；轨迹进入统一数据湖，执行图把助手、工具服务器与后续文件或进程关联。策略层限制谁能运行何种代理及可达资源，高风险工具可走批准流程；行为检测继续检查通过策略后的异常，并支持单代理隔离。具体推理模型、意图比较方法、跨平台关联标识和覆盖盲区没有公开。编辑建议先只读接入，在受控测试中比较代理日志与端点原生日志，再由安全人员批准隔离；隔离后保全状态、核对已完成写入并人工恢复。断联、超时、部分动作已生效时的停止与补偿规则仍需向厂商验证。",
+      "evidence": "证据等级：厂商产品公告，尚无独立有效性评测。原始公告日期为10月21日，且明确是早期开放，不能将后续转载日期当成新发布或正式全面可用。可确认的是厂商公布了清单、权限、轨迹、意图偏离和隔离等能力；“执行前阻断注入”“中途只停一个代理”均是待验证的产品主张。公告没有攻击样本量、正常任务分母、检测延迟、误停率、跨代理级联影响或客户成本数据。既有端点产品的客户基础不能作为新代理防护的采用量或准确率。编辑推断是端点证据能补网关盲区，但前提是身份和因果链能可靠关联，且停机权限覆盖实际执行面；现有材料不能证明这些条件已经满足。",
+      "idea": "为安全运营做“单代理隔离演练”：只选一个内部文档助手与一个测试端点，用合成文件模拟越界读取，先观察不自动封禁。安全人员核对完整因果链后批准停机与恢复；以事件关联完整率、异常召回、正常任务误停、隔离传播时延、在途残留动作和无关任务受影响数验收。",
+      "image": {
+        "src": "/cases/agent-ops.png",
+        "alt": "与本期企业Agent工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "Credential Stop-Loss Drill",
+      "description": "目标用户是共享模型账户的工程与安全团队；最小范围为一个供应商连接、只读云调用日志及专用测试身份，不采集真实密钥。异常规则先触发人工复核，再演练撤权、确认无残留调用和业务重连；用低频检测召回、误冻结、撤权秒数、残留消耗与恢复分钟数验收。",
+      "tags": [
+        "凭证撤权",
+        "人工审核"
+      ]
+    },
+    {
+      "title": "Approved-But-Correct Gate",
+      "description": "目标用户是采购运营与销售分析师；最小范围任选订单草稿或营收问答，绑定对象版本、批准摘要与独立业务金标准。字段改变或证据冲突转人工，分别跑冻结回放与真实只读工具测试；用批准复用、错对象、错误口径、回归漏检、人工修正时间及单位合格任务成本验收。",
+      "tags": [
+        "业务金标准",
+        "发布评测"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue separates four acceptance questions: whether credentials are still being abused, whether approval covers the current action, whether answers match business definitions, and whether a protection product has demonstrated effectiveness. Same-day material was insufficient for four articles, so the October 30 investigation is supplemented by previously uncovered material from October 23, 21 and 16, retaining its actual dates. The central conclusion is that legitimate calls, human approval, green monitoring and product availability are not sufficient evidence of correct business outcomes.\n\nThe four sources examine connection identity, dispatch eligibility, answer definitions and runtime behavior. None covers the whole lifecycle. Independent evidence matters: cloud call logs establish ongoing spending, state verifiers establish correct orders, business ground truth establishes correct answer scope, and endpoint traces establish what actually executed. Several models agreeing that a task is complete cannot replace these facts.\n\nThis issue offers no return-on-investment conclusion that generalizes across enterprises. Incidents reveal loss paths rather than incidence rates; synthetic experiments test boundaries rather than production safety rates; an internal engineering account offers an operating method rather than an independent comparison; a product announcement offers acceptance-test promises rather than measured effectiveness. Small projects should first establish a denominator, failure state and human recovery for one risk before expanding automation.",
+      "takeaways": [
+        "Wiz's two cases reveal a response window between low-volume key checking and subsequent floods, not a universal timetable for every leak. Measure low-volume detection and residual calls after revocation separately, rather than relying only on spending-spike alerts.",
+        "Touba's purchasing experiment separates approval, authority and business correctness. Its formal guarantees depend on complete mediation and correct guards; they do not replace order verification or demonstrate the effectiveness of real human approval.",
+        "AWS's frozen-tool replay compares reasoning changes, while online monitoring must cover real data and tool changes. The two complement each other. Internal release-blocking examples do not establish an overall miss rate or sales benefit.",
+        "SentinelOne's announced causal graph and containment features should become procurement tests, not an already-validated control checklist. Without a denominator of legitimate tasks, faster containment may merely mean faster false interruption."
+      ],
+      "contrarian": "A tempting mainstream claim is that adding more approvals, judges and detection layers makes an agent safer. The source evidence is narrower: approved orders in Touba could still violate business conditions, AWS replay deliberately excludes live-tool variation, and SentinelOne has not published a false-containment denominator. Our editorial judgment is that layers reusing the same incomplete context may add delay and false confidence without reducing incorrect business effects. This applies to systems without independent state verification, closed permission boundaries and recovery drills; it does not reject defense in depth. Matched experiments on real task distributions showing sustained reductions in severe errors, while disclosing false stops, recovery cost and residual side effects, would warrant revising this judgment.",
+      "items": [
+        {
+          "type": "Security vendor's first-hand investigation + platform incident disclosure + observed credential abuse",
+          "source": "October 30, 2026 | Wiz Research; related Railway report published October 22 and updated October 26",
+          "title": "Stolen model credentials are checked quietly before flooding; regional restrictions are not a spending stop-loss",
+          "summary": "When enterprises give model keys to developer platforms, exposure does not end with the initial compromise. Wiz observed two enterprise credentials being checked through small daily request volumes before large-scale model calls. For one credential, regional restrictions did not prevent extensive successful usage after the caller adapted. The useful finding is not that several incidents constitute one attack, but that enterprises may have a revocation window and miss it when low-volume requests do not trigger alerts. The related platform disclosure also distinguishes broad precautionary revocation from confirmed impact.",
+          "design": "The investigation reconstructs credential exposure, validity checking, permission probing and inference flooding; it is not a purchasable protection system. Its inputs are mainly enterprise cloud-call activity and platform disclosures, without complete raw logs. Our proposed design isolates credentials by supplier and purpose and uses short-lived identities. An egress layer records caller, region, model and cumulative consumption; rules examine both anomalous low-volume checks and floods, while models only help correlate clues, never approve access. Security staff revoke access after confirming anomalies, verify the old credential no longer works, and then restore the business connection. Merely rotating inside a compromised platform is insufficient. Automatic stop thresholds, false-alert handling and customer recovery times were not disclosed.",
+          "evidence": "Evidence grade: first-hand incident observation, not independently reproduced experiments. Wiz reports initial unauthorized calls within 30 minutes of the platform-reported credential access, followed by 14–120 daily checks. Case A had about 800,000 calls over 30 hours, roughly 90% successful; Case B had about 1.7 million over 13 hours, more than one million successful. More than $100,000 is a list-price usage estimate, not a confirmed bill or net loss. Railway separately confirmed partial decryption of encrypted environment variables and said revocation notices do not establish a confirmed leak. It did not identify itself as the source of these two cases. The accounts support the existence of supplier credential risk, not a common attacker across every platform. Raw logs, the overall victim denominator and missed detections remain unavailable, preventing estimates of enterprise incident probability or average regional-restriction effectiveness.",
+          "idea": "Build supplier-credential validity-check monitoring for engineering and security teams sharing a model account. Limit scope to one supplier, one cloud account and read-only call logs, without real attack traffic. An anomaly rule freezes that connection pending on-call review. Use synthetic logs and dedicated test identities to measure low-volume anomaly recall, false freezes, revocation propagation seconds, residual calls and recovery minutes.",
+          "relatedLinks": [
+            {
+              "label": "Railway preliminary incident report and recovery update"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Open preprint + inspectable runtime design + synthetic business experiments",
+          "source": "October 23, 2026 | Khadim Lo and colleagues, Université du Québec à Trois-Rivières",
+          "title": "Touba separates approval from authority: an allowed action can still create the wrong purchase order",
+          "summary": "The study makes responsibility boundaries, often scattered across prompts, code and logs, explicit program contracts: who delegates a task, who has tool authority, when approval is needed and what evidence execution leaves. Its reference implementation, Touba, checks these conditions before tool dispatch instead of relying on model compliance. The important result is not a framework ranking. A purchasing case separates authorization from correctness: even with approval before the operation, the resulting order could violate business conditions. Human confirmation and permission checks answer different questions, and acceptance must inspect persisted state rather than close a task on the model's success claim.",
+          "design": "Inputs comprise the task, typed parameters and declared resource contracts. The model proposes tool selections; the kernel checks the active agent, callable relationships, resource authority, operation-bound approval and budgets before dispatch. A human checkpoint can pause and resume a continuation, but permission to continue does not supply missing resource grants, nor does a parent's secret access automatically authorize its child. Traces record refusal reasons and an independent verifier checks actual writes. Missing authority or exhausted budgets stop dispatch, and resuming a pause does not reset counters. A second rejected call does not roll back the first completed write: business deduplication and compensation require separate design. Formal safety assumes correct guards and complete mediation, not arbitrary bypasses.",
+          "evidence": "Evidence grade: non-peer-reviewed synthetic experiments and deterministic implementation tests. Seven business cases, seven models, five methods and five repetitions produced 1,225 observations. Each case shared a budget of 24 model requests and 12 service operations, with a 120-second request timeout. There were 67 failures: 31 business mismatches and 36 budget exhaustions. All five native-interface failures occurred in small-model purchasing cases with approval but incorrect recorded values. All paired case intervals included zero, so general framework superiority is unsupported. Cases were visible during development; method order rotated rather than being randomized, and a deterministic simulator supplied purchasing approval. Actual refusal paths were tested separately with scripts, so the business campaign is not an adversarial-defense success rate. Production cost and actual incident-rate evidence are absent.",
+          "idea": "Create an approval-bound-to-order sandbox for purchasing operations, supporting only draft creation and one simulated order action. Bind approval to supplier, amount, object version and action digest. Any field change requires fresh purchaser approval; timeouts retain a pending task rather than replenish budgets. Measure stale approval reuse, unauthorized dispatch, duplicate writes, persisted-condition errors, review minutes and cost per qualified order.",
+          "relatedLinks": [
+            {
+              "label": "Full experiments, refusal traces and limitations"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Vendor's internal production engineering account + evaluation architecture + service documentation",
+          "source": "October 16, 2026 | AWS sales operations team; service documentation checked for this issue",
+          "title": "AWS gates sales agents on business-definition errors, but frozen-tool replay does not establish live availability",
+          "summary": "The most dangerous sales-assistant error may be a real number assigned to the wrong customer, period, unit or organizational scope rather than a fabricated figure. AWS describes how its internal multi-agent sales system makes these errors release failures instead of settling for relevance, fluency and a healthy response. Evaluation spans tools, individual agents and orchestration, connecting pre-release regression tests with post-release monitoring. The practical contribution is to break a correct answer into business-verifiable conditions. Its boundary matters too: frozen tool responses isolate reasoning changes during release testing but cannot establish live service latency, availability or current-data correctness.",
+          "design": "Sales users query a natural-language entry point. Specialized agents handle performance, customer information and structured-data queries, with responses scoped by territory and role. Evaluation first tests entity resolution, retrieval and other tools independently, then freezes validated responses for candidate replay. Domain-specific and general judges check business definitions, grounding and instruction following, feeding release gates and audit storage. Separate production monitoring uses live traffic and synthetic cases, with anomalies routed to on-call engineers. Service documentation confirms explicit access policies for custom evaluation resources, not a replacement for underlying business-data authorization. The post does not fully disclose stop thresholds, human-review rules or failed-transaction recovery; safe automatic rollback must not be assumed.",
+          "evidence": "Evidence grade: vendor's internal deployment account, with mechanisms checkable in documentation but no independent effectiveness validation. The authors report one pre-production mismatch between coordinated changes reducing pass rate from 78% to 38%. The CI sentinel contains 15 cases; the full release gate additionally scores 200 held-out questions using a model judge. They also report automatically blocking a release after customer disambiguation errors. Raw samples, confidence intervals, judge calibration against humans and independent replication are absent; illustrative figure values are not business gains. Correct frozen responses stabilize comparison but remove live-tool variation. Passing 15 cases does not cover every customer and query. No controlled sales-preparation time study, false-release rate or cost per effective answer is disclosed. The account supports engineering feasibility of layered evaluation, not a business-return claim.",
+          "idea": "Build a read-only revenue-Q&A release gate for sales operations. Define customer, period, currency and metric ground truth; run 15 high-risk cases after every change, with separate acceptance questions excluded from tuning. Replay candidates first, then use real read-only tools; route definition conflicts to analysts. Measure wrong-customer and unit errors, grounding correctness, missed regressions, live tail latency and cost per qualified answer.",
+          "relatedLinks": [
+            {
+              "label": "AgentCore Evaluations mechanisms and access policies"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Original security-product announcement + runtime detection and response architecture + availability check",
+          "source": "October 21, 2026 | SentinelOne; Singularity ADR early access",
+          "title": "SentinelOne links agent intent to process behavior, but early access is not evidence of protection effectiveness",
+          "summary": "Checking requests only at a tool gateway may miss subsequent processes, file reads and continuing identities. SentinelOne's runtime offering links agent inventory, tool permissions, traces and endpoint detection, claiming that analysts can follow a request to system actions in one execution graph and isolate only the problematic agent. It is included to define concrete procurement tests, not to validate protection. Availability is early access, and the announcement provides no checkable miss rate, false-block rate or containment propagation data. Enterprises should first establish which actual action the system can explain before considering automatic containment.",
+          "design": "According to the announcement, inputs include agent and tool inventory, user identity, requests and runtime events. Traces enter a unified data lake; an execution graph connects assistants and tool servers to subsequent files or processes. Policy restricts which users can run which agents and which resources they reach, with approval for high-risk tools. Behavioral detection continues after policy admission and supports per-agent containment. The inference model, intent-comparison method, cross-platform identifiers and coverage blind spots are undisclosed. Our proposal is read-only onboarding, followed by controlled comparison of agent and native endpoint logs, with analyst-approved containment. Preserve state, reconcile completed writes and restore manually. Stop and compensation rules for disconnection, timeout or partial effects still require vendor verification.",
+          "evidence": "Evidence grade: vendor product announcement, without independent effectiveness evaluation. The original date is October 21 and availability explicitly early access; later republication dates do not make it a new launch or general availability. The confirmed fact is publication of inventory, permission, trace, intent-drift and containment capabilities. Pre-execution injection blocking and stopping one agent mid-action are product claims to test. No attack sample size, legitimate-task denominator, detection latency, false-stop rate, cross-agent cascade effects or customer cost is reported. The existing endpoint product's customer base is not adoption or accuracy evidence for the new agent offering. Our inference is that endpoint evidence could fill gateway blind spots if identity and causality are reliable and containment authority covers the execution surface. Current material does not establish those conditions.",
+          "idea": "Run a single-agent containment drill for security operations: one internal document assistant and one test endpoint, using synthetic files to simulate out-of-scope reads. Begin in observe-only mode. Analysts verify the causal chain before approving containment and recovery. Measure event-link completeness, anomaly recall, legitimate-task false stops, propagation latency, residual in-flight actions and unrelated tasks affected.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Credential Stop-Loss Drill",
+          "description": "For engineering and security teams sharing a model account, limit scope to one supplier connection, read-only cloud-call logs and a dedicated test identity; collect no real keys. Anomaly rules trigger human review, followed by revocation, verification of zero residual calls and reconnection drills. Measure low-volume detection recall, false freezes, revocation seconds, residual consumption and recovery minutes.",
+          "tags": [
+            "Credential revocation",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Approved-But-Correct Gate",
+          "description": "For purchasing operations and sales analysts, choose either an order draft or revenue Q&A. Bind object versions, approval digests and independent business ground truth. Field changes or conflicting evidence require human review. Run both frozen replay and real read-only-tool tests, measuring approval reuse, wrong objects, definition errors, missed regressions, correction time and cost per qualified task.",
+          "tags": [
+            "Business ground truth",
+            "Release evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "476a5ea974173069"
+}
