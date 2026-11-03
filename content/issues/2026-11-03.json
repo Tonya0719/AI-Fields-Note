@@ -1,0 +1,219 @@
+{
+  "issue": "ISSUE 069",
+  "date": "2026.11.03",
+  "thesis": "本期把“AI表现更好”拆成四个可检验问题：现场判定标准是否一致、检索到的证据是否真正进入答案、历史经验是否改善留出任务，以及人工是否仍承担实质判断。优先纳入11月2日试点和10月29日研究；近期材料不足以支撑四篇，另补此前未覆盖的金融治理案例与开放评测工具，明确标注历史日期，不把核查时间当发布更新。所有项目建议均是编辑提出的小试验，不是来源已经完成的部署。\n\n四项材料共同提醒，模型输出不能自行定义验收标准。包装判定标准来自业务多方，报告覆盖来自明确事实清单，经验收益来自未见任务，风险审核来自独立规则和人员实质复核。只有把标准放在生成流程之外，才能区分“答案更像样”与“业务更可靠”。\n\n证据并不等价：试点公告说明计划，预印本提供受控数值，仓库提供可执行协议，治理报告提供边界与案例。它们都没有给出适用于所有企业的收益数字。本期建议把一致性、错误严重度、引用支持、重复稳定性与人工分钟分开记录，再计算每个合格结果成本；无法验证的部分明确保留未知。",
+  "takeaways": [
+    "富士通等机构启动的是判定标准与视觉模型共同验证，不是退货改善结果。现场AI应先确认人与人是否一致，再测模型；否则准确率可能只是拟合某位标注者的习惯。",
+    "RAG研究区分检索覆盖和答案覆盖，并记录两轮修订后的精度下降。企业应同步测完整性与证据支持，不能把更多内容或不显著的副作用当成质量保证。",
+    "STATE-Bench提供的是留出评测协议，不是记忆收益承诺。经验提取与测试答案必须隔离，五次全通过和包含离线费用的总成本比经验条目数更接近部署判断。",
+    "FSB匿名案例说明初稿与批准可分离，却没有证明人类监督有效。需要观察审批人纠正了什么、留下多少未解决项，而不只是是否有人点过确认。"
+  ],
+  "contrarian": "容易接受的主张是“先把AI接进工作流，数据与人工反馈会自然让它变好”。来源事实给出限制：包装试点尚需统一标准；RAG中更多证据没有稳定改善答案；开放记忆协议要求独立留出；金融报告也不把案例当成效果基准。编辑判断是，对于标准有分歧或错误代价较高的窄任务，先暂停自动动作、建立判定基线，可能比扩大在线试用更有学习价值。这不是要求所有项目等待完美数据，而是要求写入前有可检查的错判与恢复分母。若受控现场对照证明扩大在线反馈能更快降低严重错误、总成本和人工恢复负担，同时不产生数据泄漏与越权，这个优先级就应改变。",
+  "items": [
+    {
+      "title": "家电包装损伤AI试点先统一判定标准，尚未证明减少退货",
+      "type": "多机构试点原始公告＋供应链现场流程＋图像判定",
+      "source": "2026年11月2日｜家电供应链协议会、日本流通经济研究所、富士通、软银机器人",
+      "url": "https://global.fujitsu/en-global/pr/news/2026/11/02-01",
+      "relatedLinks": [],
+      "summary": "家电送达零售商时，纸箱轻微擦伤或凹陷可能导致整件退回，即使内部商品没有损坏；不同企业和现场人员的判断标准又可能不一致。四家机构启动包装损伤评估试点，计划先整理制造商、零售商与物流方的既有标准，再以图像识别辅助判断。这个问题的价值不在模型是否更大，而在是否能把退货争议变成可追溯的一致判定。公告涉及手机拍照、结果留存和后续现场验证，尚不是自动放行方案，更不是“减少退货已见效”的结果报告。外包装判断也不能直接证明内部商品完好。",
+      "design": "协会与研究机构提供既有标准、包装图片和运营知识，技术方提供视觉识别与数据分析；软银方案使用手机拍摄纸箱并按预设标准判断、保存结果，富士通方案强调少量数据与判定理由。公告没有公开模型版本、标签仲裁、身份权限、置信阈值或停机恢复流程。编辑建议试点仅输出损伤类别与证据图，由收货员核对，不直接写入退货或签收决定；规则负责匹配当前标准版本，模型负责图像候选识别。照片不清、无法判断、内件疑似受损或双方标准冲突时转人工，断网保存待审记录，恢复后先查记录编号，避免重复提交或误放行。",
+      "evidence": "证据等级：多方联合试点公告，尚无效果数据。确认试点期为2026年11月2日至2027年1月15日，拟验证准确性、标准统一、现场可行性以及退货和重送变化；这是计划观察的指标，不是已取得的收益。厂商关于少样本高精度和可解释判定的描述没有附训练图数、测试件数、损伤分布、误放行、误退货或人工对照。联合发布也不是独立第三方测评，行业统一标准仍处于建立与验证阶段。编辑判断是先统一标签再训练能减少争议，但是否降低总成本取决于复核、拍照、赔付和漏检的合计代价。尚缺不同箱型、光照和运输环节的外推证据，也无法从外观相似推出内件风险相同，不能据此取消人工验收。",
+      "idea": "为仓库收货员做五十张合成或获准使用的包装图片审核台，仅标记擦伤、凹陷和无法判断，不自动签收。两名人员先独立判定再仲裁标准，模型建议后保留覆盖理由；验收人员一致率、严重损伤漏检、误退货建议、补拍率、复核分钟和每件合格判定成本，不声称已减少实际退货。",
+      "image": {
+        "src": "/cases/procurement-agentic-ai.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "长篇RAG检索覆盖提高，不代表答案更完整；反思两轮仍有精度代价",
+      "type": "开放预印本＋固定候选池对照＋证据覆盖与生成评测",
+      "source": "2026年10月29日｜He Tu、Aleena Bosco Kurumthottam、Torsten Suel；纽约大学团队",
+      "url": "https://arxiv.org/abs/2610.40314",
+      "relatedLinks": [
+        {
+          "label": "完整实验、显著性与评委局限",
+          "url": "https://arxiv.org/html/2610.40314v1"
+        }
+      ],
+      "summary": "企业报告助手面对多方面问题时，相关性最高的十篇文档可能反复支持同一点，却漏掉其他必要事实。该研究把查询拆成子问题，估计每篇文档能覆盖哪些内容，再按新增覆盖选择上下文。它确实改善检索指标，但固定生成器后，更高检索覆盖没有稳定变成更完整答案。作者随后让模型回看首稿未充分使用的既有证据，再生成而不新增检索。值得借鉴的是将“找没找到”和“是否用上”分开验收；也必须保留结果中的引用精度下降，不能把未达到显著性的下降解释为没有风险。",
+      "design": "所有系统共用关键词检索前一百篇候选，查询经模型拆为子问题，双编码器排序、交叉编码器估计覆盖矩阵，贪心选择十篇；固定生成器从相同预算的文本输出带引用答案。可部署反馈只指出首稿未充分使用的文档，不注入参考答案；额外生成仍使用同一证据集。该研究没有企业身份、文档级访问控制或业务写入。编辑建议先按用户权限过滤，再保存问题—证据—答案映射，最多两次修订；来源冲突、引用不支持或预算耗尽交分析师，不自动拼入模型常识。重跑时保留证据快照，不能悄悄更换语料后将分数变化归因于反思。",
+      "evidence": "证据等级：未同行评审的小样本受控实验。两套检索集合分别56和50题；首套检索指标由0.625至0.702，但选择方法相对基线的下游覆盖优势不稳定，跨集合答案覆盖差仅0.003、p=0.78。固定证据后增加两轮生成，关键事实严格覆盖由0.338至0.424；句子支持精度由0.703降至0.661，不能写成无代价。检索、生成表的可评分分母不同，部分评委解析失败；阈值在评测集上选择，检索表未做显著性检验。主要生成器是七十亿参数模型，标注与评委也依赖模型；多轮只在首集合验证。没有真实员工、权限攻击或单位业务成本对照，支持测试证据利用瓶颈，不证明企业报告已可靠。本期也没有独立复现上述实验结果。",
+      "idea": "为采购分析师做二十道只读供应商比较题，预先列出五个必须覆盖的事实与允许来源；固定十篇文档，比较单稿与最多两次证据回看。人员审核缺项和引用，冲突直接留空；测关键事实覆盖、引用支持、错误新增、人工修正分钟、生成次数与每份合格报告总成本，不自动推荐采购决定。",
+      "image": {
+        "src": "/cases/agentic-rag-comparison.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "STATE-Bench把记忆收益放到留出任务上测，轨迹库本身不算成功",
+      "type": "开源评测仓库＋学习赛道协议＋模拟业务与成本记录",
+      "source": "历史资料补充｜0.7.0评分协议提交为2026年5月28日；现行仓库与学习赛道于11月3日核查，非当日新发布",
+      "url": "https://github.com/microsoft/STATE-Bench",
+      "relatedLinks": [
+        {
+          "label": "学习赛道与只读检索约束",
+          "url": "https://github.com/microsoft/STATE-Bench/blob/main/docs/AGENT_LEARNING_TRACK.md"
+        },
+        {
+          "label": "评分协议变更提交",
+          "url": "https://github.com/microsoft/STATE-Bench/commit/ba5192a2f42d5edde61cdbedef342107bc6b0922"
+        }
+      ],
+      "summary": "给客服或旅行代理加入记忆，最容易展示的是经验条目越来越多，真正需要验证的却是没见过的任务是否更稳定完成。微软开放评测工具将经验提取交给使用者，在固定模拟器、工具和评委下，通过只读检索钩子注入记忆、技能或提示优化成果，再比较留出任务表现。它不直接给经验文件打分，避免把漂亮总结当业务收益。该材料不是近期发布，本期补充的是一个可实际复用的实验协议；没有运行它，也没有据排行榜宣称某种记忆方案有效。合成用户的对话体验评分也不等同于真人满意度。",
+      "design": "任务在独立沙箱数据库中运行，代理与模拟用户对话，调用领域工具处理旅行、客服或购物；学习赛道每域提供历史轨迹，使用者离线提取经验，在评测时由只读接口返回条目，领域动作仍由框架执行。测试任务与环境不得作为提取经验的答案源；协议固定模拟器与评委，每题重复运行，保留评分轨迹。真实员工身份、生产授权、人工接管及故障补偿不在这套协议的验证范围。编辑建议只选退款草稿场景，经验发布前由运营员检查适用条件和版本，检索冲突不执行写入；失败保存轨迹并明确计错，不能删除失败样本后重算收益。",
+      "evidence": "证据等级：可检查的开放实现与协议，非本期独立实验。主集合三域共450题，各150题；学习赛道每域100条训练轨迹、50道留出题，正式运行每题五次、检索三条经验。单次通过均值与五次全通过衡量不同可靠性，体验由模型按五分制评分；费用依赖使用者上报，未主动上报的嵌入与离线构建费用不会自动纳入。协议变更同时调整体验提示和评委版本，前后分数不能直接比较。本期核对文档而未复现，没有记忆提升、严重错误下降或真人节时数据。合成语料、模型模拟用户和自报成本限制外推；测试定义虽可访问，也必须隔离于训练，否则留出成绩可能只是答案泄漏。",
+      "idea": "为客服Agent开发者做一个经验开关对照，先用十条已审轨迹提取三类经验，再跑二十个未见退款草稿任务，各重复五次。人员复核经验适用范围，禁止读取测试答案；测单次完成、五次全通过、错用旧规则、误拒、人工接管，并合计提取、嵌入、检索、推理与复核成本，不直接处理退款。",
+      "image": {
+        "src": "/cases/github-llm-evals.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "FSB案例把投资风险初稿与批准分开，数小时出稿不是风险判断已验证",
+      "type": "国际金融治理正式报告＋匿名机构案例＋人工责任边界",
+      "source": "2026年10月15日｜金融稳定理事会；此前未覆盖的历史材料",
+      "url": "https://www.fsb.org/2026/10/sound-practices-for-responsible-adoption-of-artificial-intelligence-ai-final-report/",
+      "relatedLinks": [
+        {
+          "label": "完整报告及投资风险案例，第9页正文",
+          "url": "https://www.fsb.org/uploads/P151026-1.pdf"
+        }
+      ],
+      "summary": "报告中的一家全球资产管理机构将投资备忘录初审做成AI助手：读取材料、识别相关信息、按批准的授权规则标出风险，并把结论连接到规则和原始文件，供风险经理考虑。系统不批准或拒绝投资，最终责任留在人类。这比泛谈“人在回路中”更具体，因为自动化边界停在结构化风险初稿。材料称初评可在数小时内完成，但这是匿名机构报告的案例，不是统一任务与人类基线的对照实验。本期关注可迁移的文档审核边界，不提供投资建议，也不把正式报告里的案例叙述当作效果认证。",
+      "design": "来源可确认输入为投资材料和已批准规则，系统提取信息、检查规则匹配并生成带依据的初步风险评估，人员继续质询和判断；并未披露具体检索器、模型、置信阈值、权限隔离或恢复机制。编辑建议把它缩成内部文件初审：规则由风险负责人版本化，用户权限先过滤文件，模型只提出问题与引用，不修改授权规则、不下交易指令。缺页、规则冲突或证据不支持时进入待审清单，审批人必须看到未解决项；超时保留已核对内容，恢复时重新验证文件版本，不能自动把旧初稿当成最新结论。第三方模型停服需能切回人工阅读，而非转发未完成报告。",
+      "evidence": "证据等级：正式治理材料中的机构自述案例，无独立效果对照。报告确认十二项实践涵盖监督、数据、性能、人类及第三方依赖；同时明确案例仅作说明，不是预期收益或行业基准，实践本身也不是有约束力的国际标准。案例未提供机构名称、文件数、观察周期、风险漏检、复核推翻、完整人工工时和总成本，“数小时”没有公开起点与可比任务。不能据此推断减少损失、提高投资回报或满足特定司法辖区全部要求。编辑判断是保留规则引用和人类最终责任有利于审计，但仍可能产生自动化偏误和漏看未解决项。需以盲审、人类独立初评及故意缺页等异常测试，验证人员是否真正纠错而不是只签字。",
+      "idea": "为内部风险文档审核员做十份虚构备忘录的初审台，只提取五类规则冲突并附原文，不给投资结论。人员先独立阅读再对照AI稿，必须处理缺页与冲突项；测重大遗漏、错误引用、人工推翻、签字前未解决数、审核分钟及模型不可用时的人工恢复时间，不连接交易或客户系统。",
+      "image": {
+        "src": "/cases/policy-compliance-filter.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "Decision Standard Review Desk",
+      "description": "面向仓库运营或风险审核员，任选一种任务，仅支持五类候选标记与证据展示，不自动放行。两名人员先独立判定，再仲裁规则并审核AI建议；测人员一致、重大漏检、人工推翻、未解决项、恢复分钟与每次合格判定总成本。",
+      "tags": [
+        "判定标准",
+        "人工复核"
+      ]
+    },
+    {
+      "title": "Evidence-and-Memory Holdout Gate",
+      "description": "面向报告或客服Agent开发者，固定二十个留出任务，对比无记忆／有记忆及单稿／证据回看，严格隔离答案键。人员核对规则版本、引用与失败样本，禁止自动写业务系统；测事实覆盖、证据精度、五次全通过、旧经验误用及包含离线构建的总成本。",
+      "tags": [
+        "证据利用",
+        "留出评测"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue turns better AI performance into four testable questions: whether field judgment standards agree, whether retrieved evidence reaches the answer, whether past experience improves held-out tasks, and whether humans still exercise substantive judgment. It prioritizes the November 2 pilot and October 29 research. Insufficient recent material warranted previously uncovered financial-governance and open-evaluation resources, explicitly dated rather than treating verification as publication. All proposed projects are editorial experiments, not deployments completed by the sources.\n\nThe four sources show why model output cannot define its own acceptance standard. Packaging standards come from business stakeholders, report completeness from an explicit fact checklist, experience value from unseen tasks, and risk review from independent rules and substantive human scrutiny. External standards distinguish polished output from reliable work.\n\nEvidence is not interchangeable: a pilot announcement establishes plans, a preprint supplies controlled measurements, a repository supplies an executable protocol, and a governance report supplies boundaries and examples. None provides universally applicable business-return figures. Track agreement, error severity, citation support, repeatability and human minutes separately before computing cost per qualified outcome; leave unverifiable questions unknown.",
+      "takeaways": [
+        "The Fujitsu-led pilot jointly tests standards and vision models, not achieved return reductions. Establish agreement between people before measuring the model, or accuracy may simply reproduce one annotator's habits.",
+        "The RAG study separates retrieval coverage from answer coverage and records lower precision after two revisions. Measure completeness and evidential support together; more content and statistically inconclusive side effects are not quality guarantees.",
+        "STATE-Bench supplies a held-out evaluation protocol, not a promise that memory helps. Keep extraction separate from test answers; five-run consistency and total costs including offline work are more informative than the number of stored lessons.",
+        "The anonymous FSB case separates drafting from approval without proving effective human oversight. Observe what reviewers correct and how many unresolved issues remain, not merely whether someone clicked confirm."
+      ],
+      "contrarian": "A tempting claim is that connecting AI to a workflow lets data and human feedback naturally improve it. The evidence is narrower: the packaging pilot still needs common standards; more retrieved evidence did not consistently improve RAG answers; the memory protocol requires independent holdouts; and the financial report rejects treating cases as outcome benchmarks. Our editorial judgment is that for disputed standards or costly errors, pausing automatic actions to establish a judgment baseline can teach more than expanding live use. This does not require perfect data before every project, but does require inspectable error and recovery denominators before writes. Controlled field comparisons showing that broader online feedback reduces severe errors, total cost and recovery burden faster, without leakage or unauthorized access, would change this priority.",
+      "items": [
+        {
+          "type": "Multi-institution original pilot announcement + field supply-chain workflow + visual assessment",
+          "source": "November 2, 2026 | Home Appliance Supply Chain Council, Distribution Economics Institute of Japan, Fujitsu and SoftBank Robotics",
+          "title": "A packaging-damage AI pilot starts with common standards, not demonstrated reductions in returns",
+          "summary": "Minor scratches or dents in packaging can cause an appliance to be returned despite no internal damage, while companies and staff apply inconsistent judgments. Four organizations launched a pilot to consolidate manufacturers', retailers' and logistics providers' criteria before using vision to assist assessment. Its value is not model size but turning disputes into traceable, consistent judgments. The announcement includes smartphone photos, retained results and field validation. It is neither automatic release nor a report of reduced returns, and packaging appearance does not establish the condition of the appliance inside.",
+          "design": "The council and research institute supply existing criteria, images and operating knowledge; technology providers supply vision and analysis. SoftBank's approach assesses smartphone box images against preset criteria and stores results, while Fujitsu emphasizes limited data and assessment reasons. Versions, label adjudication, identity controls, confidence thresholds and recovery are undisclosed. Our pilot would return damage classes and images for receiving-staff review, without writing return or acceptance decisions. Rules bind the current standard version; models propose visual classifications. Poor images, uncertainty, suspected internal damage or conflicting criteria require handoff. Offline records await review, and recovery checks record IDs before resubmission to prevent duplicates or mistaken release.",
+          "evidence": "Evidence grade: joint pilot announcement, with no effectiveness results. The confirmed period is November 2, 2026–January 15, 2027. Accuracy, criteria standardization, field feasibility and return/redelivery changes are planned measures, not achieved benefits. Vendor descriptions of high accuracy with little data and explainable assessment lack training-image counts, test-item counts, damage distributions, false releases, false returns and human controls. Joint publication is not independent testing; common criteria still require development and validation. Our inference is that label agreement before training can reduce disputes, but net value depends on review, photography, compensation and missed damage together. Generalization across boxes, lighting and transport stages is untested; similar external appearance does not imply equal internal risk or justify removing human acceptance.",
+          "idea": "For warehouse receiving staff, build a review desk for 50 synthetic or authorized images, labeling scratches, dents or uncertainty without automatic acceptance. Two reviewers judge independently before adjudicating criteria and reviewing model suggestions with override reasons. Measure human agreement, missed severe damage, false-return recommendations, retakes, review minutes and qualified-assessment cost, without claiming actual return reductions.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Open preprint + fixed candidate-pool comparison + retrieval and answer coverage evaluation",
+          "source": "October 29, 2026 | He Tu, Aleena Bosco Kurumthottam and Torsten Suel, New York University team",
+          "title": "Higher long-form RAG retrieval coverage does not ensure complete answers; two reflection rounds still carry a precision trade-off",
+          "summary": "The ten most relevant documents for a multifaceted enterprise report can repeat one point while omitting other necessary facts. This study decomposes questions, estimates which facets documents cover and selects by marginal coverage. Retrieval improves, but holding generation fixed does not yield consistently more complete answers. A subsequent loop revisits underused existing evidence and regenerates without retrieving more. The useful distinction is finding evidence versus using it. Lower citation precision must remain visible; a statistically nonsignificant reduction is not evidence of no risk.",
+          "design": "All conditions share the top 100 keyword-retrieved candidates. A model generates subquestions, a bi-encoder ranks, a cross-encoder estimates coverage and a greedy selector chooses ten documents. A fixed generator answers with citations from equal text budgets. Deployable feedback identifies underused documents rather than injecting reference answers, retaining the evidence set during regeneration. Enterprise identity, document authorization and business writes are not tested. Our pilot would filter by user rights first, retain question–evidence–answer mappings and allow at most two revisions. Conflicting sources, unsupported citations or exhausted budgets go to an analyst, not automatic supplementation from model knowledge. Preserve evidence snapshots so corpus changes cannot masquerade as reflection gains.",
+          "evidence": "Evidence grade: non-peer-reviewed small controlled experiments. The collections contain 56 and 50 queries. The first retrieval metric rises from 0.625 to 0.702, but downstream selection gains are inconsistent; pooled answer-coverage difference is only 0.003, p=0.78. Two additional generations on fixed evidence raise strict vital-fact coverage from 0.338 to 0.424 while sentence support precision falls from 0.703 to 0.661. Retrieval and generation tables have different scorable denominators and judge parsing failures. Thresholds were chosen on evaluation data and retrieval rankings lack significance tests. The primary generator has seven billion parameters; labels and judging also depend on models. Multiple rounds were tested only on the first collection. No employee, permission-attack or business-unit-cost comparison establishes enterprise report reliability. This issue did not independently reproduce the experiments.",
+          "idea": "For procurement analysts, prepare 20 read-only supplier-comparison questions with five required facts and allowed sources. Fix ten documents and compare one draft with at most two evidence revisits. Humans review omissions and citations; leave conflicts unresolved. Measure vital-fact coverage, citation support, newly introduced errors, correction minutes, generations and cost per qualified report, without automatic purchasing recommendations.",
+          "relatedLinks": [
+            {
+              "label": "Full experiments, significance and judge limitations"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Open evaluation repository + learning-track protocol + simulated business and cost logging",
+          "source": "Historical supplement | Scoring-protocol 0.7.0 commit: May 28, 2026; current repository and learning track verified November 3, not newly published that day",
+          "title": "STATE-Bench tests memory on held-out work: a growing trajectory library is not success",
+          "summary": "Adding memory to support or travel agents makes it easy to display more stored lessons, but the real question is whether unseen tasks complete more consistently. Microsoft's open tool leaves lesson extraction to users and injects memory, skills or prompt improvements through read-only retrieval under a fixed simulator, tools and judge. It evaluates held-out outcomes rather than grading the artifact, avoiding equating attractive summaries with business value. This is a historical, reusable protocol, not a recent release. We did not run it or infer memory effectiveness from a leaderboard. Model-scored synthetic conversation quality is not real-user satisfaction.",
+          "design": "Each task runs in its own sandbox database with a simulated user and domain tools for travel, support or shopping. Learning-track histories feed user-owned offline extraction; read-only retrieval returns lessons while the framework executes domain actions. Test definitions and environments must not become oracle inputs to extraction. The protocol fixes simulator and judge, repeats tasks and preserves scored traces. It does not validate production identities, access, handoff or compensation. Our pilot would restrict scope to refund drafts, have operators approve lesson conditions and versions, and avoid writes on retrieval conflicts. Retain and count failed traces instead of removing them before recomputing gains.",
+          "evidence": "Evidence grade: inspectable open implementation and protocol, not an independent experiment in this issue. The main set contains 450 tasks, 150 in each of three domains; learning uses 100 training trajectories and 50 held-out tasks per domain. Official evaluation repeats each task five times and retrieves three lessons. Mean one-attempt completion differs from success on all five attempts; a model scores UX on a five-point scale. Costs depend on user reporting: embedding and offline artifact creation are not automatically included unless reported. A protocol update changed both UX prompts and judge version, so before/after scores are not directly comparable. We checked documentation, not execution, and have no memory-lift, severe-error or human-time result. Synthetic data, simulated users and self-reported cost limit generalization. Accessible test definitions must remain isolated from extraction to avoid answer leakage.",
+          "idea": "For support-agent developers, compare memory on/off after extracting three lesson classes from ten reviewed trajectories. Run 20 unseen refund-draft tasks five times each. Humans check applicability and prohibit test-answer access. Measure one-attempt completion, five-run consistency, stale-rule use, false refusal and handoff, including extraction, embedding, retrieval, inference and review costs, without real refunds.",
+          "relatedLinks": [
+            {
+              "label": "Learning track and read-only retrieval constraints"
+            },
+            {
+              "label": "Scoring protocol change"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Final international financial-governance report + anonymous institution case + human accountability boundary",
+          "source": "October 15, 2026 | Financial Stability Board; previously uncovered historical material",
+          "title": "An FSB case separates investment-risk drafting from approval; producing a draft in hours does not validate risk judgment",
+          "summary": "An anonymous global asset manager uses an AI assistant to read investment memoranda, extract information, flag issues against approved mandate rules and link findings to rules and source documents for a risk manager. It neither approves nor rejects investments; final accountability stays human. This gives human oversight a specific boundary: automation ends at a structured initial assessment. Reported turnaround within hours is institutional case reporting, not a matched-task comparison with a human baseline. The transferable focus is document-review boundaries, not investment advice or treating inclusion in a formal report as effectiveness certification.",
+          "design": "Confirmed inputs are investment documents and approved rules; extraction and rule checks produce a sourced initial risk assessment for human challenge and judgment. Retrievers, models, confidence thresholds, permission isolation and recovery are undisclosed. Our narrower pilot would version rules under the risk owner, filter documents by user access and allow models only to propose issues and citations, never modify mandates or issue trades. Missing pages, conflicting rules or unsupported findings go to an explicit review queue that approvers must see. Timeouts preserve verified work; recovery rechecks versions rather than treating an old draft as current. A third-party outage must permit manual review, not forwarding incomplete assessments.",
+          "evidence": "Evidence grade: institution-reported case in formal governance material, without independent effectiveness controls. The report's 12 practices address oversight, data, performance, humans and third-party dependencies. It explicitly says cases illustrate rather than prescribe expected benefits or benchmarks, and the practices are not a binding international standard. The case gives no institution name, document count, period, risk miss rate, reviewer reversals, complete labor hours or total costs. Hours has no public starting point or matched task. It does not establish reduced losses, investment returns or compliance with all requirements in any jurisdiction. Our inference is that sourced rules and retained accountability support audit, yet automation bias and unresolved omissions remain possible. Blind review, independent human drafts and missing-page tests should establish whether reviewers truly correct rather than merely sign.",
+          "idea": "For internal risk-document reviewers, pilot ten fictional memoranda and five rule-conflict classes with source text, without investment conclusions. Humans read independently before comparing the AI draft and must resolve missing pages and conflicts. Measure major omissions, bad citations, reversals, unresolved issues at signing, review minutes and manual recovery during model outage, without trading or customer-system connections.",
+          "relatedLinks": [
+            {
+              "label": "Full report and investment-risk case, printed page 9"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Decision Standard Review Desk",
+          "description": "For warehouse operations or risk reviewers, choose one task and support only five candidate labels with evidence, not automatic release. Two reviewers judge independently, adjudicate rules and then review AI suggestions. Measure agreement, major misses, reversals, unresolved cases, recovery minutes and total cost per qualified judgment.",
+          "tags": [
+            "Judgment standards",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Evidence-and-Memory Holdout Gate",
+          "description": "For report or support-agent developers, fix 20 holdouts and compare memory off/on and single draft/evidence revisit with strict answer-key isolation. Humans check rule versions, citations and failed samples; forbid business writes. Measure factual coverage, support precision, five-run consistency, stale lessons and total cost including offline creation.",
+          "tags": [
+            "Evidence use",
+            "Held-out evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "6434ea1c7648d691"
+}
