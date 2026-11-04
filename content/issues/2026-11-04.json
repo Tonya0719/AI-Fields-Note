@@ -1,0 +1,235 @@
+{
+  "issue": "ISSUE 070",
+  "date": "2026.11.04",
+  "thesis": "本期聚焦四个小问题：发布后谁盯回归、通话结束谁写记录、回答干净是否意味着没有越权读取，以及代码测试通过是否覆盖了业务约束。入选资料发布于11月2日至3日，包含产品工程说明、具名客户陈述、安全实验与开放复现材料。共同判断是：把AI嵌入旧流程只是起点，真正的验收对象应是一次读取、一次写入或一次状态变更；产品发布、受控实验和生产收益必须分开记账。\n\n四项材料不是互相验证产品效果，而是从不同位置揭示同一验收缺口：遥测发现必须能回到查询，会话事件必须能回到正确客户，身份读取必须能解释任务必要性，代码修改必须能回到业务条件。产品文档证明设计意图和交付阶段，受控研究证明特定设置下的现象，开放材料增加可检查性；本期没有独立生产对照足以证明普遍收益。可迁移的设计单位是“有来源、有身份、有条件、有停止点的一次动作”，而非一个看起来聪明的聊天窗口。",
+  "takeaways": [
+    "Honeycomb给出了目标巡检与风险分级的产品路径，但访问阶段和示例不是收益证据。发布观察器应先证明有效发现的净价值，再扩展自动处置权限。",
+    "Observe.AI案例支持“AI可以进入已有桌面”，不支持“人工核对已经消失”。客服笔记的收益必须扣除审核、改写和重复事件修复，而非只统计生成数量。",
+    "身份信息实验说明输出过滤与访问最小化是不同控制。跨模型门的零误放依赖给定判据和固定候选集，必须同步报告合法读取误拒，不能当作普遍零风险保证。",
+    "维护需求研究表明表面相似任务可能承载不同约束，但没有测代理失败率。业务验收应补充状态不变量与来源证据，同时保留覆盖良好的测试反例，避免把研究结论扩大成全面否定基准。"
+  ],
+  "contrarian": "容易接受的主张是“代理接到更多工具、隐藏更多界面，就能自然减少人工工作”。本期资料的事实更窄：两个产品发布没有可比较的净收益数据；身份访问实验中，已知任务标签的规则门无需模型也达到零误放、零误拒，但这是判据预先给定的上界。编辑判断是，在任务边界稳定、写入风险高的小流程中，减少代理权限、明确事件与规则，可能比扩大自治更快产生可验证价值。它不适用于必须探索未知状态且规则维护极贵的任务。若新增多团队生产对照证明扩大自治在同等安全、质量和观察周期下，持续降低含审核与恢复的总成本，这一判断应被修正。",
+  "items": [
+    {
+      "title": "Honeycomb把发布巡检交给目标型Agent，但仍处早期访问阶段",
+      "type": "产品发布＋工程设计说明＋演示入口",
+      "source": "2026年11月3日｜Honeycomb",
+      "url": "https://www.honeycomb.io/blog/honeycomb-introduces-ai-sre-agents",
+      "relatedLinks": [
+        {
+          "label": "权限与工作模式",
+          "url": "https://www.honeycomb.io/blog/honeycomb-team-agents-ai-sre-done-right"
+        },
+        {
+          "label": "产品及演示入口",
+          "url": "https://www.honeycomb.io/platform/team-agents"
+        }
+      ],
+      "summary": "Honeycomb发布个人与团队运维代理，将任务从报警后的事故追踪扩展到按目标巡检发布、补充观测和处理可靠性欠账。团队可以指定持续关注的目标，让代理结合调用链、查询和发布上下文寻找回归，并把发现指向可检查的原始证据。值得关注的不是代替整支运维团队，而是接住发布后无人持续盯守的一小段工作。当前为早期访问，厂商预告十二月一日正式可用；因此不能把发布说明中的理想演示写成已经验证的生产成效，也不能把未来交付日期当作当前普遍可用的承诺。",
+      "design": "按厂商说明，输入是团队目标、时间安排、遥测和连接工具提供的上下文；代理负责形成调查步骤，查询与调用链提供证据，外部工具承接工单等动作。团队记忆可追溯和纠正，个人调查与团队共享知识有区分。自治程度分观察、建议、审后行动和边界内运行，可按风险配置；每次动作应受相应身份与权限限制。编辑建议把首个部署限定为只读巡检，发现异常只生成含查询链接的待审工单，由值班人员决定是否回滚。来源未完整披露模型路由、检索排序、令牌撤销传播、超时预算、工具失败后的重试与恢复，不能据此假定已有事务级保护。",
+      "evidence": "证据等级：厂商一手产品说明，尚无独立效果验证。确认事实是十一月三日公布产品与访问阶段，工程文章说明自治模式和证据链接；“提前发现回归、减少可靠性欠账”属于厂商目标，不是测量结果。文章开场的结账延迟升高百分之四十一是设想场景，不是客户实验。没有披露巡检次数、漏报与误报、平均修复时间、人工审核分钟数、故障观察周期或单位合格发现成本。按代理工时而非令牌计费的方向也不能替代实际账单。编辑推断是可先验证发布巡检这一有限用途；尚不能证明跨服务定位可靠、自动修复安全或团队总成本下降。演示和产品页来自同一厂商，不构成独立交叉验证。",
+      "idea": "为负责结账服务的值班工程师做三十分钟发布观察器：只读一个服务的延迟、错误和发布记录，输出可重放查询与候选工单，不开放回滚。值班人员确认对象和根因后才提交；以历史回归召回率、误报工单率、证据正确率、发现时延、审核分钟数和每次有效发现成本验收，并保留无代理对照窗口。",
+      "image": {
+        "src": "/cases/agent-ops.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "Observe.AI把通话后记录嵌入原桌面，“无界面”不等于无需审核",
+      "type": "工程产品博客＋具名客户陈述＋发布新闻稿",
+      "source": "2026年11月3日｜Observe.AI；SoFi客户陈述",
+      "url": "https://www.observe.ai/blog/introducing-headless-companion-agent-intelligence-built-into-your-agent-desktop",
+      "relatedLinks": [
+        {
+          "label": "发布稿与结构化事件机制",
+          "url": "https://www.prnewswire.com/news-releases/observeai-launches-headless-companion-agent-to-bring-real-time-guidance--automation-into-cx-agents-desktop-302925725.html"
+        }
+      ],
+      "summary": "Observe.AI推出无独立前台的陪伴代理，把实时会话分析结果转成事件送入企业现有桌面，而不是要求坐席再打开一个应用。具名客户索菲金融的产品负责人称，通话笔记目前已经自动生成，后续可向下游发送摘要、触发通话结束后的动作。这个案例切中了一个具体摩擦：企业往往已有深度定制的客户管理界面，增加窗口会改变操作习惯和信息路径。值得试验的是减少转录与重复录入，而不是据此宣称整条客服流程已经无人化；实时提醒在客户引语中仍是进一步发展的机会，并非已量化验证的成效。",
+      "design": "厂商披露的链路是持续处理客户会话，在后台生成指导、合规或摘要事件，再送到企业已有系统，由企业决定展示位置及触发何种工作流；模型与桌面因此解耦，但事件仍可能成为写入入口。来源没有完整公开语音识别模型、知识版本、端点鉴权、事件签名、敏感字段保留或失败重放机制。编辑建议先将通话结束事件送入笔记草稿队列，校验会话编号、客户归属和幂等键，再由原坐席批准写入。摘要低置信、重复或乱序事件、身份不匹配以及下游超时均停止自动写入，保留原始会话指针供人工恢复；这是一条建议边界，不是已证实的产品实现。",
+      "evidence": "证据等级：厂商发布材料与其中的具名客户证言。确认事实是十一月三日宣布此种部署方式，并描述结构化事件进入已有系统；索菲金融负责人说笔记自动化正在使用，构成有归属的客户陈述，但仍不是独立审计。没有披露参与坐席数、通话量、部署周期、笔记错误及修改率、通话后处理时长、客户投诉或成本，也没有随机或同期对照。新闻稿的转载不能提升为独立证据。编辑推断是无新增窗口可能降低切换摩擦；尚未证明减少了总操作、减少了审核，或实时合规监控准确有效。后台自动执行还可能隐藏错误入口，必须把事件送达、草稿正确和业务写入成功分开计数，不能只按生成摘要数计收益。",
+      "idea": "面向十名客服坐席，只做通话结束后的三字段笔记草稿，不自动改客户资料或发起退款。坐席在原桌面核对事实、删改敏感内容后提交；对照人工记录，统计处理时长、关键事实漏记、错误客户写入、人工修改比例、重复事件和每条通过审核笔记成本，审批等待也计入总时长，避免把隐形复核劳动算作节省。",
+      "image": {
+        "src": "/cases/customer-service-rag.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "回答没有身份信息，不能证明Agent没有偷偷读取身份信息",
+      "type": "安全预印本＋合成患者实验＋工具调用与输出联合审计",
+      "source": "2026年11月2日｜Lee、Banerjee、Lee；arXiv",
+      "url": "https://arxiv.org/abs/2611.02319",
+      "relatedLinks": [
+        {
+          "label": "完整实验、分母及局限",
+          "url": "https://arxiv.org/pdf/2611.02319"
+        }
+      ],
+      "summary": "一项医疗代理实验把身份标记放进合成患者工具返回值，同时记录工具调用和最终回答，检验只检查输出会漏掉什么。问题不是回答是否出现姓名，而是完成不需要身份的临床任务时，代理是否仍调用身份工具。研究发现部分模型会读取却不在回答中透露标记，严格提示边界也有残留；执行前按任务必要性筛选调用可以进一步降低这类访问。它把安全验收从“文字看起来干净”前移到“为什么允许这次读取”，适合企业检查客户标识、员工档案或受限知识检索，但不能直接解释为真实医疗违法或患者伤害。",
+      "design": "实验将临床信息与身份工具分开，模型先提出调用，再取得返回值生成回答；审计用同一运行编号关联调用和输出中的预置标记。执行门在身份数据返回之前，仅读取请求、政策、工具结构、候选调用与先前推理，判断任务是否确需身份信息；分别比较同模型筛选、跨模型筛选和已知任务标签的确定性规则。权限边界因此不仅是有无登录资格，还包括当前任务是否需要该类字段。研究工具总会响应，没有模拟真实鉴权故障、重试和拒绝后的绕行；生产应将拒绝交有责任人的带理由审批，并让审批超时保持停止，不能从实验补写出已经实现的人工恢复流程。",
+      "evidence": "证据等级：未同行评审的受控实验，无独立复现。使用一百名合成患者、五个模型、四档边界与七类请求框架。门控针对同一模型提出的五千一百八十八次调用，其中不需身份一千三百五十六次、需要身份三千八百三十二次。跨模型门误放率为零、误拒率为百分之零点五七四；已知标签规则两项均为零。关键限制是筛选标准与任务标签标准一致，属于提前给定必要性判据时的能力上界，不是开放场景保证。实验未模拟真实授权、工具失败或间接注入，需要身份的门控只覆盖两类框架。标签未经临床专家裁决，字符串标记会漏掉改写泄露；因此不能宣称零隐私风险，也不能只报阻断率而省略合法访问受阻。",
+      "idea": "为内部档案问答做合成数据读取闸门：普通制度问题只开制度库，确需身份匹配的任务才申请字段级访问，拒绝由档案负责人复核。联合记录允许理由、实际读取和最终输出，分别统计不必要访问、合法访问误拒、审批等待、响应延迟和日志覆盖率；测试必须同时保留需要身份的正例，不能靠全部拒绝取得漂亮安全分数。",
+      "image": {
+        "src": "/cases/policy-compliance-filter.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "代码改动量相近，不代表账务维护所需的条件也相近",
+      "type": "软件工程预印本＋开放分析数据与验证脚本＋测试断言案例",
+      "source": "2026年11月2日｜Heeyong Eun，KPMG Korea；arXiv",
+      "url": "https://arxiv.org/abs/2611.03162",
+      "relatedLinks": [
+        {
+          "label": "完整方法与反例",
+          "url": "https://arxiv.org/html/2611.03162v1"
+        },
+        {
+          "label": "开放复现仓库",
+          "url": "https://github.com/HeeyongEun1982/ai-enterprise-maintenance-benchmark"
+        }
+      ],
+      "summary": "这篇研究比较开源金融系统的维护需求与编码代理评测任务，提醒团队不要仅按改动文件数、代码行数或问题类别寻找“类似难度”。一个回溯日期修正可能同时要求重算、数值精度与历史状态保持；表面规模相近的任务未必要求相同的完成条件。作者用固定分类与原文证据分析条件组合，并检查少量测试断言案例。值得关注的是把业务承诺变成可核对的约束清单，而不是给所有编码代理贴上不可靠标签；研究没有运行模型测通过率，也提供了真正覆盖持久化恢复条件的正面测试案例。",
+      "design": "分析输入包括金融系统问题记录、编码基准任务说明、开发者补丁与测试断言；冻结的十八类分类框架将维护活动与完成条件分开，人工标注必须对应原文，引文位置和哈希由脚本核验。匹配过程控制问题类别、修改文件数与代码改动容差，再比较条件集合；选定案例继续区分明确要求、补丁义务和研究者推断。它是离线分析管线，不是自动修复或权限系统，没有生产写入身份、回滚与超时策略。编辑建议将这套方法缩成合并请求前的约束检查：开发者确认业务来源与状态不变量，缺少测试、证据冲突或断言失败即暂停合并，由业务负责人裁决后重跑。",
+      "evidence": "证据等级：未同行评审的单作者分析，附开放复现材料。样本含金融系统二千九百二十五条问题与九百四十四个基准任务；一千一百七十七个表面匹配对中，百分之五十七点四的完成条件集合不相交，平均集合距离为零点八一三八。这是需求差异，不是代理失败率。十六条来源支撑的关系与四个断言案例仅说明可能的结构，案例包含覆盖良好的反例，不能外推遗漏比例。基准标注由单人完成，三千四百四十六次分类的脚本校验保证引用一致，不等于多人共识。金融领域与其他项目的构成差异仍是混杂因素，匹配对还复用任务；没有测量模型、动态执行结果、生产事故或开发成本，因而不能直接证明重做评测会提高真实交付收益。",
+      "idea": "给维护账单系统的开发者做“回溯修改契约”小工具，只覆盖日期修正、金额重算和旧记录保持三项条件。业务负责人确认要求，代理生成测试候选，开发者批准后在合成账单上执行；以遗漏条件检出率、误报、重复执行一致性、审核分钟数及通过后人工发现的缺陷验收，不把静态相似度当上线许可。",
+      "image": {
+        "src": "/cases/github-llm-evals.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "发布观察证据工单",
+      "description": "目标用户是单服务值班团队；最小范围为发布后三十分钟只读延迟、错误与调用链，生成含对象版本和查询链接的工单草稿。人工确认再建正式工单，不开放回滚；验证回归召回、误报、证据正确、发现时延、审核分钟数及每次有效发现成本，并与人工巡检对照。",
+      "tags": [
+        "判定标准",
+        "人工复核"
+      ]
+    },
+    {
+      "title": "通话笔记最小读取闸门",
+      "description": "目标用户是内部客服平台团队；只把结束事件变为三字段草稿，按会话与客户归属限制检索，禁止资料修改与退款。原坐席批准写入，异常事件交负责人处理；验证不必要字段读取、合法读取误拒、错误客户写入、重复事件、总处理时间和每条审核通过笔记成本。",
+      "tags": [
+        "证据利用",
+        "留出评测"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue examines four small problems: who watches for regressions after a release, who writes records after a call, whether a clean answer implies no excessive reading, and whether passing code tests covers business constraints. Sources published November 2–3 include product engineering explanations, an attributed customer statement, a security experiment and open replication materials. The common judgment: embedding AI in an existing workflow is only a start. Evaluate a read, a write or a state change, and account separately for announcements, controlled experiments and production benefits.\n\nThese materials do not independently validate one another's product outcomes. They expose a shared acceptance gap at different points: telemetry findings need query provenance; conversation events need the correct customer; identity access needs a task-necessity justification; code changes need business conditions. Product documents establish intent and delivery stage, controlled studies establish phenomena in specific settings, and open materials improve inspectability. None supplies independent production controls proving general benefits. The transferable design unit is an action with provenance, identity, conditions and a stopping point—not an apparently intelligent chat window.",
+      "takeaways": [
+        "Honeycomb offers a product path for goal-directed inspection and risk-tiered autonomy, but access stages and examples are not benefit evidence. A release observer should demonstrate net value per useful finding before receiving remediation privileges.",
+        "Observe.AI supports the possibility of putting AI inside an existing desktop, not the disappearance of human checking. Note-taking benefits must subtract review, edits and duplicate-event recovery rather than count generated notes alone.",
+        "The identity-access experiment separates output filtering from access minimization. Zero false allows by the cross-model gate depends on a supplied criterion and fixed proposals; legitimate-access false denials must also be reported, and this is not a general zero-risk guarantee.",
+        "The maintenance study shows that superficially similar tasks can carry different obligations, not an agent failure rate. Add state invariants and source evidence to acceptance tests while retaining examples of adequate coverage; do not expand the result into a wholesale dismissal of benchmarks."
+      ],
+      "contrarian": "An attractive claim is that connecting more tools and hiding more interfaces naturally reduces human work. The facts here are narrower: neither product announcement provides comparative net-benefit data; in the identity-access experiment, a rule gate with known task labels achieved zero false allows and denials without a model, but that is an upper bound with a supplied criterion. Our editorial judgment is that stable, high-risk small workflows may gain verifiable value faster by restricting privileges and specifying events and rules than by expanding autonomy. This does not cover tasks requiring exploration of unknown state with very expensive rules. Multi-team production controls showing sustained lower total cost, including review and recovery, under equal safety, quality and observation periods would overturn this judgment.",
+      "items": [
+        {
+          "type": "Product announcement + engineering design explanation + demo entry",
+          "source": "November 3, 2026 | Honeycomb",
+          "title": "Honeycomb assigns release inspection to goal-directed agents, still in early access",
+          "summary": "Honeycomb announced personal and team SRE agents, extending post-alert investigation to goal-directed release inspection, instrumentation and reliability debt. Teams can specify ongoing goals; agents combine traces, queries and deployment context to investigate regressions and link findings to inspectable evidence. The useful narrow question is unattended post-release observation, not replacing an entire SRE team. The product is in early access, with general availability announced for December 1. Idealized examples are not verified production results, and a future delivery date is not current general availability.",
+          "design": "According to the vendor, goals, schedules, telemetry and connected-tool context are inputs. The agent plans investigations; queries and traces supply evidence; external tools accept actions such as tickets. Team memory is traceable and correctable, with personal investigation distinguished from shared knowledge. Observe, Recommend, Act with review and Operate within boundaries support risk-specific autonomy, with identity and permission constraints for actions. Our proposed first deployment is read-only inspection, producing evidence-linked draft tickets for an on-call engineer to decide on rollback. Model routing, retrieval ranking, revocation propagation, timeout budgets and tool-failure recovery are not fully disclosed; transaction-level safeguards cannot be assumed.",
+          "evidence": "Evidence grade: vendor primary product documentation, without independent outcome validation. The November 3 announcement and operating-mode explanation establish intent and access stage. Earlier regression discovery and reduced reliability debt are vendor goals, not measured results. The opening checkout p99 increase of 41% is an imagined scenario, not a customer experiment. Inspection counts, false positives and negatives, mean repair time, human review minutes, observation period and cost per accepted finding are absent. Announced pricing by agent work hours rather than tokens is not an actual bill. Our inference supports testing release inspection narrowly, not claims of reliable cross-service localization, safe automatic repair or lower total team cost. The demo and product page are the same vendor, not independent corroboration.",
+          "idea": "For on-call checkout engineers, build a 30-minute release observer reading latency, errors and deployment records for one service. Produce replayable queries and draft tickets, with no rollback privilege. An engineer confirms object and cause before submission. Evaluate historical regression recall, false-ticket rate, evidence correctness, detection latency, review minutes and cost per useful finding, retaining an agent-free comparison window.",
+          "relatedLinks": [
+            {
+              "label": "Permissions and operating modes"
+            },
+            {
+              "label": "Product and demo entry"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Engineering product blog + attributed customer statement + press release",
+          "source": "November 3, 2026 | Observe.AI; SoFi customer statement",
+          "title": "Observe.AI embeds post-call notes in the existing desktop; headless does not mean review-free",
+          "summary": "Observe.AI introduced a companion agent without its own foreground interface, delivering real-time conversation analysis as events to the existing enterprise desktop. A named SoFi product leader says call notes are being automated today, with summaries and post-call actions as initial uses. It addresses a specific friction: enterprises have customized CRM interfaces, and another window changes habits and information paths. Reduced transcription and duplicate entry merit testing, but this is not evidence that the whole customer-service process is autonomous. Real-time nudges remain a further opportunity in the customer statement, not a quantified validated outcome.",
+          "design": "The vendor describes continuous conversation processing that produces guidance, compliance or summary events for existing enterprise systems; the enterprise controls placement and workflow actions. Separating model output from the desktop still leaves events as potential write entry points. Speech recognition models, knowledge versions, endpoint authentication, event signatures, sensitive-field retention and replay behavior are not fully disclosed. Our proposed boundary routes end-of-call events to a draft-note queue, checks conversation ID, customer ownership and an idempotency key, then asks the original agent to approve the write. Low confidence, duplicates, disorder, identity mismatch or downstream timeout stop automatic writes and retain a conversation pointer for recovery. This is an editorial proposal, not a verified implementation.",
+          "evidence": "Evidence grade: vendor release materials with a named customer testimonial. The November 3 announcement establishes the deployment model and structured events entering existing systems. SoFi's statement attributes current note automation to a customer, but is not an independent audit. Agent count, call volume, deployment period, error and edit rates, after-call work time, complaints and cost are absent, with no randomized or concurrent controls. Syndication does not turn a release into independent evidence. We infer possible lower switching friction, not proven lower total work, less review or accurate real-time compliance monitoring. Background execution can hide error entry points; event delivery, correct drafts and successful business writes need separate counts, rather than benefits measured by summary volume alone.",
+          "idea": "For ten customer-service agents, generate only three-field post-call draft notes, without customer-profile changes or refunds. The original desktop lets agents check facts and remove sensitive content before submission. Compare with manual recording on processing time, omitted facts, wrong-customer writes, edit proportion, duplicate events and cost per approved note. Include approval waiting in total time so hidden review is not counted as savings.",
+          "relatedLinks": [
+            {
+              "label": "Release and structured event mechanism"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Security preprint + synthetic patient experiment + joint tool/output audit",
+          "source": "November 2, 2026 | Lee, Banerjee and Lee; arXiv",
+          "title": "An identifier-free answer does not establish that an agent never read identifiers",
+          "summary": "A medical-agent experiment seeds identity markers in synthetic patient tool returns and links calls to final answers, testing what output-only checks miss. The question is not whether a name appears, but whether an identity tool is called for a clinical task that does not require identity. Some models accessed data without exposing the marker, with residual access despite strict prompting. A task-necessity gate before execution reduced access further. This moves acceptance from clean-looking prose to justification for a read, potentially informing customer identifiers, employee records and restricted retrieval; it does not establish real clinical legal violations or patient harm.",
+          "design": "Clinical information and identity tools are separated. The model proposes calls, receives results and generates an answer; audit joins calls and output canaries by run ID. Before identity values return, a gate reads the request, policy, tool schema, proposed invocation and prior reasoning to decide necessity. Comparisons use a self-model screener, a cross-model screener and a deterministic rule with known task labels. The boundary concerns task need, not merely login eligibility. Experimental tools always respond and do not model real authorization failures, retries or circumvention after denial. Production should require accountable, reasoned approval for overrides, keeping approval timeouts stopped; such human recovery was not demonstrated in the experiment.",
+          "evidence": "Evidence grade: controlled, non-peer-reviewed experiment without independent replication. It uses 100 synthetic patients, five models, four boundary levels and seven request frames. Gating evaluates 5,188 proposals from one model: 1,356 not requiring identity and 3,832 requiring it. The cross-model gate had 0% false allows and 0.574% false denials; the known-label rule had zero for both. The gate criterion matches the task-label criterion, making this an upper bound with necessity specified in advance, not an open-world guarantee. Real authorization, tool failures and indirect injection were not modeled; required-identity gating covers only two frames. Labels lack clinician adjudication and string canaries can miss paraphrased exposure. Zero privacy risk is unproven, and required-access blocking must accompany prevention metrics.",
+          "idea": "Build a synthetic-data read gate for internal records Q&A. Policy questions access only policy documents; tasks requiring identity matching request field-level access, with denials reviewed by the records owner. Log allowance rationale, actual reads and final outputs jointly. Measure unnecessary access, false denial of legitimate access, approval waits, latency and log coverage. Include positive cases requiring identifiers so total denial cannot earn a misleading safety score.",
+          "relatedLinks": [
+            {
+              "label": "Full experiments, denominators and limitations"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Software engineering preprint + open analysis data and verification scripts + assertion cases",
+          "source": "November 2, 2026 | Heeyong Eun, KPMG Korea; arXiv",
+          "title": "Similar code churn does not imply similar conditions for ledger maintenance",
+          "summary": "This study compares maintenance requirements in an open-source financial system with coding-agent benchmark tasks, cautioning against finding equivalent difficulty by file count, churn or issue class alone. A backdating correction can require recalculation, numerical precision and preservation of historical state simultaneously; similar surface scale need not imply similar fulfillment conditions. A frozen taxonomy and source quotations analyze condition combinations, with selected assertion inspections. The practical opportunity is a checkable business-obligation list, not a blanket verdict against coding agents. The study did not run models for solve rates and includes a positive example covering persistent-state recovery.",
+          "design": "Inputs are financial-system issues, benchmark specifications, developer patches and test assertions. A frozen 18-category framework separates maintenance activities from fulfillment conditions; manual assignments require source quotes, with offsets and hashes checked by scripts. Matching controls issue class, changed-file count and churn tolerance before comparing condition sets. Selected cases distinguish explicit requirements, developer obligations and researcher inference. This is offline analysis, not automatic repair or a permission system, and has no production write identity, rollback or timeout policy. Our proposed small adaptation is a pre-merge obligation check: a developer confirms source requirements and state invariants, then missing tests, conflicting evidence or failed assertions pause merging until the business owner resolves them and tests rerun.",
+          "evidence": "Evidence grade: non-peer-reviewed, single-author analysis with open replication materials. It includes 2,925 financial-system issues and 944 benchmark tasks. Among 1,177 superficially matched pairs, 57.4% have disjoint fulfillment-condition sets; mean Jaccard distance is 0.8138. This measures requirement differences, not agent failure. Sixteen source-grounded relationships and four assertion cases illustrate possible structures, including adequate coverage; they do not estimate omission prevalence. One investigator coded benchmark tasks. Automated validation of 3,446 assignments checks quotation integrity, not multi-coder consensus. Financial-domain composition remains a confound, and pairs reuse tasks. No models, dynamic execution, production incidents or development costs were measured; redesigning evaluation has not thereby been shown to improve delivery value.",
+          "idea": "For billing-system developers, make a backdating-change contract tool covering only date correction, amount recalculation and preservation of old records. A business owner confirms requirements; an agent drafts test candidates; a developer approves execution on synthetic bills. Evaluate missed-condition detection, false positives, repeat-execution consistency, review minutes and defects humans find after passing. Static similarity is not release authorization.",
+          "relatedLinks": [
+            {
+              "label": "Full methods and counterexamples"
+            },
+            {
+              "label": "Open replication repository"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Evidence-linked release observation tickets",
+          "description": "For a single-service on-call team, read latency, errors and traces for 30 minutes after release and generate ticket drafts with object versions and query links. Human confirmation precedes formal tickets; no rollback capability. Compare with manual inspection on regression recall, false positives, evidence correctness, detection latency, review minutes and cost per useful finding.",
+          "tags": [
+            "Acceptance criteria",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Minimum-read gate for call notes",
+          "description": "For an internal customer-service platform team, turn end-of-call events into three-field drafts, restrict retrieval by conversation and customer ownership, and prohibit profile changes or refunds. The original agent approves writes; an accountable owner handles exceptional events. Measure unnecessary field reads, false denial of legitimate access, wrong-customer writes, duplicate events, total processing time and cost per approved note.",
+          "tags": [
+            "Evidence use",
+            "Held-out evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "068976559071d6f3"
+}
