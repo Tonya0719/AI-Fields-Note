@@ -1,0 +1,249 @@
+{
+  "issue": "ISSUE 071",
+  "date": "2026.11.05",
+  "thesis": "本期围绕“控制是否真的有效”选取四组11月3日至4日发布的资料：跨厂商动作审批、执行日志诊断、隐私抑制的随机对照，以及化工故障仿真。没有把发布公告当部署收益，也没有把诊断匹配、代理指标或模拟金额当成真实业务成效。共同结论是：控制层自身也需要反例、正常任务、失败恢复与成本分母；增加一道模型审核，不一定比明确规则更安全。\n\n四项材料并未相互验证某个产品，但共同把控制拆成不同问题：有没有权限、能否解释错误、防护是否特异，以及动作后果是否可接受。集中网关不证明诊断正确，高诊断分不证明修复成功，概率变化不证明隐私保障，仿真可接受也不证明现实可部署。共同的工程做法是冻结输入、记录判据、增加正常与反例对照，并分别计算误放、误拒、时延和恢复成本。本期没有独立生产证据足以支持普遍收益承诺。",
+  "takeaways": [
+    "HeadWay Dispatch说明凭证与审批可以集中到执行入口，但公告没有证明不可旁路或断网安全。接入数量应让位于撤权、超时和恢复测试。",
+    "Signals的91.43%是组件与类型匹配F1，不是证据、严重度和修复效果的联合正确率。诊断工单必须保留人工证据审核与修复后的独立回归。",
+    "隐私研究中17格概率改善缩成1格多指标通过，说明代理分数会混入通用损伤。防护验收要同时保留随机对照与正常能力，不能把“不会说话”算安全。",
+    "工业仿真中模型复核曾让停机从9次增至11次，且过程时钟暂停。验证器也需做控制实验，模拟金额不能替代真实时间约束和业务收益。"
+  ],
+  "contrarian": "主流直觉是“高风险代理再加一个模型审核，总比不加好”。本期来源提供反例：工业协议一中的模型复核增加停机；隐私研究也显示更好看的单指标可能只是整体扰动。编辑判断是，当规则清楚、动作范围小而误拒代价高时，确定性契约与可检查证据可能比额外模型更适合作为第一道门。这不意味着拒绝语义审核：需求模糊或规则无法覆盖时它仍可能有价值。若多次随机运行及真实时间生产对照证明第二模型在同等信息、安全目标下稳定降低严重错误与含审核、延迟、恢复的总成本，这个优先级应被推翻。",
+  "items": [
+    {
+      "title": "HeadWay Dispatch把凭证与动作审批集中，但断网控制仍属后续开发",
+      "type": "产品发布＋架构说明＋媒体转述核查",
+      "source": "2026年11月4日｜Leidos",
+      "url": "https://investors.leidos.com/news-releases/news-release-details/leidos-introduces-headway-dispatch-ai-agent-oversight",
+      "relatedLinks": [
+        {
+          "label": "产品背景",
+          "url": "https://www.leidos.com/capabilities/digital-modernization/headway"
+        },
+        {
+          "label": "媒体报道及其新闻稿归因",
+          "url": "https://www.investing.com/news/company-news/leidos-launches-ai-agent-governance-platform-headway-dispatch-93CH-4999759"
+        }
+      ],
+      "summary": "Leidos发布跨厂商代理治理平台，将可见性、动作边界和可追查记录放在统一操作入口。它针对的具体问题是：多个代理各自持有密码或密钥，审批和异常散落在不同窗口，操作者难以知道谁正在访问什么。厂商提出让请求经过集中控制层，使代理不必自行保存凭证，并区分独立执行、需人批准和禁止动作。值得关注的是把授权变成执行路径上的决定，而不是事后的聊天承诺。不过角色化界面、跨厂商协调智能以及网络退化或断开时仍保持控制，发布稿明确属于进一步开发，不能写成已完成的能力。",
+      "design": "按发布说明，平台汇集代理身份、能力、系统访问、审批和告警，请求经平台使用受保护凭证；政策决定允许、等待批准或阻断，决策记录用于问责。来源没有公开具体模型、检索器、政策语言、凭证代理实现和防篡改记录的验证方式，也没有证明所有工具调用都无法绕过网关。编辑建议先只接一种工单更新工具，模型提出字段候选，确定性规则校验对象、权限和有效期，人类批准高影响改动。审批超时、网关失联或对象版本变化应停止写入并重新授权；恢复时先查动作编号，不自动补发旧请求。这些故障路径是项目建议，不是厂商已披露实现。",
+      "evidence": "证据等级：厂商一手公告，媒体为明确归因的转述，无独立有效性测评。确认事实是11月4日公布三类治理功能，凭证保护和统一操作界面属于产品主张；新闻报道确认发布事件，但没有提供旁路攻击、审批错误或撤权实验。公告没有客户样本、代理数量、误放误拒、撤权传播、审批耗时、吞吐或总成本数据。“防篡改可见”记录也不等于内容真实、完整或符合法定留存要求。编辑判断是集中执行入口有利于约束凭证暴露，但同时形成高价值故障点；未验证离线行为前不能用于断网仍可自由执行的高风险场景。产品背景页的宽泛描述不能覆盖发布稿明确列出的未来开发边界。",
+      "idea": "为内部工单运营员做单工具授权代理，只允许修改负责人和优先级，不允许删除、外发或读取密钥。普通修改按规则通过，跨部门变更由负责人批准；用合成工单测试过期批准、重复请求、撤权和断网，验收未授权写入、正常误拒、审批分钟、恢复重复率及每次合格更新成本，先证明边界再接更多工具。",
+      "image": {
+        "src": "/cases/agent-ops.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "Signals诊断匹配F1达91.43%，不等于修复有效或严重度准确",
+      "type": "诊断方法预印本＋公开轨迹分析＋同模型单轮对照",
+      "source": "2026年11月3日｜Cisco研究团队；arXiv",
+      "url": "https://arxiv.org/abs/2611.04507",
+      "relatedLinks": [
+        {
+          "label": "方法、匹配规则与实验",
+          "url": "https://arxiv.org/html/2611.04507v1"
+        }
+      ],
+      "summary": "Signals尝试发现工具都正常返回时仍然发生的代理错误，例如把同一保单编号的不同展示形式当成冲突，错误转人工而没有完成登记。方法不是看到长日志就判浪费，而是把任务、工具契约、执行证据与问题定义对照，再将跨会话的重复发现合并成工程问题，给出修改建议。它区分已发生缺陷、可达风险和可避免开销，避免把每条异常都写成业务损失。企业最可借鉴的是证据到工单的诊断结构；论文分数衡量组件与问题类型的一致，并未证明建议已修好系统，更不是自动修复可以免审上线。",
+      "design": "输入是任务要求、工具契约、模型交互、检索内容、调用参数与响应；检测器按八个家族四十五类问题寻找发生点，再按待修工程问题聚合。模型解释语义与后果，代码负责范围统计和固定严重度计算，新执行可补证据或显示复发。开发者负责实施与验证修复，诊断输出本身不改变生产状态。来源没有完整企业身份隔离、日志脱敏、人工审批或运行超时方案。编辑建议只读已脱敏轨迹，证据不足标为未知，不把缺失日志当动作未发生；同标签但不同根因不得自动合并。分析失败保存任务与日志版本，交负责人复核，修复后同时重跑失败用例和原先成功用例。",
+      "evidence": "证据等级：未同行评审的作者实验，本期无独立复现。同模型、同分类体系及匹配器下，工程问题匹配F1从73.69%升至91.43%；匹配要求组件和至少一个候选类型一致，不核验描述措辞、引用跨度、严重度或修复正确性，低排序候选也可能匹配。参考标签由模型在人工监督下创建和复核，公开基准家族也参与分类设计，不能视为完全未见领域。正文未给出可直接审计的完整样本计数表，百分比分母透明度有限。作者没有实施验证建议，没有测诊断节时或生产节费。编辑判断是可测试问题分流，但不能把高匹配分数转成自动处置许可；相关任务、标签偏差与日志缺失都可能改变外推结果。",
+      "idea": "为理赔登记开发者做三类只读诊断：编号归一化错误、工具参数错误和虚假成功。冻结三十条获准脱敏轨迹，两人独立标注并仲裁，模型只建候选工单；测证据支持率、问题合并误差、漏检、人工分流分钟和修复后复发率，正常轨迹必须保留，不能只在失败样本里验证“总能找到问题”。",
+      "image": {
+        "src": "/cases/customer-service-rag.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "隐私词概率下降未必是定向保护：36种设置只有1种通过多指标诊断",
+      "type": "隐私机制研究预印本＋开放代码与合成语料＋随机方向对照",
+      "source": "2026年11月3日｜Soongsil University团队；arXiv",
+      "url": "https://arxiv.org/abs/2611.04782",
+      "relatedLinks": [
+        {
+          "label": "完整实验与局限",
+          "url": "https://arxiv.org/html/2611.04782v1"
+        },
+        {
+          "label": "代码与合成材料",
+          "url": "https://github.com/LCR2001/PII-SAE-SUPPRESSION"
+        }
+      ],
+      "summary": "研究质疑一种看似直观的隐私验收：压低模型输出姓名或电话的概率，就说明找到了并切断泄露机制。作者对稀疏自编码器选出的特征施加干预，同时加入幅度匹配的随机方向对照，检查概率下降是否只是整体表示被扰乱。单看概率会出现许多成功设置，加入排序与选择性条件后却只剩极少数。这对企业采购隐私防护有具体启发：漂亮的泄露代理分数必须配合随机基线、正常任务质量和端到端攻击测试。它讨论模型内部机制，不等于外部脱敏工具失效，也不是对所有隐私技术的总体判决。",
+      "design": "实验输入是带合成身份字段的医疗文本，三种小型开源模型经过微调，在不同深度训练稀疏自编码器；发现集选择候选特征，分离的评测集测干预。目标方向与随机方向保持逐词扰动幅度及方向一致性可比，再比较正确身份串概率、候选排序和相对随机对照的选择性。该流程是离线机制诊断，不涉及真实患者访问授权或业务写入；人工负责解释结果与决定是否继续研究。编辑建议任何指标变好但任务质量下降时停止发布防护版本，保留原模型和评测快照；来源没有生产超时、回滚审批或在线攻击恢复机制，不能从开放代码推定具备这些能力。",
+      "evidence": "证据等级：开放研究实验，尚无本期独立复现。三模型、三层、四类身份字段共36格；只看概率有17格、约47%似乎成功，多指标标准仅1格、2.8%通过；另有9,000次因果中介可行性运行。确认的是特定单特征方法的诊断不足，不是全部设置真实泄露的比例。特征选择与概率评测部分循环，随机对照和后续中介分析用于揭示这一问题；合成数据、小模型、选定层及单特征干预限制外推。作者未执行完整对抗提取攻击，正常任务效用仅覆盖三个配置和三个基准。编辑判断是不能用概率下降认证隐私保障；但也不能凭这项研究否定多特征、电路级干预或所有实际脱敏方案。",
+      "idea": "为隐私模型评估员做离线防护对照台，只用合成姓名、编号、电话和邮箱，不放真实身份数据。比较原模型、目标干预和随机干预，人员审核正常任务退化；同时测确切串提取、排序、随机对照差异、任务质量与运行成本。任何防护收益若只能靠整体失语取得，即退回研究状态，不部署到用户请求链路。",
+      "image": {
+        "src": "/cases/policy-compliance-filter.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "OperAItor把工业动作先过验证：模型复核有时反而增加停机",
+      "type": "工业控制预印本＋开源仿真框架＋故障场景与成本对照",
+      "source": "2026年11月3日｜Imperial College London团队；arXiv",
+      "url": "https://arxiv.org/abs/2611.05179",
+      "relatedLinks": [
+        {
+          "label": "完整实验与协议",
+          "url": "https://arxiv.org/pdf/2611.05179"
+        },
+        {
+          "label": "项目、演示与运行材料入口",
+          "url": "https://aisl-at-imperial-college-london.github.io/operAItor/"
+        },
+        {
+          "label": "作者列出的开源仓库",
+          "url": "https://github.com/AISL-at-Imperial-College-London/operAItor"
+        }
+      ],
+      "summary": "OperAItor在假设性的反应器与蒸馏过程里，让代理提出故障恢复动作，再比较直接执行、第二模型复核、数字孪生和确定性可接受性检查。它没有让大模型接管底层控制或绕过保护，而是研究监管层动作在何种条件下应被允许。最有价值的结果不是模拟节省金额，而是没有一种验证器在全部设置里占优；某些模型复核甚至比不验证更差。离线分析还发现部分故障在允许的单动作集合中根本无法恢复，正确结果可以是升级处理或受控停机。这为设施运维原型提供了可测的停止边界，而不是化工现场自动化许可。",
+      "design": "监测信号、报警和设备状态先进入诊断，规划结合知识图谱生成候选动作，语言模型产生受限命令；执行前检查可执行性，并由所选验证器检查证据、程序或预测后果。底层控制和十一项独立保护功能留在仿真系统，代理不得绕过。拒绝理由可反馈修订，预算耗尽时多数配置不动作，孪生配置另有优于不作为时的回退。离线安全包络没有可行单动作时升级处理，不应强求继续生产。来源不是实际操作员试点，没有验证真实人员身份、人工交接时间或现场网络故障；项目应只在沙箱运行，由工程师批准方案，禁止将仿真命令直接连入设备。",
+      "evidence": "证据等级：未同行评审的仿真实验，开放材料不等于独立验证。20类故障、四模型、五种验证，主要活动共500回合，每个配置与场景只运行一次，不能估计随机运行波动。协议一中，GPT-5 nano停机数由无验证9次变为模型复核11次、孪生5次；对应模拟收益为17.9万、13.5万、26万美元，并非真实收入。协议二的确定性检查可将三十亿参数模型停机由13次降至7次。关键限制是代理计算时过程时钟暂停，孪生与过程匹配，没有真实延迟下的动态安全证明；停机固定罚额2万美元只是设定。四类冷凝故障无可行单动作，也不排除多动作恢复。不同协议和模拟器版本不可直接混比，本期未运行复现。",
+      "idea": "为设施运维工程师做水箱或泵的离线故障沙箱，限制为启动备用泵、降低负载和升级处理三种建议，不控制真实设备。工程师确认约束并审核轨迹，比较不验证、规则验证和模型复核；测安全约束违规、停机、误拒、无法恢复时正确升级、决策时延及总成本，再加入不停表的延迟压力测试。",
+      "image": {
+        "src": "/cases/github-llm-evals.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "工单动作授权与诊断台",
+      "description": "目标用户为内部运营和代理开发者；只读脱敏执行轨迹，并只允许负责人、优先级两字段更新。规则校验对象和授权，跨部门动作人工批准，模型仅给诊断候选；验证越权、误拒、证据支持、重复写入、撤权传播和含复核的合格动作成本。",
+      "tags": [
+        "判定标准",
+        "人工复核"
+      ]
+    },
+    {
+      "title": "验证器反例实验台",
+      "description": "目标用户为设施运维原型团队；只在泵与水箱沙箱比较无验证、确定性规则和模型复核。工程师确定正常、故障与不可恢复案例，人工审核后才接受实验结论；验证严重违规、停机、正确升级、正常误拒及不停表情况下的时延，模拟收益与真实费用分列。",
+      "tags": [
+        "证据利用",
+        "留出评测"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue asks whether controls themselves work, using four sources published November 3–4: cross-vendor action approval, execution-trace diagnosis, random controls for privacy suppression, and chemical-process fault simulation. Announcements are not deployment benefits, and diagnostic matching, proxy metrics and simulated money are not real business outcomes. Controls need counterexamples, normal tasks, recovery and cost denominators; another model reviewer is not necessarily safer than explicit rules.\n\nThe sources do not validate a single product. They separate authority, error explanation, intervention specificity and acceptable action consequences. A gateway does not prove diagnostic correctness; diagnostic scores do not prove repairs; probability changes do not prove privacy; simulation acceptance does not prove deployability. Freeze inputs, record criteria, add positive and negative controls, and measure false allows, false denials, latency and recovery separately. This issue has no independent production evidence supporting general benefit promises.",
+      "takeaways": [
+        "HeadWay Dispatch puts credentials and approvals on an execution path, but the announcement does not establish bypass resistance or disconnected safety. Revocation, timeout and recovery tests matter more than connector counts.",
+        "Signals' 91.43% F1 matches components and types, not jointly correct evidence, severity and repairs. Keep human evidence review and independent post-repair regression testing.",
+        "The privacy study reduces 17 probability-improving cells to one multi-metric pass, exposing generic degradation in a proxy score. Retain random controls and normal capabilities; inability to speak is not privacy protection.",
+        "Model review increased industrial simulation stops from 9 to 11 in one configuration, with the process clock paused during computation. Validators need controlled tests; simulated money cannot replace real-time constraints or business outcomes."
+      ],
+      "contrarian": "A common intuition is that adding another model reviewer always improves a high-risk agent. The industrial study provides a counterexample: model review increased stops in protocol v1. The privacy study also shows that better-looking single metrics can reflect generic perturbation. Our editorial judgment is that clear rules, small action spaces and costly false denials favor deterministic contracts and inspectable evidence as the first gate. Semantic review may remain useful where requirements are ambiguous or rules cannot cover them. Repeated randomized runs and real-time production controls showing that a second model consistently lowers severe errors and total cost, including review, latency and recovery, under equal information and safety targets would overturn this priority.",
+      "items": [
+        {
+          "type": "Product announcement + architecture explanation + attributed media cross-check",
+          "source": "November 4, 2026 | Leidos",
+          "title": "HeadWay Dispatch centralizes credentials and approvals, but disconnected controls remain future work",
+          "summary": "Leidos announced cross-vendor agent governance combining visibility, action boundaries and inspectable records in one operator entry point. The specific problem is agents holding separate passwords or keys while approvals and exceptions span windows, obscuring who accesses what. Routing requests through a control layer is intended to remove agents' need to hold credentials and separate autonomous, approval-required and prohibited actions. Authorization becomes an execution-path decision rather than a conversational promise. Role-specific interfaces, cross-vendor coordination intelligence and controls under degraded or disconnected networks are explicitly further development, not completed capabilities.",
+          "design": "The announcement aggregates agent identity, capabilities, system access, approvals and alerts; routed requests use protected credentials. Policy allows, waits for approval or blocks, with decision records supporting accountability. Models, retrieval, policy language, credential-proxy implementation and verification of tamper-evident records are not disclosed, nor is universal bypass resistance established. Our proposal connects only a ticket-update tool: the model suggests fields, deterministic rules check object, authority and expiry, and humans approve high-impact changes. Approval expiry, gateway loss or object-version changes stop writes and require renewed authorization. Recovery checks action IDs rather than replaying old requests automatically. These are proposed fault paths, not disclosed vendor implementation.",
+          "evidence": "Evidence grade: vendor primary announcement, with explicitly attributed media paraphrase and no independent effectiveness assessment. The November 4 release establishes the three announced governance functions; credential protection and the unified operator view are product claims. Media confirms the event but supplies no bypass, approval-error or revocation experiments. Customer samples, agent counts, false allows/denials, revocation propagation, approval time, throughput and total cost are absent. Tamper-evident records do not ensure truthful or complete content or legally sufficient retention. We infer that a central execution entry can reduce credential exposure while creating a valuable failure point. High-risk disconnected execution is unsupported before offline behavior is verified. Broad background-page wording does not supersede the announcement's future-development boundaries.",
+          "idea": "For internal ticket operators, allow only owner and priority changes, prohibiting deletion, external sending and secret reading. Rules permit ordinary changes; an owner approves cross-department changes. Synthetic tickets test expired approvals, duplicate requests, revocation and disconnection. Measure unauthorized writes, normal false denials, approval minutes, recovery duplicates and cost per accepted update before adding tools.",
+          "relatedLinks": [
+            {
+              "label": "Product background"
+            },
+            {
+              "label": "Media report and release attribution"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Diagnostic-method preprint + public trace analysis + same-model one-pass control",
+          "source": "November 3, 2026 | Cisco research team; arXiv",
+          "title": "Signals achieves 91.43% diagnostic-matching F1, not proven repair efficacy or severity accuracy",
+          "summary": "Signals targets agent mistakes even when tools return normally—for example, treating differently displayed versions of the same policy ID as conflicting, routing to review and missing registration. It compares task, tool contract, trace evidence and problem definitions, then groups recurring findings into engineering issues with proposed changes. It distinguishes realized defects, reachable risks and avoidable work rather than treating every anomaly as business loss. The reusable enterprise pattern links evidence to diagnostic tickets. Scores measure component/type agreement, not demonstrated repair or permission for unreviewed automatic fixes.",
+          "design": "Inputs are requirements, tool contracts, model interactions, retrieved content, arguments and responses. A detector uses 45 problem types in eight families, then groups occurrences by engineering issue. The model interprets semantics and consequences; code computes scope and fixed severity arithmetic. New executions add evidence or recurrence. Developers implement and validate fixes; diagnosis does not modify production. Enterprise identity isolation, log redaction, approval and timeout procedures are not fully specified. Our proposal reads only redacted traces, labels insufficient evidence unknown, and does not equate missing logs with an absent action. Identical labels with different causes must not be merged automatically. Preserve task/log versions on analysis failure for owner review; rerun both failing and previously successful cases after repairs.",
+          "evidence": "Evidence grade: author experiment in a non-peer-reviewed preprint; no independent reproduction here. With identical model, taxonomy and matcher, issue F1 improves from 73.69% to 91.43%. Matching checks component and at least one candidate type, not wording, cited spans, severity or repair correctness; a lower-ranked alternative can match. Model judges create and review reference labels under human oversight, and public benchmark families informed taxonomy design, so they are not wholly unseen domains. The body lacks a directly auditable complete sample-count table, limiting percentage-denominator transparency. Proposed fixes were not implemented or validated; diagnosis time and production savings were not measured. Our inference supports testing triage, not automatic action authority. Correlated tasks, label bias and missing telemetry constrain generalization.",
+          "idea": "For claims-intake developers, diagnose only identifier normalization, invalid arguments and false success from 30 frozen, authorized redacted traces. Two people independently label and arbitrate; the model drafts tickets only. Measure evidence support, erroneous grouping, missed issues, human triage minutes and post-repair recurrence. Retain normal traces instead of testing only failed runs where a problem is expected.",
+          "relatedLinks": [
+            {
+              "label": "Methods, matching rules and experiments"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Privacy mechanism research preprint + open code and synthetic corpora + random-direction controls",
+          "source": "November 3, 2026 | Soongsil University team; arXiv",
+          "title": "Lower PII probability need not mean selective protection: only one of 36 cells passes multi-metric diagnosis",
+          "summary": "This study challenges a tempting acceptance criterion: reducing name or phone probabilities means finding and interrupting the leakage mechanism. It intervenes on sparse-autoencoder features and adds magnitude-matched random directions to test whether improvement is generic representation damage. Many cells look successful on probability alone; few survive rank and selectivity checks. Enterprise privacy evaluation should pair appealing proxy scores with random baselines, normal-task quality and end-to-end extraction attacks. This concerns internal mechanisms, not the failure of external redaction tools or a verdict on all privacy technologies.",
+          "design": "Synthetic medical text with identity fields is used to fine-tune three small open models, with sparse autoencoders trained at different depths. A discovery split selects features and a separate evaluation split tests them. Target and random directions have comparable token-wise perturbation magnitude and directional coherence. Outcomes include gold-identifier probability, candidate rank and selectivity relative to randomness. This is offline mechanism diagnosis, with no real-patient authorization or business writes. Humans interpret results and decide further research. Our proposal stops defense-version release if proxy gains accompany task-quality loss, preserving original model and evaluation snapshots. Production timeouts, rollback approval and online attack recovery are not supplied by the source and cannot be assumed from open code.",
+          "evidence": "Evidence grade: open research experiment, without independent reproduction here. Three models, three layers and four identifier types yield 36 cells. Probability alone suggests 17 successes, about 47%; only one, 2.8%, passes multi-metric criteria. A further causal-mediation feasibility study has 9,000 runs. This diagnoses particular single-feature methods, not the proportion of real leaks. Feature selection and probability evaluation are partly circular, which random controls and mediation help expose. Synthetic data, small models, selected layers and single features limit extrapolation. Full adversarial extraction is not tested; utility checks cover only three configurations and three benchmarks. Probability reduction cannot certify privacy, but this does not refute multi-feature or circuit interventions or all practical redaction.",
+          "idea": "For privacy-model evaluators, build an offline comparison using only synthetic names, IDs, phones and emails. Compare the original model, target and random interventions, with human review of normal-task degradation. Measure exact-string extraction, rank, differences from randomness, task quality and runtime cost. Benefits achieved only through generic incapacity return the method to research status rather than the live request path.",
+          "relatedLinks": [
+            {
+              "label": "Full experiments and limitations"
+            },
+            {
+              "label": "Code and synthetic materials"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "type": "Industrial control preprint + open simulation framework + fault/cost comparisons",
+          "source": "November 3, 2026 | Imperial College London team; arXiv",
+          "title": "OperAItor validates industrial actions first; model review sometimes increases plant stops",
+          "summary": "In a hypothetical reactor/distillation process, OperAItor proposes recovery actions and compares direct dispatch, a second-model judge, a digital twin and deterministic admissibility checks. The model does not replace low-level control or bypass protection; the study asks when supervisory actions should be allowed. More important than simulated savings is that no validator dominates every setting, and some model reviews worsen outcomes. Offline analysis finds faults unrecoverable within the permitted single-action set: escalation or controlled shutdown may be correct. This gives operational prototypes a testable stopping boundary, not permission to automate chemical plants.",
+          "design": "Monitoring signals, alarms and equipment state feed diagnosis; planning uses a knowledge graph, and a language model proposes bounded commands. Executability and a selected validator check evidence, procedure or predicted consequences before dispatch. Low-level controls and 11 independent protective functions remain in simulation and cannot be bypassed. Rejection reasons support revision. On budget exhaustion, most configurations take no action; the twin has a fallback when a plan beats doing nothing. No feasible single action inside the offline envelope means escalation, not forced production. This is not an operator trial: real identities, human handoff time and field network failures are not validated. Prototypes should remain sandboxed, with engineer approval and no direct equipment connection.",
+          "evidence": "Evidence grade: non-peer-reviewed simulation; open materials are not independent validation. Twenty faults, four models and five validators produce 500 main-campaign episodes, one run per configuration/scenario, insufficient to estimate stochastic variation. In protocol v1, GPT-5 nano stops rise from 9 without validation to 11 with model review, versus 5 with a twin. Simulated savings are $179,000, $135,000 and $260,000, not revenue. Protocol v2 deterministic checks reduce 3B-model stops from 13 to 7. The process clock pauses during computation; twin and process match, so real-latency dynamic safety is unproven. The fixed $20,000 stop penalty is illustrative. Four condenser-fault cases lack a feasible single action, without ruling out multi-action recovery. Protocols and simulator versions cannot be conflated; we did not reproduce runs.",
+          "idea": "For facilities engineers, build an offline tank/pump fault sandbox allowing only standby-pump start, load reduction and escalation suggestions, never real equipment control. Engineers confirm constraints and review traces. Compare no validator, rules and model review on safety violations, stops, false denials, correct escalation for unrecoverable faults, decision latency and total cost; add stress tests without pausing the process clock.",
+          "relatedLinks": [
+            {
+              "label": "Full experiments and protocols"
+            },
+            {
+              "label": "Project, demo and run materials"
+            },
+            {
+              "label": "Author-listed open repository"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Ticket-action authorization and diagnosis desk",
+          "description": "For internal operators and agent developers, read redacted traces and permit only owner/priority updates. Rules check objects and authority, humans approve cross-department actions, and models only suggest diagnoses. Measure unauthorized actions, false denials, evidence support, duplicate writes, revocation propagation and cost per accepted action including review.",
+          "tags": [
+            "Acceptance criteria",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Validator counterexample workbench",
+          "description": "For facilities-prototype teams, compare no validator, deterministic rules and model review only in a pump/tank sandbox. Engineers specify normal, faulty and unrecoverable cases and review findings. Measure severe violations, stops, correct escalation, normal false denials and unpaused-process latency; separate simulated benefits from real expenditure.",
+          "tags": [
+            "Evidence use",
+            "Held-out evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "3c85fd933b1eba57"
+}
