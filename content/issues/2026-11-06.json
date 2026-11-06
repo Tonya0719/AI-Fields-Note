@@ -1,0 +1,228 @@
+{
+  "issue": "ISSUE 072",
+  "date": "2026.11.06",
+  "thesis": "本期看四个交接点：搜索结果何时可变成批量写入、浏览器如何代表用户行动、检索证据能否改善译文质检，以及为什么只登记模型名不够。资料发布于11月1日至5日。共同判断：先核对动作对象、证据来源与实际执行路径，再谈自动化覆盖；产品自述、受控评测和真实事件取证各回答不同的问题。\n\n四组资料没有相互证明某一产品可靠，但分别定位了批准对象、执行身份、证据质量与实际出口的验证缺口。适合落地的最小单位不是一个“已完成”消息，而是一笔能重放检查的业务事件：谁授权、读了哪版材料、实际去了哪里、留下什么结果、失败由谁接手。把这些字段与总成本一起留档，才能把可见进度与真实产出区分开。",
+  "takeaways": [
+    "合同预览只有绑定对象、字段和版本才可检验；Agiloft公布了预览与报告，却没有证明审批和写入始终一致。",
+    "浏览器能跨过无接口的断点，但收购公告和旧产品任务数都不是新流程成功率。验收须看正确身份、正确对象与下游回执。",
+    "翻译评委的无检索消融支持检索有用，但四级准确率仍只有52.57%。应用应先辅助分流，并记录无证据回退。",
+    "ARTEX新增取证表明框架与推理后端可以分离；五百一十次启动不代表五百一十次入侵，资产登记也不能替代实际出口观测。"
+  ],
+  "contrarian": "常见直觉是“让代理跨越更多系统，再加一个确认按钮，就能安全地获得更大的节时”。本期资料的事实是：批改预览未证明提交一致，浏览器整合尚无新流程对照，取证还发现表面框架名不能说明真实模型路径。编辑判断是，在对象变化快、失败恢复贵、权限不透明的窄任务里，先限制到一个可读回的动作，可能比增加入口更快证明净收益。这不否认跨系统自动化的价值。若同任务随机或交叉对照显示，跨系统版本在同等错误和安全阈值下，持续降低包括审批、失败修复和接管的总工时与成本，就应扩大范围并修正该判断。",
+  "items": [
+    {
+      "title": "Agiloft给合同批量修改加了预览，仍需验证批准的是否就是执行的",
+      "type": "合同管理产品发布＋功能说明＋媒体转述",
+      "source": "2026年11月5日｜Agiloft",
+      "url": "https://www.agiloft.com/news/execution-focused-ai-agents",
+      "relatedLinks": [
+        {
+          "label": "功能报道",
+          "url": "https://www.unite.ai/agiloft-adds-three-ai-agents-for-multi-step-contract-tasks/"
+        }
+      ],
+      "summary": "合同团队经常需要把同一字段改到一批记录上，逐条录入耗时，一次改错又会放大影响。Agiloft在合同管理助手中公布批量更新代理，允许从搜索结果选中合同或附件记录、预览受影响范围，再明确确认修改，完成后分别报告成功、失败和跳过。同期还有合同请求和电子签名代理，本篇只考察批量写入。它值得关注的不是自然语言能改多少资料，而是能否把检索命中的对象转成一张可核对的变更单，并在部分失败时让人知道哪些记录已经改变、哪些仍需处理。",
+      "design": "公告披露的输入是问答搜索结果和用户要求，最多更新三个数据字段，预览覆盖受影响文件，执行前需要人工明确确认，结果返回逐类状态。未披露模型版本、查询与记录级权限的绑定、批准后对象是否冻结、事务原子性或回滚机制。编辑建议把检索、计划和写入分开：模型只提字段与候选对象，规则核对字段白名单和记录版本，业务负责人确认逐条差异，服务端以最小权限提交。超时或权限变化即停止剩余动作，先读回状态再决定重试，禁止把已完成对象和失败对象一起重放；这些是拟议验收条件，并非厂商已实现的细节。",
+      "evidence": "证据等级：厂商一手发布，媒体报道未独立验证效果。可确认的披露是最多三个字段、预览、明确确认和结果报告；没有公开客户批次规模、误选率、错误写入、审批时间、恢复耗时或单次成本。公告援引采购负责人估计至少百分之十五的供应商支出不在合同约定内，这是调查判断，不是代理节省的金额，也不能归因给批量录入。编辑推断是预览能提供核对机会，但如果审批对象在提交前改变，或者只看总数不看差异，人仍可能批准错误动作。应在同一批任务上与人工及固定规则脚本对照，把部分成功、撤销失败和补录成本算进去，不能只用更新条数衡量产出。",
+      "idea": "为合同运营员做一个合成合同批改沙箱，只允许改内部分类和负责人，不接签名或付款。用人员确认后的记录版本绑定批准，随机注入并发编辑、权限撤销和部分失败。与人工批改及规则脚本比较错改率、漏改率、重复写入、每批复核时间、失败恢复时间和每条合格更新的总成本。",
+      "image": {
+        "src": "/cases/dacl-contract.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "Sierra收购Anon补上浏览器入口，跨门户成功仍需逐步验收",
+      "type": "收购公告＋创始人技术回顾＋媒体报道",
+      "source": "2026年11月5日｜Sierra；Anon联合创始人Daniel Mason",
+      "url": "https://sierra.ai/uk/blog/sierra-acquires-anon",
+      "relatedLinks": [
+        {
+          "label": "媒体报道",
+          "url": "https://www.unite.ai/sierra-acquires-anon-to-help-ai-agents-complete-web-workflows/"
+        }
+      ],
+      "summary": "Sierra宣布收购Anon，把后者的团队与浏览器技术带入客服代理。具体断点是：客户任务到了第三方门户，系统没有可用接口，代理即使判断出下一步，也无法替用户登录、导航或填表。Anon的回顾把身份认证、凭证处理、浏览器运行环境和执行框架列为这类工作的基础。对企业而言，浏览器是一种补齐旧系统入口的手段，不是额外授权；能打开页面也不等于有权提交，更不等于业务已经受理。公告说明了整合方向，但没有提供整合后某个客户流程的完成率、差错或人工接管数据。",
+      "design": "按创始人描述，执行框架和嵌入式开发套件连接身份认证及浏览器，代理可在登录后导航和填表，旧产品曾处理多因素认证和长任务恢复。公告未披露整合版本的模型、页面解析方法、凭证隔离粒度、审批点、超时预算或如何确认下游状态。编辑建议先限定一个获准的只读门户，任务带用户、对象和用途，凭证由独立组件处理，页面内容只作数据，不能扩大权限。字段不匹配、认证挑战、页面变更或超时即交给人，保存安全检查点；恢复先重新验证身份、对象和当前状态，写入类试点另设确认与回执核查，不能复用过期授权。",
+      "evidence": "证据等级：交易公告及创始人自述，媒体确认公告内容而非独立运行审计。创始人称旧产品曾服务数百客户，在生产完成数十万项复杂任务，也曾为金融、医疗及企业软件客户部署代理。这些数量没有给出分母、失败定义、观察周期或按门户分层的结果，且不属于收购后整合版本。公告提到Sierra代理每年处理数十亿次客户交互，不能用该总量推算浏览器流程的成功率。编辑推断是先补一个没有接口的流程断点有价值，但网页改版、账号授权、重复提交和真人接管仍可能吃掉节时。没有对照实验、独立客户收益或单位成功任务成本，不宜把收购当成端到端交付凭证。",
+      "idea": "为客服后台做一个模拟供应商门户查询助手，仅允许输入工单号和读取进度，不允许提交或下载附件。遇到登录挑战、身份不符或布局变化时，把已核对内容交给坐席。用固定任务回放测正确对象命中、错误账户访问、超时后可恢复率、接管分钟和每次正确查询成本，并与人工查询基线比较。",
+      "image": {
+        "src": "/cases/colorbrowser-agent.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "检索可以帮助译文评委，但四级判断仍只有52.57%准确率",
+      "type": "翻译评估预印本＋人工标注基准＋无检索消融",
+      "source": "2026年11月1日提交｜Linjuan Wu等；arXiv",
+      "url": "https://arxiv.org/abs/2611.02009",
+      "relatedLinks": [
+        {
+          "label": "全文、评估表与检索提示",
+          "url": "https://arxiv.org/html/2611.02009"
+        }
+      ],
+      "summary": "本地化团队审核中文社区内容时，译文可能字面正确，却丢掉俚语、反讽或前文指代。研究把检索加到评委而非仅加到译者：代理按需要寻找文化背景，把线索交给校准过的打分模型，再用评分筛训练数据、发现难例与提供奖励。去掉外部证据但保留模型生成的提示，评委表现变差，说明这组设置的改进不只来自多写一段提示。它适合启发多语言客服知识库的质检实验，但评委更接近人工不是可以直接替代人工，尤其不能把单一语种方向、平衡样本上的分数当作线上发布门槛。",
+      "design": "输入为源文、候选译文及可用上下文。规划模型判断是否检索，搜索服务每查询取五条结果，提示模型提炼线索，评委独立给四级分；证据与提示缓存。未生成查询时直接评分，检索失败或无有效证据时可用不含外部证据的通用提示。人工负责标注和裁决，评分进入离线训练而非生产发布。论文未给企业文档授权、超时预算或对抗检索控制。编辑建议先只读获准术语库，保留证据来源与版本，区分有据和回退结果，冲突或缺证送双语审核；禁止模型把提示当成客户政策，禁止未经确认将译文写回正式知识库。",
+      "evidence": "证据等级：作者预印本，具人工裁决和消融，无独立复现。评委集含一千四百对、每级三百五十对，来自六百三十六条源文；增强评委二分类准确率为77.86%，四级为52.57%，去外部证据而保留提示时四级降至44.50%。翻译基准含九百八十条，九十亿参数模型人工文化合格率从基础模型68.74%到监督版90.09%、最终90.71%；不能把全部提升归给检索。筛掉缺视觉或外部信息及过长样本，且候选共享源文，分布不代表日常工单。编辑判断是用检索辅助发现难例，而非无审核放行；实验未测业务重工、误改风险或完整线上成本，也不能证明对其他语种同样有效，尤其缺少低资源语言与不同文化语境的对照。",
+      "idea": "为双语客服质检员做五十条短问答的盲审工具，固定同一批译文，只切换无检索、有术语证据、检索失败回退三种模式。两人独立打分，争议由负责人裁决；测术语错漏、证据支持、误拒好译文、漏放坏译文、每条复核分钟与检索成本，不自动发布答案或改变政策措辞。",
+      "image": {
+        "src": "/cases/aida-translation.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "ARTEX调查补出了运行框架与模型路由：登记一个模型名不够",
+      "type": "真实事件取证更新＋两家安全研究机构报告＋媒体核查",
+      "source": "2026年11月4日｜Hunt.io；对照10月7日CrowdStrike初报",
+      "url": "https://hunt.io/blog/artex-south-korea-bank-infrastructure",
+      "relatedLinks": [
+        {
+          "label": "同一韩国金融活动初报",
+          "url": "https://www.crowdstrike.com/en-us/blog/unknown-threat-actor-uses-artex-to-target-south-korean-finance/"
+        },
+        {
+          "label": "11月5日媒体报道",
+          "url": "https://cybersecuritynews.com/artex-hackers/"
+        }
+      ],
+      "summary": "十月的韩国金融机构事件已揭示攻击者使用代理式工具。十一月四日的新增调查进一步分析暴露服务器上的运行状态与配置，把执行框架、模型路由和外部服务拆开：界面或运行框架显示一个产品名，推理请求却可能经过转发，最终由另一模型提供。对企业防守最实用的问题是：代理清单能否说明谁发出请求、请求真正去了哪里、哪些任务文件暴露，以及出事时能否停止对应身份。材料来自一次可见基础设施调查，不能把工具存在当成每项入侵都由模型独立完成，也不能把同类工具在其他地区出现当成同一操作者。",
+      "design": "报告从公开暴露的目录和配置还原运行路径，以会话、状态文件和网络配置交叉关联工具与推理后端；有框架、转发层、模型以及任务资料，并非一个模型单独运行。来源没有完整受害方日志，也不足以还原每次人工介入、每条请求最终路由或真实权限全貌。防守侧建议为每个企业代理绑定工作负载身份，在出口核对允许的服务和实际目的地，记录路由与数据分类，不存敏感正文。遇到未知目的地或暴露日志先暂停相关代理并交安全人员，保留证据、撤销权限，再按已知配置重启；不要把无法观测的链路默认为合规。",
+      "evidence": "证据等级：真实事件的一手基础设施调查，非独立因果实验。两家机构都描述相关暴露设施，十一月报告新增运行版本与推理转发证据；状态文件自八月四日起记录五百一十次启动，分母是该安装的启动次数，不是成功入侵或受害机构数。报告发布前通知相关国家应急机构，并称没有刊载受影响系统的个人记录或凭证。两家观察部分重叠，媒体转述不构成第三份原始证据；可见目录有选择偏差，不能估计行业发生率或模型增量作用。编辑推断是先验收出口和运行配置的可追溯性；攻击者归属、完整影响范围和可比较的防守成本仍不能从此材料确定。",
+      "idea": "为内部安全运营做一个只用模拟端点的代理出口审计台，登记两种运行配置，注入允许目的地、未登记转发和敏感字段外发三类事件。值班员确认风险后暂停相应身份，核对日志再恢复；测未知出口检出、误阻断、撤权传播、日志覆盖与恢复分钟，不访问外部攻击设施。",
+      "image": {
+        "src": "/cases/agent-incident-metr.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "合同变更收据沙箱",
+      "description": "面向合同运营员，只做两字段批改与读回；负责人审核冻结后的逐条差异，冲突停止并人工处置。测错改、重复写入、部分失败恢复、复核分钟及合格更新成本，对照人工和脚本。",
+      "tags": [
+        "判定标准",
+        "人工复核"
+      ]
+    },
+    {
+      "title": "双语质检证据队列",
+      "description": "面向跨境客服知识运营，仅对固定中文短问答的英文译文评分和附证据，不发布。双语审核员裁决冲突与缺证样本；测人工一致、坏译漏放、好译误拒、来源支持及每条总审核成本。",
+      "tags": [
+        "证据利用",
+        "留出评测"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "Four handoffs matter today: when search results can become bulk writes, how browsers act for users, whether retrieved evidence improves translation review, and why listing a model name is insufficient. Sources span November 1–5. Check action targets, evidence provenance and actual execution paths before expanding automation. Product accounts, controlled evaluations and incident forensics answer different questions.\n\nThese sources do not validate one product's reliability. They identify distinct gaps in approved targets, execution identity, evidence quality and actual egress. The smallest deployable unit is a replayable business event, not a completion message: who authorized it, which version was read, where it went, what happened and who took over on failure. Retain these fields alongside total cost to distinguish visible progress from actual output.",
+      "takeaways": [
+        "A contract preview becomes testable when bound to the object, fields and version. Agiloft announced previews and reports, not proof that approval always matches the write.",
+        "Browsers bridge a missing API, but an acquisition and old task totals do not establish new workflow success. Check identity, object and downstream receipts.",
+        "The no-retrieval ablation supports evidence retrieval for translation judging, but four-way accuracy is still only 52.57%. Start with triage and label evidence-free fallback.",
+        "ARTEX forensics show that the harness and inference backend can differ. 510 startups are not 510 intrusions, and inventory cannot replace egress observation."
+      ],
+      "contrarian": "A common intuition is that more connected systems and a confirmation button safely yield more time savings. The sources show no proof of commit consistency for bulk previews, no post-integration workflow comparison for browser automation, and a visible harness name that does not identify the real model path. Our editorial judgment: in narrow tasks with changing targets, expensive recovery and opaque permissions, one action with readback may prove net benefit faster than more entry points. This does not deny cross-system automation's value. Expand and revise this judgment if randomized or crossover tests on the same tasks show lower total hours and cost, including approval, repair and handoff, at equal error and safety thresholds.",
+      "items": [
+        {
+          "title": "Agiloft previews bulk contract changes; verify that approved changes are the ones executed",
+          "type": "Contract management release + feature description + attributed media coverage",
+          "source": "November 5, 2026 | Agiloft",
+          "summary": "Contract teams often apply the same field change across many records. Manual entry is slow, but mistakes can multiply. Agiloft announced a bulk-update agent that selects contract or attachment records from search results, previews affected objects, asks for explicit confirmation and reports success, failure and skips. Contract-request and signature agents were also announced; this item covers bulk writes only. The useful question is whether retrieval hits become an inspectable change set and whether partial failure leaves a clear account of what changed and what remains.",
+          "design": "The announcement describes search results and user instructions as inputs, at most three updated fields, a preview of affected files, explicit human confirmation and categorized outcomes. Model version, binding of queries to record permissions, freezing after approval, transaction atomicity and rollback are undisclosed. We propose separating retrieval, planning and writes: the model suggests fields and targets, rules check allowlists and versions, the owner reviews per-record differences, and a least-privilege service commits. On timeout or permission change stop remaining writes, read back state and retry only unresolved records. These are proposed acceptance conditions, not shipped details.",
+          "evidence": "Evidence grade: vendor announcement; media does not independently validate outcomes. The disclosed features are three fields at most, preview, explicit confirmation and a result report. Customer batch sizes, selection errors, wrong writes, approval time, recovery and unit cost are unpublished. Procurement leaders' estimate that at least 15% of supplier spend falls outside contracts is not measured agent savings and cannot be attributed to bulk entry. We infer previews enable review, but changed targets or totals-only review can still yield wrong approvals. Compare manual and rule-script baselines on the same tasks, counting partial success, failed reversals and cleanup rather than update volume.",
+          "idea": "For contract operations, make a synthetic sandbox limited to category and owner fields, excluding signatures and payments. Bind approval to reviewed record versions, inject concurrent edits, revocation and partial failures, and compare wrong and missed changes, duplicate writes, review time, recovery time and total cost per accepted update with manual and scripted baselines.",
+          "relatedLinks": [
+            {
+              "label": "Feature coverage"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "Sierra acquires Anon to reach browser portals; verify cross-portal success step by step",
+          "type": "Acquisition announcement + founder engineering retrospective + media coverage",
+          "source": "November 5, 2026 | Sierra; Anon co-founder Daniel Mason",
+          "summary": "Sierra announced its acquisition of Anon, bringing its browser technology and team into customer-service agents. The concrete gap is a third-party portal with no usable API: knowing the next step does not enable logging in, navigating or filling forms for a user. Anon's retrospective identifies authentication, credential handling, browser infrastructure and a harness as foundations. A browser adds access to legacy interfaces, not new authority. Opening a page does not authorize submission or prove acceptance. The announcement sets direction but gives no integrated customer workflow completion, error or handoff data.",
+          "design": "The founder describes a harness and embedded SDK connecting authentication and browsers, with post-login navigation and form entry. The old product reportedly handled multifactor authentication and long-task recovery. The integrated model, page parsing, credential isolation, approval points, time budgets and downstream verification are undisclosed. Start with one approved read-only portal; bind user, object and purpose, handle credentials separately, and treat page content as data rather than authority. Stop for mismatches, authentication challenges, layout changes or timeouts; retain a safe checkpoint for humans. Recheck identity, object and state before resuming. Write pilots require separate confirmation and receipt verification, not stale approval.",
+          "evidence": "Evidence grade: transaction announcement and founder self-report; media corroborates the announcement, not independent operation. The founder claims hundreds of customers and hundreds of thousands of complex production tasks, including deployments in finance, healthcare and enterprise software. Denominators, failure definitions, observation windows and portal-level results are absent; these are not post-acquisition outcomes. Sierra's billions of annual customer interactions cannot estimate browser success. One missing API step may be worth bridging, but page changes, account authorization, duplicate submissions and handoff can erase time savings. Without controlled tests, independent customer benefits or cost per successful task, the acquisition is not evidence of end-to-end delivery.",
+          "idea": "Build a simulated supplier-portal status assistant for back-office support, allowing ticket ID input and status reads only, no submission or attachment download. Hand off verified details on login challenges, identity mismatches or layout changes. Replay fixed tasks and compare correct-object hits, wrong-account access, timeout recovery, takeover minutes and cost per correct lookup with manual work.",
+          "relatedLinks": [
+            {
+              "label": "Media coverage"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "Retrieval helps translation judging, but four-way accuracy remains 52.57%",
+          "type": "Translation evaluation preprint + human-annotated benchmark + no-retrieval ablation",
+          "source": "Submitted November 1, 2026 | Linjuan Wu et al.; arXiv",
+          "summary": "A Chinese community post may translate literally while losing slang, irony or references. This study adds retrieval to the judge, not only the translator. An agent seeks cultural context when needed, supplies cues to a calibrated judge and uses scores to select training data, mine hard cases and provide rewards. Removing external evidence while retaining generated hints worsens this configuration, so the gain is not merely extra prompting. The design informs multilingual support QA, but closer agreement with people does not replace review or make a balanced single-direction benchmark an online publishing threshold.",
+          "design": "Source text, candidate translation and available context enter a planner. The search service retrieves five results per query, a hint model extracts cues, and a separate judge scores four levels. Evidence and hints are cached. No query means direct scoring; failed retrieval or unusable evidence can produce generic hints without external evidence. Humans annotate and adjudicate; scores feed offline training, not publication. Enterprise document authorization, timeouts and adversarial retrieval controls are unspecified. We propose a read-only authorized glossary, versioned provenance, marked fallback, and bilingual review on conflicts or missing evidence. Hints cannot become customer policy or trigger unapproved knowledge-base writes.",
+          "evidence": "Evidence grade: author preprint with human adjudication and ablation, no independent replication. The judge set has 1,400 pairs, 350 per grade, from 636 sources. Enhanced binary accuracy is 77.86% and four-way accuracy 52.57%; removing external evidence while retaining hints reduces four-way accuracy to 44.50%. The translation benchmark has 980 instances. Human cultural acceptance for the 9B model rises from 68.74% base to 90.09% supervised and 90.71% final, not all attributable to retrieval. Cases needing unavailable visuals or external information and overlong items are filtered; candidates share source text and do not represent everyday tickets. Use retrieval to surface difficult cases, not unreviewed approval. Rework, wrong edits and full online costs were not measured; transfer to other languages, especially low-resource languages and different cultures, lacks comparison.",
+          "idea": "For bilingual support QA, blind-review 50 short Q&As using fixed translations under no retrieval, glossary evidence and retrieval-failure fallback. Two reviewers score independently and an owner adjudicates. Measure terminology errors, evidence support, false rejection of good translations, false acceptance of bad translations, review minutes and retrieval cost. Do not publish or alter policy automatically.",
+          "relatedLinks": [
+            {
+              "label": "Full paper, evaluations and retrieval prompts"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "ARTEX forensics expose the harness and model route; registering one model name is insufficient",
+          "type": "Incident-forensics update + two security research reports + media check",
+          "source": "November 4, 2026 | Hunt.io; compared with CrowdStrike's October 7 report",
+          "summary": "October reporting identified agentic tools in activity against South Korean financial institutions. The November 4 investigation adds exposed server state and configuration, separating the harness, routing layer and external service. A product name displayed by a harness may mask requests forwarded to a different inference backend. Defenders should know which identity sent a request, its true destination, exposed task files and whether the relevant identity can be stopped. This is an investigation of visible infrastructure, not proof that a model autonomously performed every intrusion or that use of similar tools elsewhere implies the same operator.",
+          "design": "The report reconstructs execution paths from exposed directories and configuration, relating sessions, state and networking to tools and backend inference. A harness, forwarding layer, model and task files are involved, not a standalone model. Complete victim logs, human interventions, every final destination and effective permissions are unavailable. We propose binding each enterprise agent to workload identity, enforcing allowed egress and checking actual destinations, and logging routes and data classes without sensitive content. Pause an agent on unknown destinations or exposed logs, involve security staff, preserve evidence and revoke privileges before restoring a known configuration. Unobservable paths are not assumed compliant.",
+          "evidence": "Evidence grade: firsthand incident infrastructure forensics, not independent causal experimentation. Both firms describe related exposed infrastructure; November adds runtime-version and inference-forwarding evidence. A state file records 510 startups since August 4, not successful intrusions or victim counts. The report says the relevant national CERT was notified and no affected-system personal records or credentials are published. Observations overlap and media paraphrase is not a third original source. Visible-directory selection prevents estimating industry incidence or the model's marginal contribution. Verify egress and runtime configuration traceability; attribution, full impact and comparative defensive cost remain undetermined.",
+          "idea": "For internal security operations, audit agent egress using simulated endpoints only. Register two runtime configurations and inject allowed traffic, undeclared forwarding and sensitive-field egress. Staff confirm risk before pausing an identity and review logs before restoring it. Measure unknown egress detection, false blocks, revocation propagation, logging coverage and recovery minutes without contacting attack infrastructure.",
+          "relatedLinks": [
+            {
+              "label": "Initial report on the same Korean financial activity"
+            },
+            {
+              "label": "November 5 media coverage"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Contract change receipt sandbox",
+          "description": "For contract operations, support only two-field bulk writes and readback. Owners review frozen per-record diffs; conflicts stop for human resolution. Measure wrong writes, duplicates, partial-failure recovery, review minutes and accepted-update cost against manual and scripted baselines.",
+          "tags": [
+            "Acceptance criteria",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Bilingual QA evidence queue",
+          "description": "For cross-border support knowledge operators, score and cite evidence for English translations of fixed short Chinese Q&As without publishing. Bilingual reviewers resolve conflicts and missing evidence. Measure human agreement, false accept/reject rates, evidence support and total cost per review.",
+          "tags": [
+            "Evidence use",
+            "Held-out evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "b65d39076aed3d16"
+}
