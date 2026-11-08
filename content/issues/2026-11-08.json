@@ -1,0 +1,247 @@
+{
+  "issue": "ISSUE 074",
+  "date": "2026.11.08",
+  "thesis": "本期围绕“动作获准之后，谁验证结果”选取四组未覆盖资料。检索扩大至最近七天，并补入10月27日的 Dataiku 公告与10月30日的英国监管原文；11月4日、6日的后续报道不是新产品发布或新立法。核心判断：行为约束、可检查产物、路由实验和责任记录各解决一段问题，不能互相替代，更不能把开源、可用或获准等同于已证明商业收益。\n\n四组资料不是彼此的效果背书，而是四道独立验收：行为是否符合意图，产物是否保持业务语义，运行优化是否在本地负载成立，责任是否能沿真实动作追溯。最小可复用单元是一笔带原始请求、允许范围、产物版本、执行结果及人工处置的记录。应把未知、失败和返工纳入分母，分别报告安全、质量、性能与业务成本，避免一个漂亮指标遮住其他环节的缺口。",
+  "takeaways": [
+    "Uber的新增价值是核对“为什么做这个动作”，不是再次核对账户能否访问。来源没有误拦与漏放数字，企业应先用正常单和夹带指令单一起验收，不能只统计拦下多少次。",
+    "Dataiku提供可检查的数据流，不等于旧报表语义已保真。迁移验收应覆盖留出月份和边界计算，媒体报道与公开仓库都没有给出可外推的迁移成功率。",
+    "Kinference的95%首字收益依赖共享前缀；无共享前缀对照没有显著中位收益。路由、回答质量和合格任务成本必须分开量，不能把低延迟直接折成商业回报。",
+    "DRCF声明确认的是英国监管立场，不是新认证。授权、执行与救济应能逐笔关联；记录齐全也不自动证明授权充分或适用法律已经满足。"
+  ],
+  "contrarian": "容易接受的主张是“治理越集中，代理越可以全面放权”。本期资料支持一个更窄的反向判断：在动作边界不清、产物缺少业务对照时，集中控制首先可能只是集中制造确定感。来源事实是Uber承认新攻击防御仍不确定，Dataiku没有公开迁移成效对照，Kinference的对照负载也并非普遍提速。编辑判断：只有明确动作范围、可检查结果且人工能及时接管时，控制平面才适合支持扩权；否则先缩小流程。若独立、多团队、长期测试证明在同等严重错误上限下，广泛自治持续降低复核负担与总成本，并保持有效申诉，这一判断就应被推翻。",
+  "items": [
+    {
+      "title": "Uber：权限合法，也可能不是用户要的动作",
+      "type": "生产工程自述＋运行时安全架构",
+      "source": "2026年11月6日｜Uber Engineering",
+      "url": "https://www.uber.com/gb/en/blog/securing-ai-agents/",
+      "relatedLinks": [],
+      "summary": "Uber披露代理安全架构，把传统的身份与资源授权继续向前推进一步：即使用户有权调用工具，某个动作仍可能不符合当前请求。框架围绕代理允许的意图、上下文与执行记录检查行为，而不只识别已知攻击文本。值得关注的具体问题是，工单中的外部内容能否诱导一个合法账户做错事。编辑判断：这不是用语义分类器替代权限系统，而是为已获权限的动作增加目的核验；适合先在少数高风险写入工具前验证，不能据此认为通用代理已经安全。",
+      "design": "来源描述注册表保存代理身份与行为契约，决策服务判断交互，运行时钩子在执行前落实结果；本地小模型可并行运行，部分语义匹配使用内存向量检索，追踪记录支持回放。身份授权仍是独立边界。编辑建议的最小流程是输入原始工单、用户请求及拟执行参数，只允许预先列出的修改类型；敏感写入交给业务负责人确认，拒绝结果进入待处理队列。来源没有公开低置信阈值、决策服务超时是否默认拒绝、重试幂等性及人工接管时限，不能把这些建议写成现网保证。",
+      "evidence": "证据等级：B，企业一手工程自述，缺少独立效果验证。确认事实是文章披露了分层控制、影子运行及回放校准的方法；厂商主张是这些措施降低风险，但作者也明确没有消除风险，对新型操纵的效果更不确定。本次未找到公开攻击集、测试样本量、误拦与漏放率、额外时延或生产观察周期，因而不能比较其与商业防护产品的优劣。编辑推断：窄意图约束可能比不断补攻击关键词更易验收，但前提是业务能完整描述允许的动作。只回放已发生流量会漏掉未见攻击，员工绕过控制与人工积压也可能让表面安全率变好；扩量前应把这些未观测项列为未知，而非零风险。",
+      "idea": "给内部工单管理员做一个“改标签前核验器”，最小范围仅含三类标签变更，不开放删除与外发。业务人员标注正常请求及夹带指令的测试单，所有拒绝由人工复核。验收同时记录错误放行、正常单误拦、每次核验时延和人工处理分钟数，再决定是否增加动作种类。",
+      "image": {
+        "src": "/cases/selective-autonomy.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "Dataiku Headless：迁移完成，应交回可核对的数据流",
+      "type": "产品公告＋开源实现说明＋独立媒体解读",
+      "source": "2026年10月27日｜Dataiku；11月4日｜AIwire；仓库于11月8日核读",
+      "url": "https://www.dataiku.com/company/news/dataiku-introduces-headless",
+      "relatedLinks": [
+        {
+          "label": "开源仓库",
+          "url": "https://github.com/dataiku/dataiku-headless"
+        },
+        {
+          "label": "能力边界",
+          "url": "https://github.com/dataiku/dataiku-headless/blob/main/docs/capabilities.md"
+        },
+        {
+          "label": "媒体解读",
+          "url": "https://www.hpcwire.com/aiwire/2026/11/04/dataiku-headless-tackles-a-growing-problem-with-ai-coding-agents/"
+        }
+      ],
+      "summary": "Dataiku让编码代理通过工具接口操作受治理的数据项目，旧电子表格迁移是一个具体切口：交付物不再只是本地脚本，而是团队可以检查的数据流和资产。这里补入此前未覆盖的原公告，不把媒体近日解读当作功能新发布。编辑判断：真正值得试验的是迁移后能否逐项核对原报表口径，并让其他非编写者持续检查维护。连通编码助手与平台只解决入口问题；公式语义、缺失值、日期边界及刷新结果仍需要业务人员验收，不能由“成功创建项目”替代。",
+      "design": "仓库说明，外部代理检查项目上下文，把项目级创建和修改主要交给保留会话的内部构建代理；接口另有少量既有资产执行等直接动作。本地模式在服务端解析个人密钥，不把密钥作为工具参数。编辑建议用脱敏工作簿作输入，模型解释转换意图，规则核对行数、汇总及边界案例；仅向隔离测试项目写入，人工批准后才切换正式报表。来源未证明每次修改均有独立人工审批，也未完整披露跨步骤事务回滚。遇到不明公式或超时应停止发布、核对作业状态后恢复，这是建议的试点边界，不是厂商承诺。",
+      "evidence": "证据等级：B，公告和可检查仓库支持机制存在，不支持迁移收益结论。确认事实是有公开接口与能力说明；厂商主张其可将旧工作流重建为平台项目并节省工作。独立媒体也讨论了这一用途，但未提供客户对照实验，并指出大型复杂迁移仍待客户测试，因此不构成独立性能背书。没有公开迁移样本数、公式等价率、缺陷严重度、后续维护周期或总成本。本次未安装工具、未连接客户实例，也未运行迁移。编辑推断：可视化产物有助复核，却可能只是把错误公式包装得更整齐；若只选规则简单的工作簿，会高估成功率。还应检查凭据保存和权限范围，接口不接收密钥参数并不等于本机凭据不会泄露。",
+      "idea": "为月报维护者迁移一份脱敏销售工作簿，最小范围仅含导入、三项聚合和一张结果表，不自动修改调度或管理员设置。财务人员逐条确认计算口径及跨月边界；用留出的历史月份比较单元格差异、人工修正次数、首次迁移工时和第二次刷新工时，保留原流程作为回退。",
+      "image": {
+        "src": "/cases/erp-schema-selector.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "Kinference：首字快了95%，先看请求是否共享前缀",
+      "type": "开源控制平面＋厂商受控基准＋配置文档",
+      "source": "2026年11月4日｜Buoyant 公告与基准；文档于11月8日核读",
+      "url": "https://www.buoyant.io/newsroom/buoyant-announces-kinference-an-open-source-inference-serving-platform-for-kubernetes",
+      "relatedLinks": [
+        {
+          "label": "基准方法与结果",
+          "url": "https://www.buoyant.io/blog/distributed-inference-benchmarks-kinference-vs-plain-kubernetes"
+        },
+        {
+          "label": "配置文档",
+          "url": "https://kinference.ai/"
+        },
+        {
+          "label": "代码仓库",
+          "url": "https://github.com/Kinference-AI/kinference"
+        }
+      ],
+      "summary": "Kinference在推理副本前增加缓存感知路由：优先考虑已缓存相同提示前缀且队列较短的后端。Buoyant报告，共享前缀负载的首字延迟中位数下降约百分之九十五，但无共享前缀对照组的中位数没有显著差异。具体业务切口是许多任务反复携带同一操作规范或长文档，而不是所有请求都天然受益。编辑判断：采购更多算力之前，可以先检查实际重复前缀占比和现有路由方式；不过缓存命中是运行效率指标，不是答案正确率，也没有直接证明企业总成本下降。",
+      "design": "请求进入统一推理端点后，声明式策略结合租户、模型与后端状态选路，缓存与队列信息用于预测首字时间，实际生成仍由推理引擎完成；文档也给出限制用量和按条件转向云端的能力。平台管理员应决定可用模型与外发边界，租户标签本身不应被当作已完成鉴权。编辑建议先固定模型、禁用外部回退，只比较路由；超时返回明确失败并保留请求标识，人工审核后重放，避免重复下游写入。文档未在本次材料中证明敏感信息分类零漏检，也没有给出适用于所有业务的超时恢复及人工接管策略。",
+      "evidence": "证据等级：B，厂商对照实验，非独立复现。两组各三块L40S、同模型，轻载每条件三次、测量240秒；共享前缀各122请求，首字中位6.88→0.31秒，端到端20.5→11.3秒；无共享前缀为6.92→6.83秒，无显著中位收益。容量实验的峰值合格吞吐为约7.4倍及3.5倍，依赖预选时延目标，不是质量合格率。确认的是作者报告的方法与结果，本次未复跑；公告称正式可用，但文档当前版本仍标alpha，应核对所用版本。编辑判断：长前缀、特定硬件和随机分配基线有利于显示差距，不能外推到短请求、其他调度器或总拥有成本；还缺答案质量、长期故障与实际账单对照。短时实验也无法反映重启后缓存重建和跨租户争用的持续影响。",
+      "idea": "给已有私有推理集群的平台团队做一次脱敏请求回放，只比较同模型的默认路由与缓存感知路由，不更换硬件。分别保留共享前缀与独立提示两类样本，由人工检查回答质量；量化首字及端到端分位数、超时率、合格任务每小时成本，并在无收益时保留原路由。",
+      "image": {
+        "src": "/cases/cisco-myagent.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "英国 DRCF：代理代办，授权和申诉不能只留在聊天里",
+      "type": "监管联合声明＋独立新闻核对",
+      "source": "2026年10月30日｜DRCF 四家英国监管机构；11月6日｜CIO 报道",
+      "url": "https://www.drcf.org.uk/publications/joint-statements/joint-statement-on-protecting-people-and-businesses-in-an-agentic-economy",
+      "relatedLinks": [
+        {
+          "label": "完整声明PDF",
+          "url": "https://www.drcf.org.uk/siteassets/drcf/pdf-files/drcf-joint-statement-protecting-people-and-businesses-in-and-agentic-economy.pdf"
+        },
+        {
+          "label": "后续报道",
+          "url": "https://www.cio.com/article/4245762/enterprises-must-take-blame-for-their-ai-agents-mistakes-say-regulators.html"
+        }
+      ],
+      "summary": "英国数字监管合作论坛的四家成员机构提醒，个人代理代表用户购物或沟通时，现有适用法律仍然有效，自治不会削弱部署组织的责任。原文还要求企业认真考虑用户如何理解代理行为、如何授权，以及出错后怎样获得救济。这里补入未覆盖的监管原文，并纠正后续报道容易造成的日期错觉：这不是十一月新颁的代理法。编辑判断：对小型代办项目，最直接的设计问题是能否重建一笔操作的授权、实际执行和申诉路径，而不是先增加一个泛化的合规评分。",
+      "design": "声明并非参考实现，没有指定模型、检索组件、审批界面或失败恢复协议。编辑建议的低风险代办流程是输入用户目标和额度，检索允许的服务条款与商品信息，模型只拟定选项，规则限制对象和金额；执行工具使用限定身份，写入前展示最终对象及费用并由用户确认。确认记录必须绑定动作版本，信息变化后重新审批。输出同时写入订单核对与客服工单；超时先查实际订单，不盲目重试，争议由人工接手并提供撤销或申诉入口。这些是从责任问题推导的工程方案，不是声明规定的唯一技术做法。",
+      "evidence": "证据等级：A，监管原始文本可核验其立场；不是系统安全或法律适用结论的效果证据。确认事实是竞争、金融、信息与通信四家机构联合说明既有框架适用于个人代理，并关注授权、数据使用、商业利益披露与救济；独立报道确认这一表态，没有提供新执法案件。不存在可比较的模型样本量、错误率或节省成本数据，不能把权威性转译为某项实现已经合规。厂商效果主张在此不适用。编辑推断：授权回执有助问责，但不保证授权本身充分、消费者真正理解或申诉有效。文本聚焦英国个人代理，不能直接当作其他司法辖区或所有企业内部代理的法律规则；具体产品仍需结合业务及适用法规审查。",
+      "idea": "面向客服运营做一个模拟代购“授权回执”原型，仅处理虚拟商品，不付款、不发真实订单。用户确认具体对象、价格上限及有效期，客服人员处理撤回和信息变更。用情景测试测量授权与执行版本一致率、超时重复下单数、用户理解正确率和申诉定位时间。",
+      "image": {
+        "src": "/cases/nist-agent-identity.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "工单动作与授权对账器",
+      "description": "目标用户是内部客服和安全负责人；最小范围是三类标签变更及其授权记录，不开放删除外发。人工标注允许意图、复核所有拒绝和抽样放行。用留出工单验证错误放行率、正常单误拦率、授权版本一致率及每百单审核分钟数；达标后才考虑新增动作。",
+      "tags": [
+        "判定标准",
+        "人工复核"
+      ]
+    },
+    {
+      "title": "月报迁移双轨验收台",
+      "description": "目标用户是报表维护者和财务复核人；最小范围为一份脱敏工作簿、三项聚合及一次定时刷新模拟，不替换生产调度。人工冻结计算口径、处理不明公式并批准切换。以留出月份的数值差异、严重缺陷数、首次与再次运行工时以及回退耗时衡量收益，不以生成资产数量验收。",
+      "tags": [
+        "证据利用",
+        "留出评测"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue asks who verifies outcomes after an action is authorized. Four previously uncovered sources were selected after expanding the search to the past seven days and adding Dataiku's October 27 announcement and the UK's October 30 regulatory statement. Subsequent reporting on November 4 and 6 is not a new product launch or new legislation. Behavioral constraints, inspectable artifacts, routing experiments and accountability records each address a different stage; open source, availability and authorization do not demonstrate commercial returns.\n\nThese sources are not mutual endorsements of effectiveness. They define four separate acceptance gates: alignment with intent, preservation of business semantics, optimization under local workloads, and accountability along actual actions. A reusable unit is a record linking the original request, permitted scope, artifact version, execution outcome and human disposition. Include unknowns, failures and rework in the denominator, and report safety, quality, performance and business costs separately.",
+      "takeaways": [
+        "Uber's additional check concerns why an action is taken, not merely whether the account can access a resource. With no published false-block or false-allow rates, test legitimate and injected tickets together instead of counting blocks alone.",
+        "Dataiku offers an inspectable flow, not proof that a legacy report's semantics are preserved. Acceptance should cover held-out months and edge calculations; neither media reporting nor a public repository provides a generalizable migration success rate.",
+        "Kinference's 95% first-token improvement depends on shared prefixes; the no-sharing control showed no significant median benefit. Measure routing, answer quality and cost per qualified task separately instead of treating latency as business return.",
+        "The DRCF statement confirms a UK regulatory position, not a new certification. Link authorization, execution and redress transaction by transaction; complete records do not establish sufficient consent or legal compliance."
+      ],
+      "contrarian": "The tempting mainstream claim is that centralized governance permits broad delegation to agents. A narrower contrary judgment is that, without clear action boundaries and business-level artifact checks, a control plane may simply centralize false certainty. Uber acknowledges uncertainty against new attacks; Dataiku publishes no controlled migration outcome evidence; Kinference's control workload does not universally speed up. Editorial judgment: expansion is justified only with explicit scope, inspectable outcomes and timely human takeover; otherwise narrow the workflow first. Independent, multi-team, long-term evidence showing that broad autonomy consistently reduces review burden and total cost at the same severe-error ceiling, while preserving effective redress, would overturn this view.",
+      "items": [
+        {
+          "title": "Uber: Valid permissions can still permit the wrong action",
+          "type": "Production engineering account + runtime security architecture",
+          "source": "November 6, 2026 | Uber Engineering",
+          "summary": "Uber describes an agent security architecture that adds a check beyond identity and resource authorization: a tool action may be inconsistent with the current request even when the user has access. The framework checks permitted intents, context and execution records rather than only matching known attack text. The concrete concern is an external ticket instruction steering a legitimate account into an unintended act. Editorial judgment: a semantic classifier supplements, rather than replaces, authorization. Test it before a few high-risk write tools; the account does not establish general agent safety.",
+          "design": "The source describes a registry holding agent identity and behavioral contracts, a decision service judging interactions, and runtime hooks enforcing decisions before execution. Local small models can run in parallel, some semantic matching uses in-memory vector retrieval, and traces support replay. Identity authorization remains a separate boundary. Proposed pilot: take the original ticket, request and proposed parameters; allow only enumerated changes; require the business owner to approve sensitive writes; queue denials for review. The source does not disclose low-confidence thresholds, fail-closed behavior on decision-service timeouts, retry idempotency or takeover deadlines. These are pilot recommendations, not production guarantees.",
+          "evidence": "Evidence grade B: a first-party engineering account without independent outcome validation. Confirmed publication content includes layered controls, shadow deployment and replay calibration. The company's claim is risk reduction; its authors explicitly acknowledge residual risk and less predictable effectiveness against novel manipulation. No public attack set, sample size, false-block/false-allow rates, added latency or observation period was found in this review. Comparison with commercial defenses is therefore unsupported. Editorial inference: narrow intent constraints may be easier to validate than growing keyword lists, provided permitted actions can be specified completely. Replaying observed traffic misses unseen attacks; bypasses and review backlogs can make apparent safety improve. Treat these gaps as unknown, not zero risk.",
+          "idea": "Build a pre-change label checker for internal ticket administrators, limited to three label-change types with no deletion or external sending. Business staff label legitimate and injected test tickets and review every denial. Measure false allows, legitimate-ticket false blocks, check latency and human review minutes before adding action types.",
+          "relatedLinks": [],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "Dataiku Headless: A migration should return a flow that can be reconciled",
+          "type": "Product announcement + open source implementation documentation + independent media analysis",
+          "source": "October 27, 2026 | Dataiku; November 4 | AIwire; repository reviewed November 8",
+          "summary": "Dataiku lets coding agents operate governed data projects through tools. Legacy spreadsheet migration is a concrete use case: the output is an inspectable team flow and assets rather than just a local script. This adds a previously uncovered original announcement; recent media analysis is not a new feature launch. Editorial judgment: test whether the migrated flow can be reconciled against original reporting definitions and maintained by people other than its author. Connecting an assistant to a platform solves entry, not formula semantics, missing values, date boundaries or refresh correctness. Business review remains necessary; successful project creation is not acceptance.",
+          "design": "Repository documentation routes project-level creation and modification mainly through an internal builder with a retained conversation, while exposing a few direct actions such as execution of existing assets. Local mode resolves personal credentials server-side rather than passing keys in tool arguments. Proposed pilot: use a de-identified workbook, let the model explain transformations, and use rules to check row counts, totals and edge cases. Write only to an isolated test project and require human approval before switching the live report. The sources do not establish independent approval for every change or complete multi-step transactional rollback. Stop publication on unknown formulas or timeouts, inspect job state, then recover. This is a recommended boundary, not a vendor guarantee.",
+          "evidence": "Evidence grade B: an announcement and inspectable repository support the existence of mechanisms, not migration benefits. Public interfaces and capability documentation are confirmed. The vendor claims legacy workflows can be rebuilt as platform projects with labor savings. Independent media discusses the use case but provides no customer-controlled experiment and says larger complex migrations still need customer testing; it is not independent performance validation. No sample count, formula-equivalence rate, defect severity breakdown, maintenance follow-up or total cost is public. This review neither installed the tool nor connected to a customer instance or ran a migration. Editorial inference: visual artifacts aid review but can merely package incorrect formulas neatly. Simple-workbook selection overestimates success. Review credential storage and permissions: excluding keys from tool arguments does not make local credentials immune to leakage.",
+          "idea": "Migrate one de-identified sales workbook for monthly-report maintainers, limited to import, three aggregates and one result table, with no scheduler or administrator changes. Finance staff confirm definitions and month boundaries. Use held-out historical months to compare cell differences, manual corrections, initial migration hours and second-refresh hours; keep the original workflow as rollback.",
+          "relatedLinks": [
+            {
+              "label": "Open source repository"
+            },
+            {
+              "label": "Capability boundaries"
+            },
+            {
+              "label": "Independent media analysis"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "Kinference: A 95% faster first token depends on shared prefixes",
+          "type": "Open source control plane + vendor controlled benchmark + configuration documentation",
+          "source": "November 4, 2026 | Buoyant announcement and benchmark; documentation reviewed November 8",
+          "summary": "Kinference adds cache-aware routing ahead of inference replicas, favoring backends with matching cached prompt prefixes and shorter queues. Buoyant reports about a 95% reduction in median time to first token on shared-prefix traffic, but no significant median difference on the no-sharing control. The practical niche is tasks repeatedly carrying the same operating procedure or long document, not universal improvement. Editorial judgment: inspect actual prefix reuse and routing before buying more compute. Cache hits measure operating efficiency, not answer accuracy, and do not directly prove lower enterprise total cost.",
+          "design": "Requests enter a unified inference endpoint. Declarative policy uses tenant, model and backend state to route; cache and queue information predict first-token time, while the inference engine still generates answers. Documentation includes usage limits and conditional cloud routing. Platform administrators should define model access and external-transfer boundaries; tenant labels alone are not proof of authentication. Proposed pilot: fix the model, disable external fallback and compare routing only. Return explicit timeout failures with request IDs, review before replay and prevent duplicate downstream writes. These materials do not demonstrate zero false negatives in sensitive-data classification or universal timeout recovery and human takeover policies.",
+          "evidence": "Evidence grade B: a vendor-controlled experiment, not independent reproduction. Each arm used three L40S GPUs and the same model; light-load conditions had three trials and 240-second measurement windows. Shared-prefix traffic had 122 requests per arm: median first-token time fell from 6.88 to 0.31 seconds and end-to-end from 20.5 to 11.3 seconds. No-sharing medians were 6.92 versus 6.83 seconds, with no significant benefit. Peak SLO-qualified throughput ratios of about 7.4× and 3.5× in capacity tests depend on selected latency objectives, not answer quality. These are author-reported methods and results; this review did not rerun them. The announcement says generally available while current documentation still labels the version alpha: verify the exact version. Long prefixes, chosen hardware and random-assignment baselines favor visible gains. Results do not establish short-request performance, superiority to other schedulers or total ownership cost. Answer quality, long-term faults, actual bills, restart cache rebuilding and sustained cross-tenant contention remain unmeasured.",
+          "idea": "For a platform team with a private inference cluster, replay de-identified requests against default and cache-aware routing using the same model and hardware. Retain shared-prefix and independent-prompt groups; humans check answer quality. Measure first-token and end-to-end percentiles, timeout rates and hourly cost per qualified task. Keep the original route if there is no benefit.",
+          "relatedLinks": [
+            {
+              "label": "Benchmark methods and results"
+            },
+            {
+              "label": "Configuration documentation"
+            },
+            {
+              "label": "Source repository"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "UK DRCF: Delegated actions need authorization and redress beyond chat",
+          "type": "Joint regulatory statement + independent news cross-check",
+          "source": "October 30, 2026 | Four DRCF UK regulators; November 6 | CIO reporting",
+          "summary": "Four UK Digital Regulation Cooperation Forum members state that existing applicable law continues to govern personal agents acting for users in purchases or communications; autonomy does not reduce deploying organizations' responsibilities. Firms should consider how users understand actions, grant authority and obtain redress. This adds previously uncovered regulatory text and corrects a date trap in later coverage: it is not a new agent law enacted in November. Editorial judgment: a small delegated-service project should reconstruct each action's authorization, actual execution and complaint path before adding a generic compliance score.",
+          "design": "The statement is not a reference implementation and specifies no model, retrieval component, approval interface or recovery protocol. Proposed low-risk workflow: take a user goal and spending limit, retrieve permitted terms and product information, let a model propose options, and use rules to constrain counterparties and amounts. Execution tools use scoped identities; show the final object and cost for user approval before writing. Bind approval to the action version and reapprove changed information. Record outputs for order reconciliation and customer support. On timeout, check actual order state instead of blindly retrying. Humans handle disputes, cancellation and redress. These are engineering proposals inferred from accountability concerns, not the statement's sole required implementation.",
+          "evidence": "Evidence grade A: primary regulatory text verifies the regulators' position, not system safety or a product-specific legal conclusion. Competition, financial, information and communications regulators jointly discuss existing frameworks for personal agents and authorization, data use, commercial interests and redress. Independent reporting confirms the position but supplies no new enforcement case. There is no model sample, error rate or cost saving to compare; authoritative provenance does not certify an implementation. Vendor performance claims are inapplicable. Editorial inference: authorization receipts help accountability but do not ensure sufficient authority, genuine consumer understanding or effective complaints. The text concerns UK personal agents and cannot be treated directly as rules for other jurisdictions or every internal enterprise agent. Product-specific review must consider its business and applicable law.",
+          "idea": "Build a simulated purchase authorization-receipt prototype for customer support, limited to virtual items, with no payment or real order. Users approve the exact item, price ceiling and validity period; staff handle withdrawal and changed information. Scenario tests measure approval/execution version consistency, duplicate orders after timeouts, user comprehension and complaint-tracing time.",
+          "relatedLinks": [
+            {
+              "label": "Full statement PDF"
+            },
+            {
+              "label": "Subsequent reporting"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Ticket action and authorization reconciler",
+          "description": "For internal customer support and security owners. Limit the pilot to three label-change types and their authorization records, without deletion or external sending. Humans label permitted intents, review every denial and sample approvals. Validate false allows, legitimate-ticket false blocks, authorization-version consistency and review minutes per hundred held-out tickets before expanding scope.",
+          "tags": [
+            "Acceptance criteria",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Dual-track monthly-report migration acceptance desk",
+          "description": "For report maintainers and finance reviewers. Use one de-identified workbook, three aggregates and one simulated scheduled refresh; do not replace production scheduling. Humans freeze definitions, resolve unknown formulas and approve cutover. Evaluate held-out-month numerical differences, severe defects, initial and repeat-run hours and rollback time, not generated asset counts.",
+          "tags": [
+            "Evidence use",
+            "Held-out evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "dbad5678b78bf002"
+}
