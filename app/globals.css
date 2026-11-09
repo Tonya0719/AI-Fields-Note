@@ -142,7 +142,7 @@ footer>a{display:inline-flex;align-items:center;min-height:44px;font-size:14px}
 .case-body.has-visual .story-tabs{align-self:start;justify-content:flex-start}
 .case-heading>div,.story-main,.project-card,.archive-entry-title{min-width:0}
 .case-heading h3,.case-heading small,.story-copy,.project-card h3,.project-card p,.archive-entry-title,.related-sources a{overflow-wrap:anywhere}
-.section-title{align-items:start}
+.statement,.section-title,.case-heading,.archive-entry{align-items:start}
 .section-title p{align-self:start}
 @media(min-width:1181px){.hero-title{position:sticky;top:0}.case-body.has-visual .story-tabs{position:sticky;top:24px}}
 @media(max-width:1180px){.hero-title{min-height:440px}.hero-judgement h2{max-width:38em}}
