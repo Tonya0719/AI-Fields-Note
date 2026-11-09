@@ -147,3 +147,7 @@ footer>a{display:inline-flex;align-items:center;min-height:44px;font-size:14px}
 @media(min-width:1181px){.hero-title{position:sticky;top:0}.case-body.has-visual .story-tabs{position:sticky;top:24px}}
 @media(max-width:1180px){.hero-title{min-height:440px}.hero-judgement h2{max-width:38em}}
 @media(max-width:600px){.hero-title{min-height:360px}.hero-judgement h2{font-size:24px}.case-body.has-visual .story-tabs{justify-content:center}}
+
+/* The editor's note is long-form reading, not a display headline. */
+.statement blockquote{max-width:900px;font-size:clamp(20px,1.35vw,24px);font-weight:500;line-height:1.9;letter-spacing:0;text-wrap:pretty;overflow-wrap:anywhere}
+@media(max-width:600px){.statement blockquote{font-size:19px;line-height:1.9;text-align:left}}
