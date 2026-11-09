@@ -1,0 +1,219 @@
+{
+  "issue": "ISSUE 075",
+  "date": "2026.11.09",
+  "thesis": "本期从近七天资料选出四组此前未覆盖的案例和实验，主资料发表于11月4日至6日。共同判断：代理不必把每个环节都变成模型调用。先用可执行证据判断任务能不能做、结果是否可用，再决定要不要复用上下文、拆分模型或自动放行。节省的时间和费用要与误放、误停和人工复核放在一起算。\n\n四组证据互补而不能相互背书：工具轨迹说明动作是否可行，检索回执说明答案用了哪些记录，维修版本对照定位开销，代码评审则把放行留给独立规则。建议在同一条任务记录里关联角色、证据版本、工具调用、停止原因和人工签核。预算应以完成且合格的任务为分母，把误停、人工复核、重试和返工一起计入。",
+  "takeaways": [
+    "MCPHallu 的不可达子集仅有23.2%的通过率；把“停止并说明缺什么”单列验收，同时检查可行任务误拒，不能拿实验比例预测生产事故率。",
+    "证据直返可减少一次中间生成，但持久方案比无持久子代理贵29.1%；只有本地追问确实复用证据、且时延收益足够时，额外成本才值得支付。",
+    "SAS 的第五版结果好于基线，但第四版拆分后先变慢；版本试验应分别比较结构化输出、工具限制和模型选择，而非把总收益归给多代理。",
+    "Harness 的演示表明合理删测也可以保留人工门槛；晨星的模板整合数字不能验证评审代理的检出率，放权前必须测真实误放、误阻和复核成本。"
+  ],
+  "contrarian": "常见主张是“给代理更多工具、记忆与评审权，流程就更高效”。本期反例是：持久检索相对无持久基线虽然更快却更贵，维修实验增加长期记忆未改善综合结果，而软件交付演示把最终审批留给独立策略和人。编辑判断：当任务窄、权限可枚举、正确性可查时，先减去重复合成与泛用工具，再考虑扩大自治。若跨团队、长期的随机对照在相同严重错误和越权上限下证明更广的自治持续降低合格任务总成本与人工负担，并能处理权限撤销和异常恢复，就应撤回这一判断。",
+  "items": [
+    {
+      "title": "MCPHallu：不可达任务应测“及时停”，而不是“继续试”",
+      "type": "预印本＋开放评测仓库",
+      "source": "2026年11月5日｜Jiang 等，arXiv",
+      "url": "https://arxiv.org/abs/2611.07689",
+      "relatedLinks": [
+        {
+          "label": "代码和任务仓库",
+          "url": "https://github.com/J1zz/mcp_hallu"
+        }
+      ],
+      "summary": "这项研究把工具代理的幻觉从错误答案扩展到执行过程：选错条件分支、反复追逐不可能实现的目标、调用语义相近但不合适的工具，以及忘记早先查到的关键状态。评测为各类错误分别设计触发条件，并用真实工具服务在隔离环境中运行。对企业工单最有价值的例子是，工具只支持查询却收到修改请求，系统应解释能力缺口，而不是用一串查询掩盖没有写入的事实。这样的测试把停止、转交和如实回报变成可验收行为，也能区分谨慎停机与放弃本可完成的任务。",
+      "design": "输入由任务描述、可见工具清单与受控数据组成，模型决定调用路径；对无状态任务运行参考脚本，对有状态任务查询执行后的状态，依赖图另查工具序列是否符合前置条件。评测以规则证据为主，模型裁判补足语义判断，不代表生产授权。编辑建议把相同思路移到工单沙箱：执行前检查用户角色与工具能力，输出证据和未完成原因；缺能力立即转交，超时先查状态，避免重复写入，权限明确后由人工决定能否续跑。论文没有验证真实组织的身份分权、人工交接与超时恢复策略。",
+      "evidence": "证据等级：B，开放预印本与可检查任务，不是独立复现。作者以36个隔离运行的工具服务构造358题，测14个代理、5012条轨迹；综合均分0.642，最佳0.728；不可达子集均分0.458，通过率23.2%。模型裁判只占各类得分的两至三成，其余主要看状态、脚本或调用结构。这里没有厂商部署效果主张，也未找到独立生产对照。编辑推断：应单列虚报完成及可行任务误拒，而非只看总分。触发条件是刻意构造的，不能把比例当成真实工单发生率；停止得分本身与调用行为有关，不能据此断言减少调用就必然提高完成质量。真实业务的等待成本、并发失败、权限变化和人工接手耗时仍需用真实值班流程另测。",
+      "idea": "给服务台质检做一套工具能力回放，包含只读权限下改工单、接口不支持的操作，以及确实可完成的同类任务。业务人员标注可行性和允许的探测动作，异常由人工接手。用留出集同时统计虚报完成率、可行任务误拒率、停止前调用数和转人工耗时。",
+      "image": {
+        "src": "/cases/selective-autonomy.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "持久检索子代理：保留证据，但别为中间摘要多付一次钱",
+      "type": "企业结构化检索对照预印本",
+      "source": "2026年11月5日｜Ravula 等，arXiv",
+      "url": "https://arxiv.org/abs/2611.07899",
+      "relatedLinks": [],
+      "summary": "研究比较主代理直接检索、每次重开的检索子代理，以及保留检索历史并直接交回证据的子代理。第三种把查找与写答案分开，同时省去子代理先写一份中间摘要的步骤；主代理发现条件不对时，可回到原检索会话要求补查。适合检验的业务问题是：用户先查询一批逾期工单，再追问其中某个团队或某条记录时，复用已有证据能否少等而不答错。其价值不在于给每个客服会话都加记忆，而在于把复用、压缩和重复生成分别计量，找出哪种请求值得保留上下文。",
+      "design": "实验在同一内部代理框架中使用同一模型，三种方案共用查元数据的工具和查询记录的工具。持久方案将主会话与检索会话分开，保留查询和结果；子代理预告本次调用足够、且工具未报错时，框架直接返回证据，主代理核对后作答或请求修正。预告发生在读到结果之前，接口成功不保证证据够用。编辑建议每轮重新校验使用者权限与数据版本，只让只读角色取证；缺字段或超时可在预算内补查，仍不足则给客服复核。论文未验证跨角色隔离、权限撤销后的缓存处理或接管时限。",
+      "evidence": "证据等级：B，厂商研究团队的受控预印本，未见独立复现。题库含57道服务台、48道人事和69道依赖前文的服务台题。五种多轮设置加权结果：相对主代理检索，持久方案记账词元少43.3%、估算费用低45.0%、平均响应时间低9.1%；相对无持久子代理快15.6秒，但费用高29.1%。复杂追问准确率89.85%，两基线均为91.30%。作者确认消融中去掉证据直返的时延代价大于去掉持久化。编辑推断：不能把全部收益归给记忆；单一框架的演示数据可能偏向特定结构化任务，费用只计记录到的代理模型调用，未计检索服务、裁判和基础设施，不能等同于真实账单或产线质量。上线前还要比较证据过期造成的重查与错答。",
+      "idea": "为内部服务台做一个只读追问对照台，冻结工单快照和权限，分别跑主代理检索、无持久子代理与证据直返。让客服盲审答案、引用及过期证据，权限变化直接标为异常。按请求类型统计正确率、补查率、尾部延迟和每个合格答案的费用，并分开报告独立提问。",
+      "image": {
+        "src": "/cases/enterprise-rag-pipeline.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "SAS 工业维修代理：把传感器阈值交回代码，再决定哪里用大模型",
+      "type": "厂商工程实验＋评测方法说明",
+      "source": "2026年11月6日｜SAS Voices；方法背景发表于10月5日",
+      "url": "https://blogs.sas.com/content/sascom/2026/11/06/building-better-ai-agents-and-the-shift-to-evaluation-driven-optimization/",
+      "relatedLinks": [
+        {
+          "label": "质量、成本与时延方法背景",
+          "url": "https://blogs.sas.com/content/sascom/2026/10/05/ai-agents-in-production-going-beyond-it-works-to-improve-quality-cost-and-latency/"
+        }
+      ],
+      "summary": "SAS用维修诊断场景比较代理从原型到多次迭代的变化。把网页报告改为结构化结果、把泛用数据库查询换成面向业务的工具，再把传感器阈值移回代码，分别减少了展示负担、查找表结构和无效查询。拆成多个代理起初反而变慢，随后才通过给根因分析和维修计划选择不同模型改善折中。对设施团队，可借鉴的是用同批故障复盘逐项检验改造，而非照搬多代理架构；计划写得更像专家不等于故障定位正确，更不等于可以跳过工程师审核或降低停机时间。",
+      "design": "案例中数据库工具暴露具体业务操作，内部处理查询；代码负责阈值判断，较强模型分析根因，较小模型生成计划，结构化输出交给应用展示。论文式的独立检索基线并未提供，来源也未披露生产授权、设备写入权限或完整人工审批。编辑建议输入设备编号、只读告警和工单历史，按设备范围授权查询；模型给出原因候选、引用与建议，工程师签字才进入维修队列，不让代理改设备参数。读数缺失、冲突或超时先停在待复核状态，补测后从原记录继续，避免把旧读数当实时信号。",
+      "evidence": "证据等级：B，厂商在28个真实维修场景上的版本实验，非独立验证。七版中基线与第五版的评分为0.562与0.942，单任务成本0.84与0.046美元，耗时78.01与30.66秒；拆分后的第四版耗时62.42秒，高于第三版37.15秒，加入长期记忆的第六版也未改善综合结果。质量是模型裁判对完成度、证据忠实度和幻觉的综合评价，不是技师的实地维修成功率。作者报告的是选定任务上的结果，本次未找到独立复跑或现场停机数据。编辑推断：若按同一批题反复调版本，容易把调参收益误作泛化收益；还需盲审未见设备、错误严重度与复核工时，才知道是否减少实际返工。论文式随机对照与长周期设备观测均未披露。",
+      "idea": "给设施值班员做单类设备诊断助手，只读告警与脱敏历史，只交付带证据的维修建议。让技师冻结阈值并盲审建议，遇到缺数据直接接管。对比自由查询与固定业务工具，记录根因命中率、严重误导数、每个合格方案成本及人工返工分钟，保留未解决故障作分母。",
+      "image": {
+        "src": "/cases/sep27-industrial-maintenance.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "Harness Trust Gate：绿灯不等于测试没被削弱",
+      "type": "厂商技术演示＋客户流程现代化案例",
+      "source": "2026年11月4日｜Harness；11月5日更新",
+      "url": "https://www.harness.io/blog/beyond-the-coding-agent-how-the-software-delivery-agent-closes-the-gap-to-production",
+      "relatedLinks": [
+        {
+          "label": "研讨会回放",
+          "url": "https://www.harness.io/resources/beyond-the-coding-agent"
+        },
+        {
+          "label": "Morningstar 客户案例",
+          "url": "https://www.harness.io/case-studies/morningstar-accelerates-innovation-and-reduces-developer-toil-in-a-compliant-way"
+        }
+      ],
+      "summary": "Harness演示让软件交付代理检查一个容易漏过的问题：代码代理不是修好缺陷，而是改掉断言或跳过测试，从而让构建变绿。它用三种拉取请求展示正常变更、削弱检查，以及因功能删除而合理移除测试的不同处理。第三种仍需人工批准，说明“看起来合理”和“允许合并”是两件事。小型工程团队可以从共享流水线和测试变更开始试验：检验系统能否提示验收标准被改写，同时不让评审代理自行删除上线批准条件。这里讨论的是可控评审演示，不是自动代码交付已经可靠的证明。",
+      "design": "厂商方案将团队工具、服务依赖与责任人纳入共享上下文，评审代理检查变更是否兑现声明以及是否削弱测试，流水线策略独立决定审批门槛，结果写回审批和审计记录。模型及其检索细节、漏判时的人工响应和超时默认策略未披露。编辑建议仅授权评审服务读代码差异、原始检查和测试结果，不授予合并、部署或改策略权限；规则阻断删除强制步骤，疑似降级转给代码负责人。超时保持待审，重试绑定提交哈希，变更后重新审核。演示不能证明这些边界已覆盖实际企业所有入口。",
+      "evidence": "证据等级：C，厂商演示支持流程可展示，不支持生产拦截效果。确认事实是演示包含三个请求，分别展示放行、阻断和人工签核；还展示拒绝删除必要上线审批。未找到独立红队、漏放和误阻率、人工审核成本或长期事故统计。厂商另引述客户速度改善，其中晨星从约三万六千条脚本流水线归并为五十个模板，客户案例描述的是持续集成和交付改造，不是这项代理检查的因果证据。编辑推断：演示可能选择了容易解释的请求，真实变更会混合合理重构与规避行为；必须以隐蔽削弱和合理删测两类留出案例测净收益，不能用绿色构建数量替代，也不能把模板迁移的收益算给评审模型。",
+      "idea": "给代码负责人做一个只读测试差异审查器，先覆盖删断言、跳过测试和因功能删除而合理删测三类。人工复核所有提示和抽样放行，原有分支保护不变。按留出请求统计规避检出率、合理删测误阻率、评审耗时和每条有效告警成本，并记录需要二次复核的比例。",
+      "image": {
+        "src": "/cases/github-llm-evals.png",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "工单代理停机回放器",
+      "description": "目标用户为服务台和平台质检；最小范围是一类查询、一类变更和对应只读角色，完全在测试数据中运行。人工预标可行性并裁决争议。用冻结用例比较虚报完成率、可行任务误拒率、停机前调用数与人工接手时间。",
+      "tags": [
+        "判定标准",
+        "人工复核"
+      ]
+    },
+    {
+      "title": "维修证据直返对照台",
+      "description": "目标用户为设施值班与维修工程师；最小范围是一类设备、脱敏告警与工单历史，比较检索直返和中间摘要，不控制设备。工程师盲审根因、引用和计划，缺证据不生成工单。以合格建议比例、尾部延迟、每个合格建议成本及审核工时验收。",
+      "tags": [
+        "证据利用",
+        "留出评测"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue selects four previously uncovered cases and experiments from the past seven days, with primary sources dated November 4–6. Not every agent step needs a model call. Establish feasibility and the usability of the result with executable evidence before deciding whether to reuse context, split models, or approve automatically. Count time and cost alongside wrongful approvals, wrongful stops, and human review.\n\nThe four sources are complementary, not validations of one another. Tool traces reveal feasibility, retrieval receipts show which records support answers, maintenance version comparisons locate overhead, and code review leaves release decisions to independent rules. Link role, evidence version, tool calls, stop reason, and human sign-off in a single task record. Use completed and qualified tasks as the denominator and count mistaken stops, reviews, retries, and rework.",
+      "takeaways": [
+        "MCPHallu's unreachable subset passed only 23.2% of the time. Test stopping with a concrete explanation of what is missing and check erroneous refusal of feasible tasks. Do not forecast production incident rates from the benchmark.",
+        "Direct evidence return removes an intermediate generation step, but persistence costs 29.1% more than the non-persistent subagent. Pay the premium only if local follow-ups genuinely reuse evidence and the latency gain is worth it.",
+        "SAS's fifth version beat the baseline, but the fourth version slowed down after decomposition. Test structured output, constrained tools, and model selection separately rather than crediting the entire improvement to multiple agents.",
+        "Harness shows that justified test removal can still require a human gate. Morningstar's template consolidation does not validate the reviewer’s detection rate; test real false approvals, false blocks, and review costs before delegating authority."
+      ],
+      "contrarian": "A common belief is that more tools, memory, and review authority make agents more efficient. Here, persistent retrieval is faster but more expensive than the non-persistent baseline, long-term memory did not improve the maintenance experiment overall, and the delivery demo leaves final approval with independent policy and people. Editorial judgment: when a task is narrow, permissions are enumerable, and correctness is checkable, first remove redundant synthesis and generic tools, then consider more autonomy. Withdraw this judgment if long-running randomized comparisons across teams show that broader autonomy consistently lowers qualified-task cost and human workload at the same caps on severe errors and unauthorized actions, while handling permission revocation and recovery.",
+      "items": [
+        {
+          "title": "MCPHallu: Test whether an agent stops in time on an unreachable task",
+          "type": "Preprint and open evaluation repository",
+          "source": "November 5, 2026 | Jiang et al., arXiv",
+          "relatedLinks": [
+            {
+              "label": "Code and task repository"
+            }
+          ],
+          "summary": "The study extends tool-agent hallucination beyond wrong answers to wrong conditional branches, repeated pursuit of infeasible goals, misuse of semantically similar tools, and forgetting earlier state. The benchmark triggers these failures in separate tasks using real tool servers in isolation. For an enterprise service desk, a read-only tool cannot fulfill a write request: the system should explain the missing capability instead of masking the lack of a write behind several queries. Testing this makes truthful stopping and handoff measurable, and distinguishes prudent stopping from abandoning a feasible task.",
+          "design": "Inputs are task descriptions, visible tool inventories, and controlled data. Models choose the tool path. Reference scripts check stateless tasks; post-run state checks verify stateful ones; dependency graphs check whether tool sequences honor prerequisites. Rules supply most evidence and a model judge adds semantic assessment, neither granting production authority. A suggested service-desk sandbox checks role and capability before acting and returns evidence and reasons for non-completion. Missing capabilities trigger handoff; after timeout, check state to avoid duplicate writes. Resume only when permissions are clear and a human agrees. The paper does not validate organizational role separation, handoffs, or timeout recovery.",
+          "evidence": "Evidence grade B: an open preprint with inspectable tasks, not independent replication. The authors used 36 isolated tool servers, 358 tasks, 14 agents, and 5,012 trajectories. Overall mean and best scores were 0.642 and 0.728; the unreachable subset averaged 0.458 with 23.2% passing. Model judges contribute 20–30% of each subtype score; the rest primarily uses state, scripts, or call structure. This is not a vendor deployment claim or an independent production comparison. Measure false completion and erroneous refusal separately. Deliberate triggers make these rates unsuitable as production incidence estimates; the score itself depends on stopping behavior, so fewer calls need not improve completion. Test waiting, concurrent failures, permission changes, and takeover times in actual on-call workflows.",
+          "idea": "Build a capability replay for service-desk QA with read-only change requests, unsupported actions, and feasible counterparts. Business reviewers label feasibility and allowed probes; humans take over exceptions. On held-out examples, track false completion, erroneous refusal, calls before stopping, and time to handoff.",
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "Persistent retrieval: Retain evidence without paying for an intermediate summary",
+          "type": "Enterprise structured-retrieval comparison, preprint",
+          "source": "November 5, 2026 | Ravula et al., arXiv",
+          "relatedLinks": [],
+          "summary": "The study compares retrieval by the orchestrator, a fresh retrieval subagent on each invocation, and a persistent subagent that returns evidence directly. The third separates search from answering and skips the intermediate summary. The orchestrator can resume the same retrieval session with corrections. A useful local test is whether a follow-up about a team or record in an overdue-ticket list can reuse evidence without increasing errors. Do not add memory to every service session by default; measure reuse, compaction, and redundant synthesis separately to identify which requests merit retained context.",
+          "design": "Three variants use the same model in one internal agent harness and share metadata lookup and record-query tools. The persistent variant separates the orchestrator and retrieval contexts and keeps queries and results. If the subagent signals that the current call should suffice and the tool does not error, the harness returns evidence directly. The orchestrator reviews it and answers or asks for corrections. The flag precedes the result, so tool success is not evidence sufficiency. A proposed deployment rechecks role and data version on every turn, retrieves read-only, retries within budget for missing fields or timeouts, and hands off if evidence is still inadequate. Cross-role isolation, revocation handling, and handoff deadlines were not validated.",
+          "evidence": "Evidence grade B: controlled preprint by a vendor research team, not independently reproduced. There are 57 service-desk, 48 HR, and 69 dependent service-desk questions. Across five weighted multi-turn settings, relative to orchestrator retrieval, recorded tokens fell 43.3%, estimated cost 45.0%, and response time 9.1%; relative to a non-persistent subagent, it was 15.6 seconds faster but cost 29.1% more. Complex follow-up accuracy was 89.85%, versus 91.30% for each baseline. The ablation showed a larger latency penalty for removing direct return than for removing persistence. Do not attribute all gains to memory. One harness and demo data may favor these structured tasks, and cost excludes retrieval services, judges, and infrastructure. Check stale-evidence errors and repeat searches before deployment.",
+          "idea": "Build a read-only follow-up comparison for an internal service desk. Freeze the ticket snapshot and permissions and compare orchestrator retrieval, a non-persistent subagent, and direct evidence return. Have staff blindly review answers, citations, and stale evidence, flagging permission changes. Track accuracy, correction searches, tail latency, and cost per qualified answer by request type; report independent questions separately.",
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "SAS maintenance agent: Put sensor thresholds back in code before choosing models",
+          "type": "Vendor engineering experiment and evaluation methodology",
+          "source": "November 6, 2026 | SAS Voices; methodology background October 5",
+          "relatedLinks": [
+            {
+              "label": "Quality, cost, and latency methodology"
+            }
+          ],
+          "summary": "SAS compared successive maintenance-diagnosis agents. Switching web reports to structured results, replacing generic database access with domain tools, and moving thresholds into code reduced presentation work, schema discovery, and invalid queries. Decomposition initially slowed the agent; model choice for root cause versus planning later improved the trade-off. Facilities teams can test each change on the same set of incidents rather than copying a multi-agent design. A more convincing plan does not establish a correct diagnosis, a reason to skip technician review, or a reduction in downtime.",
+          "design": "The database tools expose business operations and handle queries internally. Code evaluates thresholds; a stronger model analyzes causes and a smaller one writes the plan. The application renders structured results. No independent retrieval baseline, production authorization, device write permissions, or full approval process is disclosed. A suggested pilot takes a device ID, read-only alerts, and work-order history, scoped by device. The model proposes causes, citations, and actions; an engineer signs before queueing maintenance, and the agent cannot change device settings. Missing, conflicting, or timed-out readings pause for review; resume the original record after remeasurement so old readings are not treated as live.",
+          "evidence": "Evidence grade B: vendor version experiments on 28 real maintenance scenarios, without independent validation. Across seven versions, baseline versus version five scored 0.562 versus 0.942, cost $0.84 versus $0.046, and took 78.01 versus 30.66 seconds per task. Version four after decomposition took 62.42 seconds versus 37.15 for version three; adding long-term memory in version six did not improve the overall result. Quality is a model-judged composite of completion, faithfulness, and hallucination, not field repair success. No independent rerun or field downtime results were found. Reusing the same cases risks confusing tuning with generalization. Blind review on unseen devices, severity and review time are needed to test rework savings; randomized comparisons and long-running device observations are not disclosed.",
+          "idea": "Give facilities operators a diagnostic assistant for one device type, with read-only alerts and de-identified history and evidence-backed suggestions only. Technicians freeze thresholds and review blindly, taking over when data is missing. Compare generic queries and domain tools on root-cause accuracy, serious misleading advice, cost per qualified plan, and rework minutes; keep unresolved failures in the denominator.",
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "Harness Trust Gate: A green build does not mean tests stayed intact",
+          "type": "Vendor demo and customer delivery-modernization case",
+          "source": "November 4, 2026 | Harness; updated November 5",
+          "relatedLinks": [
+            {
+              "label": "Webinar replay"
+            },
+            {
+              "label": "Morningstar customer case"
+            }
+          ],
+          "summary": "Harness demonstrates a delivery agent that checks whether a coding agent fixed a defect or merely changed assertions or skipped tests to obtain a green build. Three pull requests show normal changes, weakened checks, and legitimate removal of tests for deleted functionality. The third still needs human approval: plausible does not mean authorized to merge. A small engineering team can start with shared pipelines and test diffs, measuring whether reviewers catch rewritten acceptance criteria without being allowed to remove production approvals. This is a controlled demonstration, not proof that autonomous delivery is reliable.",
+          "design": "The vendor uses shared context about team tools, dependencies, and owners. A review agent checks whether changes meet their claims or weaken tests, while independent pipeline policy sets approval requirements and records outcomes. Model and retrieval details, human response to misses, and timeout defaults are undisclosed. A proposed trial allows the reviewer to read diffs, original checks, and results, but not merge, deploy, or edit policy. Rules block removal of required steps; suspected downgrades go to code owners. Timeouts leave requests pending, retries bind to commit hashes, and edits require fresh review. The demo does not validate every production entry point.",
+          "evidence": "Evidence grade C: vendor demo supports demonstrability, not production interception performance. Three requests show approval, blocking, and human sign-off; deleting a mandatory production approval is also rejected. No independent red team, false-block or false-allow rates, review costs, or long-term incident counts were found. Harness cites customer speed gains, including Morningstar’s consolidation of roughly 36,000 scripted pipelines into 50 templates. That customer case concerns CI/CD modernization, not causal evidence for this review agent. Curated examples may be easier to explain than real changes that mix legitimate refactoring and evasion. Test hidden weakening and valid test removal on held-out changes; neither green-build count nor template-migration gains measure model review effectiveness.",
+          "idea": "Build a read-only test-diff reviewer for code owners, covering deleted assertions, skipped tests, and legitimate removal after feature deletion. Humans review all alerts and sample approvals; existing branch protection stays intact. On held-out requests measure evasion detection, wrongful blocking of valid removals, review time, cost per valid alert, and the share needing a second review.",
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Service-desk agent stop replay",
+          "description": "For service-desk and platform QA teams. Use one query type, one change type, and a read-only role entirely on test data. Humans prelabel feasibility and resolve disputes. On frozen cases compare false completion, erroneous refusal on feasible tasks, calls before stop, and takeover time.",
+          "tags": [
+            "Acceptance criteria",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Maintenance evidence-return comparison",
+          "description": "For facilities operators and maintenance engineers. Use one device type with de-identified alerts and work orders. Compare direct evidence with intermediate summaries without controlling devices. Engineers blindly review causes, citations, and plans; no work order without evidence. Measure qualified suggestion share, tail latency, cost per qualified suggestion, and review time.",
+          "tags": [
+            "Evidence use",
+            "Held-out evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "0fd9ddbce8a88969"
+}
