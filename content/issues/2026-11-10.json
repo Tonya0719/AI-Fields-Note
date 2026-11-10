@@ -1,0 +1,221 @@
+{
+  "issue": "ISSUE 076",
+  "date": "2026.11.10",
+  "thesis": "本期选择11月6日至9日发布的四组资料：客户入驻数据转换、记忆投毒、干预策略评估和红队验证。共同判断是，代理可以先把费时工作变成可检查的证据，但“模型给出答案”“评测提示成功”和“业务真正安全完成”是不同终点。优先记录每一步的真实分母、动作边界与人工处理成本。\n\n客户数据转换说明可复核交付物怎样进入实际流程；记忆研究显示旧证据也可能成为新风险；因果方法与红队基准分别检验“何时介入”和“是否真的越界”。四者不是互相证明有效的对照。建议为每个任务保留数据版本、角色、证据出处、拟执行动作、检查结果与人工处置，并把超时、未验证和返工计入业务指标。",
+  "takeaways": [
+    "Northern Trust的83%是包含人工审核等步骤的生产准备时间对比，96.5%则来自七个脱敏工作簿的首次测试；二者分母不同，不能合成单一线上准确率。",
+    "MemoryDojo把污染从写入追踪到后续会话，证明实验中的持久记忆风险值得单测；155条轨迹和五种系统不能代表企业真实攻击发生率。",
+    "随机化研究提示同一审核策略在不同动作上效果不同；筛选出的高收益节点仍需预先注册的新实验，且不应随机放行不可逆高风险动作。",
+    "GreyZone区分红队工具声称成功和检查器证实违规；两个演示案例不足以给四种工具排名，阴性结果也不是安全证明。"
+  ],
+  "contrarian": "常见主张是“更多审核和安全测试自然会让代理更可靠”。来源事实是干预研究发现不同节点效果不同、部分区间包含零；GreyZone说明未观察到违规不能证明安全；客户入驻的质量结果还受小样本限制。编辑判断：在审核容量有限时，增加无差别审批可能延迟业务而不改善结果，前提是先保留不可逆动作的硬性安全门槛。若独立、多组织随机试验显示广泛审核在相同等待与成本约束下持续降低严重错误，并能覆盖未知攻击，该判断就应修正。",
+  "items": [
+    {
+      "title": "Northern Trust：先转换历史交易，再让分析师验收入驻数据",
+      "type": "企业部署公告＋独立新闻报道",
+      "source": "2026年11月9日｜Northern Trust、Microsoft；CIO",
+      "url": "https://news.microsoft.com/source/2026/11/09/northern-trust-and-microsoft-frontier-company-collaborate-to-transform-client-onboarding-through-ai/",
+      "relatedLinks": [
+        {
+          "label": "新闻报道",
+          "url": "https://www.cio.com/article/4245961/northern-trust-streamlines-client-onboarding-with-ai-agent.html"
+        }
+      ],
+      "summary": "Northern Trust与Microsoft宣布在机构客户入驻中部署数据转换代理，将多年投资和交易历史整理成资产服务平台所需格式。分析师在客户正式上线前检查结果、解决例外并批准起始数据。公告称完整数据准备时间从约两周半缩短至三天，首次处理质量达到特定评测分数。这个案例值得关注的不是银行采用某个大模型，而是把难以统一的旧交易工作簿变成可复核的数据交付物。编辑判断：入驻是否更快仍须区分自动转换、人工修正及客户等待，不能把一个环节的结果直接当作全流程收益。",
+      "design": "公开方案以客户历史工作簿为输入，在云上调用企业模型服务，接入电子表格和文档协作工具，分析师审查输出、解释及异常；经批准的入驻知识由受治理层保存。模型负责哪些字段映射、是否使用检索，以及权限粒度、置信阈值与失败恢复细节未披露。编辑建议先按客户和项目隔离只读输入，输出原值、目标字段和来源位置；映射冲突或超时停在待核对队列，分析师确认后才写入正式平台。中断时重放应绑定文件版本，避免重复导入。这些是可验证的试点设计，不是已公开实施细节。",
+      "evidence": "证据等级：B，双方一手公告和媒体报道，未见独立效果审计。确认事实是公告描述已部署代理及分析师复核；厂商称准备时间从约两周半降至三天、缩短83%，其中包含转换、复核、例外处理与最终验证，但未公开生产案例数、波动范围及观察周期。96.5%首次处理F1来自七个真实历史客户工作簿脱敏后的受控测试，对照为分析师预先准备且运行时隐藏的参考输出，不是线上全量准确率。编辑推断：案例支持继续研究，却不足以证明不同资产类型均能达到同样收益；工作簿选择、参考答案质量、客户等待和返工成本都可能影响外推。没有独立对照也不能分离模型、工程改造与人员熟悉度各自的贡献。",
+      "idea": "为资产运营团队制作脱敏交易工作簿转换器，仅覆盖日期、交易类型和金额三类字段，不连接真实账户。业务分析师核验每个映射与例外并批准导出。留出不同格式样本，测字段级精确率与召回率、逐单返工分钟、未映射比例和人工最终验收时间。",
+      "image": {
+        "src": "/cases/agent-insurance.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "MemoryDojo：一次工具结果污染，可能在后续会话才生效",
+      "type": "安全研究预印本＋跨会话评测设计",
+      "source": "2026年11月6日｜Yang 等，arXiv",
+      "url": "https://arxiv.org/abs/2611.09721",
+      "relatedLinks": [
+        {
+          "label": "完整方法与实验",
+          "url": "https://arxiv.org/html/2611.09721v1"
+        }
+      ],
+      "summary": "MemoryDojo研究代理长期记忆带来的新风险：恶意内容进入一次工具返回后，可能被写成记忆，在另一轮被检索并影响行动。作者不只检查当场是否遵循恶意指令，还跟踪写入、留存、传播、取回和后续任务的行为影响，并比较不同记忆系统。适用场景包括长期客服助手或持续维护工单的代理：一条过去的外部记录可能看似普通，却影响以后给用户的建议。编辑判断：持久记忆既可能减少重复工作，也扩大不可信信息的存活时间，因此记忆质量应与跨会话安全同时验收。",
+      "design": "实验向首轮工具观察插入一条受控污染内容，让代理完成当前任务并写入记忆，随后执行多轮任务，记录记忆是否保留、传播、被取回以及后续动作是否符合攻击目标。五种系统使用各自原生检索机制；不同架构对同一输入的处理并不相同。编辑建议对生产试点保留来源和写入身份，把外部文本与业务规则分区，敏感记忆需人工批准；读取时再次检查用户和数据权限。异常记忆先隔离并回放后续任务，超时或来源不明时停止敏感动作。论文未证明这些建议能彻底防御，也未给出企业身份实现。",
+      "evidence": "证据等级：B，研究预印本，尚非同行评审或独立复现。确认事实是研究设计覆盖155条多会话轨迹、四个领域与五种记忆系统，所有受测系统在其条件下均出现污染影响；作者报告针对记忆机制优化后的攻击效果增加约2%至31%，具体大小随系统及指标变化。代码在论文中标注稍后发布，不能假定本次已可复现。未找到厂商生产效果主张或真实客户泄露率。编辑推断：需要把后续任务受影响比例和正常任务效用一起测，而不是只数被写入的恶意片段；实验中的攻击面、模型和合成轨迹不代表真实企业流量，模型裁判及任务选择也可能影响结果，不能外推为日常事故概率。",
+      "idea": "为内部知识助手搭建沙箱，只测试工单记录写入与后续检索，不连接真实客户或发送工具。人工预标外部内容、授权规则和不可执行指令；对比无记忆、自动记忆和人工批准记忆。记录污染写入率、后续任务受影响率、正常任务正确率及每百条复核耗时。",
+      "image": {
+        "src": "/cases/sep24-contextpollute-bench.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "什么时候该人工介入：把监督本身做成可比较的实验",
+      "type": "因果评估研究预印本＋开源实验",
+      "source": "2026年11月6日｜Sawarni 等，arXiv",
+      "url": "https://arxiv.org/abs/2611.09792",
+      "relatedLinks": [
+        {
+          "label": "实验代码",
+          "url": "https://github.com/sawarniayush/agent-evaluation-sequential-randomization"
+        }
+      ],
+      "summary": "代理工作流经常在关键动作前加审核，但审核究竟改善了结果，还是只增加等待，单靠最终成功率很难判断。研究提出在轨迹中的合格节点随机分配干预或直接继续，再估计按工具类型、任务阶段和历史状态选择性介入的影响。作者将方法应用于零售客服、工具使用与编码评测，并发现不同动作和状态的效果差异很大。对服务台负责人，这提供了比“所有写入都一样危险”更细的研究问题：在保留硬性安全底线后，哪些低风险核验最值得花人工时间，哪些需要更多证据才能决定。",
+      "design": "研究框架记录每个可干预节点的任务、已见历史与拟调用动作，再按已知概率随机安排审核或不审核，随后让代理继续并记录最终结果；统计方法利用这些轨迹比较即时和后续干预策略。实验中的审核可由模型执行，不应称为真实客服人工试验。编辑建议使用脱敏历史订单和隔离环境，先由业务负责人明确绝不可随机放行的退款或敏感写入；只在可逆、低风险节点随机比较，人工处理异常和争议。超时即保留待审状态，恢复时核对订单版本。论文没有提供真实企业的权限治理或人工排班方案。",
+      "evidence": "证据等级：B，公开研究预印本，随机实验提供机制证据，非真实生产试验。零售实验中每个策略直接评估456条轨迹，另用2280条顺序随机轨迹估计策略效果；各节点分配概率为二分之一。作者报告部分订单处理动作审核有正向作用，但某些分组的区间包含零。工具环境中时间戳转换审核估计提升6.9分，点位95%区间为1.2至12.6分。厂商产品收益主张不适用。编辑推断：这些结果可帮助挑选下一轮验证节点，不能证明人工审核一定有效；置信区间未校正多重比较，某些策略估计依赖模型设定，稀有动作样本不足也会使区间变宽。人工疲劳、审核成本和对客户的真实影响未被充分测量。",
+      "idea": "为零售客服做低风险订单查询审核实验，模拟数据只允许读取与生成建议，不执行退款。业务主管预先定义禁止随机放行的动作，人工复核争议。用留出订单比较错误建议率、平均等待、每百单审核分钟和审核后新增错误数，再决定扩大试点范围。",
+      "image": {
+        "src": "/cases/hil-gpt.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    },
+    {
+      "title": "GreyZone：评测红队工具时，要验证策略是否真的被突破",
+      "type": "安全基准预印本＋开放代码",
+      "source": "2026年11月6日｜Zhou 等，arXiv",
+      "url": "https://arxiv.org/abs/2611.09161",
+      "relatedLinks": [
+        {
+          "label": "基准仓库",
+          "url": "https://github.com/Ruoyyy/GreyZone"
+        }
+      ],
+      "summary": "GreyZone关注的不只是被攻击代理是否拒绝一句提示，而是自动红队工具能否在真实应用形态下，通过允许的交互界面造成可验证的策略违规。作者选择独立开发的代理应用，规定攻击目标、初始状态与访问限制，并用单独检查器核对最终状态或敏感信息是否真的出现在指定位置。示例涉及代码协作和企业多代理交互。这个切口适合企业采购测试工具：报告里的“发现风险”不能自动等同于数据外泄或未授权动作成功，安全团队需要核对应用执行轨迹与真实状态变化。",
+      "design": "每个测试场景先定义被测应用、攻击者允许访问的表面、策略边界及成功条件；统一工具接口接收红队测试，记录执行过程，再由独立于测试服务报告的检查器比对输出和应用状态。示例包括代码仓库协作者可提交问题，但不能取得运行时凭据的边界。编辑建议只在隔离副本使用合成凭据，人工批准测试目标和时间范围，检查器只读测试日志及状态；疑似异常先停止并保留证据，失败或超时与“攻击未证实”分开记录。来源没有证明此框架已覆盖真实企业全部权限路径或上线后的恢复流程。",
+      "evidence": "证据等级：B，开放预印本及基准设计，不是独立商业产品认证。确认事实是作者构建10个独立开发的代理应用和46个场景，适配四种自动红队服务，但文中初步实测只展示一个服务在两个应用上的案例。代码协作案例中，攻击未令目标凭据出现在回复里；另一案例发生了跨代理交互，作者强调需要检查实际状态才能判断最终结果。这里没有可概括所有服务的攻击成功率，也没有厂商对客户防护收益的对照。编辑推断：检查器有助减少自报偏差，但模拟状态、预设成功条件与少量案例可能漏掉旁路攻击；未复现的阴性结果只能说明本次条件下未证实违规，不能证明代理或红队服务安全。",
+      "idea": "给企业安全团队做一个工单代理沙箱，限定一项只读权限和一条合成密钥，测试外部备注能否诱导越权输出。人工登记授权目标、终止条件及测试窗口，独立脚本核对日志与状态。记录可验证违规率、测试报错率、误报率和每例复查时间和证据完整率。",
+      "image": {
+        "src": "/cases/ncsc-agentic-risk.jpg",
+        "alt": "与本期企业AI工作流主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图；不是本次实验或部署现场。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "入驻字段复核台",
+      "description": "目标用户为资产运营分析师；仅导入脱敏工作簿并映射日期、金额与类型，不写入生产系统。人工核对异常并批准导出。以留出格式的字段准确率、未映射率、每单返工和最终验收时间衡量。",
+      "tags": [
+        "判定标准",
+        "人工复核"
+      ]
+    },
+    {
+      "title": "记忆污染与动作边界回放器",
+      "description": "目标用户为代理安全和客服质检团队；使用合成工单、只读工具和受限记忆，禁止连接真实客户系统。人工批准测试及裁决争议，独立检查器核对状态。记录污染留存、后续违规、正常任务正确率和人工复核分钟。",
+      "tags": [
+        "证据利用",
+        "留出评测"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "This issue selects four sources released November 6–9: customer onboarding data conversion, memory poisoning, intervention evaluation, and red-team verification. Agents can turn time-consuming work into inspectable evidence, but generating an answer, a test reporting success, and safely completing a business task are different endpoints. Record actual denominators, action boundaries, and human handling costs.\n\nThe onboarding case illustrates inspectable artifacts entering a real process; memory research shows old evidence can become a risk; causal evaluation and red-team benchmarks ask when to intervene and whether boundaries were crossed. They do not validate one another. Record data versions, roles, provenance, proposed actions, checks and human handling, and include timeouts, unknowns, and rework in business metrics.",
+      "takeaways": [
+        "Northern Trust's 83% compares production preparation time including human review; 96.5% F1 comes from seven anonymized workbooks in a first-pass test. They have different denominators and cannot be combined into an online accuracy figure.",
+        "MemoryDojo traces poisoning from write to later sessions, demonstrating an experimental risk. Its 155 trajectories and five systems cannot establish real enterprise attack frequency.",
+        "Randomized research suggests the same review policy has different effects by action. High-value candidates need a new preregistered experiment, and irreversible high-risk actions should not be randomly released.",
+        "GreyZone separates a red-team service's success claim from an independently verified violation. Two case studies cannot rank four services, and a negative result is not proof of safety."
+      ],
+      "contrarian": "The common claim is that more reviews and security tests naturally make agents more reliable. The intervention study reports heterogeneous effects and intervals containing zero in some groups; GreyZone says an unobserved violation does not prove safety; onboarding quality evidence has a small sample. Editorial judgment: with limited review capacity, indiscriminate approvals can delay operations without improving outcomes, provided hard gates remain on irreversible actions. Revise this judgment if independent multi-organization randomized tests show broad review consistently reduces severe errors under the same time and cost constraints while covering unknown attacks.",
+      "items": [
+        {
+          "title": "Northern Trust: Convert historical transactions, then have analysts approve onboarding data",
+          "type": "Enterprise deployment announcement and independent news reporting",
+          "source": "November 9, 2026 | Northern Trust, Microsoft; CIO",
+          "summary": "Northern Trust and Microsoft announced deployment of an agent converting years of institutional investment and transaction histories into the format required by its asset-servicing platform. Analysts inspect results, resolve exceptions, and approve starting data before clients go live. The announcement claims preparation fell from about two and a half weeks to three days and reports a first-pass test score. The concrete workflow is reconcilable historical workbooks, not generic model adoption. Separate conversion, human corrections, and client waiting before extending a stage-level result to end-to-end benefit.",
+          "design": "The public description takes historical workbooks as input, uses enterprise model services in the cloud, integrates spreadsheet and collaboration tools, and has analysts inspect outputs, reasoning and exceptions. Approved onboarding knowledge is retained in a governed layer. Field-level model roles, retrieval, granular permissions, thresholds and failure recovery are undisclosed. Proposed pilot: isolate read-only inputs by customer and project; return source value, target field and provenance. Route conflicts or timeouts for analyst review before production writes. Bind replay to the file version to prevent duplicate imports. These are recommendations, not claimed implemented details.",
+          "evidence": "Evidence grade B: a joint first-party announcement and media report, without independent outcome audit. The announced agent is deployed with analyst review. The claimed 83% fall from roughly 2.5 weeks to three days includes transformation, review, exception handling and validation; production case count, variation and observation period are not given. The 96.5% first-pass F1 is from seven anonymized real historical customer workbooks tested against analyst reference outputs withheld at execution, not full production accuracy. Workbook selection, reference quality, customer wait and rework limit generalization. No independent comparison separates model contribution from engineering changes and user learning.",
+          "idea": "Build a de-identified transaction-workbook mapper for asset operations, limited to date, transaction type and amount, with no real account connection. Analysts verify each mapping and exception and approve export. On held-out formats measure field precision and recall, rework minutes per case, unmapped share and final human acceptance time.",
+          "relatedLinks": [
+            {
+              "label": "News coverage"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "MemoryDojo: Poison a tool result once and effects can surface in later sessions",
+          "type": "Security research preprint and cross-session evaluation design",
+          "source": "November 6, 2026 | Yang et al., arXiv",
+          "summary": "MemoryDojo studies a persistent-memory attack surface: malicious material in a tool result can be written to memory, retrieved later and influence later actions. It tracks insertion, persistence, propagation, retrieval and subsequent behavior rather than only immediate compliance, comparing memory architectures. Long-running support or ticket assistants face the possibility that an apparently ordinary old external record changes future advice. Persistent memory can reduce repeated work but extends the lifetime of untrusted data; assess memory utility together with cross-session security.",
+          "design": "The experiment inserts a controlled poisoned observation in an initial tool result, lets the agent complete the current task and write memory, then runs later tasks and records retention, propagation, retrieval and attacker-desired behavior. Five memory systems use native retrieval methods. For a production pilot, retain provenance and writer identity, separate external text from business rules, require human approval for sensitive memories, and recheck data and user permissions on retrieval. Quarantine suspicious memories and replay later tasks; stop sensitive actions on timeouts or uncertain provenance. The paper does not prove these proposals fully prevent attacks or specify enterprise identity implementation.",
+          "evidence": "Evidence grade B: a preprint, not peer review or independent replication. The design covers 155 multi-session trajectories, four domains and five memory systems; all tested systems showed effects under the study conditions. Authors report optimized attacks increased effectiveness by about 2%–31%, varying by system and metric. The paper says code will be released later, so this review cannot assume it is currently reproducible. No vendor production-benefit claim or real customer leakage rate was found. Measure later-task impact alongside normal task utility, not only malicious writes. Tested attack surfaces, models and synthetic trajectories do not represent enterprise traffic; model judges and task selection may affect outcomes and the result is not an everyday incident probability.",
+          "idea": "Build a sandbox for internal knowledge assistants that only writes and retrieves ticket records, with no real clients or messaging tools. Humans label external content, authorized rules and non-executable instructions. Compare no memory, automatic memory and human-approved memory. Track poisoned-write rate, later-task impact, normal-task accuracy and review minutes per hundred records.",
+          "relatedLinks": [
+            {
+              "label": "Full methods and experiments"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "When should humans intervene? Compare supervision itself as an experiment",
+          "type": "Causal-evaluation preprint and open experiment",
+          "source": "November 6, 2026 | Sawarni et al., arXiv",
+          "summary": "Agent workflows often add review before important actions, but final success alone cannot show whether review helped or merely delayed work. Researchers randomize intervention or continuation at eligible trajectory points, then estimate selective policies based on tool type, task stage and prior history. Applications to retail support, tool use and coding show effects differ across actions and states. For service-desk managers the question is which low-risk checks justify limited human time, while retaining hard safety boundaries, and which require further evidence.",
+          "design": "The research harness records task, observed history and proposed action at eligible points, randomly assigns review or no review with known probability, then observes the final outcome. Statistical methods compare immediate effects and subsequent intervention policies. Review in experiments can be model-based and must not be described as a real human customer-service trial. Proposed pilot: use de-identified historical orders in an isolated environment, define refunds and sensitive writes that must never be randomized into unreviewed execution, and randomize only reversible low-risk steps. Humans handle disputes. Timeouts stay pending and recovery rechecks order versions. Actual enterprise authorization and staffing are not provided.",
+          "evidence": "Evidence grade B: public preprint; randomized experiments support mechanism-level evidence, not a production trial. Retail direct evaluation uses 456 trajectories per policy and a separate set of 2,280 sequentially randomized trajectories; each eligible assignment has probability one half. Authors report positive review effects on some order actions, with some subgroup intervals including zero. In ToolSandbox, timestamp-conversion review is estimated at +6.9 points, pointwise 95% interval 1.2–12.6. Vendor product-benefit claims do not apply. Use these estimates to select candidates for further testing, not to prove human review always helps. Intervals do not correct multiple comparisons; some policy estimates require model assumptions, rare actions have wide intervals, and human fatigue, costs, and actual customer effects are undermeasured.",
+          "idea": "Run a low-risk order-query review experiment for retail customer service using simulation only: read records and generate suggestions, no refunds. A business supervisor specifies actions that cannot be randomly released and humans review disputes. Compare erroneous suggestion rates, average waits, review minutes per hundred cases and new errors introduced by review on held-out orders before expanding the pilot.",
+          "relatedLinks": [
+            {
+              "label": "Experiment code"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        },
+        {
+          "title": "GreyZone: Verify whether security policy was actually violated when evaluating red-team tools",
+          "type": "Security benchmark preprint and open code",
+          "source": "November 6, 2026 | Zhou et al., arXiv",
+          "summary": "GreyZone asks whether automated red-team tools can cause verified policy violations through permitted interfaces in realistic agent applications, not simply whether an agent rejects one prompt. Independently developed applications specify attack objectives, initial states and access constraints; a separate checker verifies actual state or sensitive-data disclosure. Examples cover coding collaboration and enterprise multi-agent interaction. In procuring tests, a reported finding is not automatically proven exfiltration or unauthorized action: inspect the execution trace and application state.",
+          "design": "Each scenario specifies the application, attacker-accessible surface, policy boundary and success condition. A common tool interface receives tests, records execution and sends evidence to a checker independent of the testing service's report. One example gives a repository collaborator issue access but no right to runtime credentials. Proposed trial: isolated replicas and synthetic secrets only, with humans approving scope and timing; the checker has read-only access to logs and state. Stop on suspicious behavior and preserve evidence; separate execution failure or timeout from an unverified attack. The research does not cover every enterprise permission path or production recovery process.",
+          "evidence": "Evidence grade B: open preprint and benchmark design, not independent product certification. Authors build 10 independently developed agent applications and 46 scenarios and integrate four automated red-team services, but preliminary experiments demonstrate only one service across two applications. The coding case did not disclose the target credential in the response; the other produced inter-agent interaction, for which actual state must be checked. There is no overall success rate ranking all services or customer-protection comparison. Independent checking may reduce self-reporting bias, but simulated state, predefined success conditions and few cases can miss bypasses. A negative result only means no violation was verified under the tested conditions, not that the agent or service is safe.",
+          "idea": "For enterprise security teams, build a ticket-agent sandbox with a single read-only permission and one synthetic secret to test whether external notes induce unauthorized disclosure. Humans register the authorized target, stop criteria and window; a separate script checks logs and state. Measure verified violations, test errors, false positives, review time per case and evidence completeness.",
+          "relatedLinks": [
+            {
+              "label": "Benchmark repository"
+            }
+          ],
+          "image": {
+            "alt": "Existing illustration related to enterprise AI workflows",
+            "caption": "Related existing illustration, not an original image from this source or deployment."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Onboarding field review desk",
+          "description": "For asset-operations analysts, import a de-identified workbook and map date, amount and type only; never write to production. Humans review exceptions and approve export. Measure field accuracy on held-out formats, unmapped share, rework per case and final acceptance time.",
+          "tags": [
+            "Acceptance criteria",
+            "Human review"
+          ]
+        },
+        {
+          "title": "Memory poisoning and action-boundary replay",
+          "description": "For agent security and service-desk QA, use synthetic tickets, read-only tools and scoped memory; never connect real customer systems. Humans authorize tests and resolve disputes; a separate checker verifies state. Measure persistence of poison, later violations, normal-task accuracy and human review minutes.",
+          "tags": [
+            "Evidence use",
+            "Held-out evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "2bade7b03ad33e48"
+}
