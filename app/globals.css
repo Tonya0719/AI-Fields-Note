@@ -151,3 +151,14 @@ footer>a{display:inline-flex;align-items:center;min-height:44px;font-size:14px}
 /* The editor's note is long-form reading, not a display headline. */
 .statement blockquote{max-width:900px;font-size:clamp(20px,1.35vw,24px);font-weight:500;line-height:1.9;letter-spacing:0;text-wrap:pretty;overflow-wrap:anywhere}
 @media(max-width:600px){.statement blockquote{font-size:19px;line-height:1.9;text-align:left}}
+/* Restore a full-width hero and give navigation its own row on phones. */
+@media(max-width:600px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .hero-title{grid-column:1;min-width:0;width:100%}
+  .hero-title h1{font-size:clamp(30px,9vw,48px)}
+  .nav{grid-template-columns:minmax(0,1fr);gap:12px;padding-block:14px}
+  .brand{min-width:0}
+  .nav-tools{justify-self:stretch;justify-content:space-between;min-width:0}
+  .issue-picker{min-width:0;max-width:65%}
+  .issue-picker select{width:100%;max-width:100%;text-overflow:ellipsis}
+}
