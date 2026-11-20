@@ -1,0 +1,224 @@
+{
+  "issue": "ISSUE 083",
+  "date": "2026.11.17",
+  "thesis": "事后补刊，2026年11月20日编写。代理说“做好了”，接手的人还要做什么？本期用模拟组织里的交接实验、开发者调查、一项企业策略和一份构建配置建议界定交付：谁提出了要求，哪些测试通过，工具获得什么权限，节省是否已经兑现。资料均取自本期截止前的公开版本。\n\n四种记录不能互换：交接人说完成是一项声明，评审者说负担重是一项观察，组织允许某个插件是一项配置，优化器报告节省是一项预测。只有第一项能直接与对应测试配对，第二项要结合评审队列分析，第三项要做实际策略检查，第四项要回看相同工作负载的账单。",
+  "takeaways": [
+    "SWE-CoWork 的轨迹分析里，826条完成声明有255条未过对应测试；一项要求应同时链接负责人和验收结果，不能只留复选框。",
+    "代码评审调查统计的是人感到能否跟上节奏，不是缺陷率；工具有效与否要同时看审查负荷、排队时间和逃逸缺陷。",
+    "GitHub 的插件来源策略能限制散装配置，不能自动把可用市场变成企业批准名单；两项检查要用不同测试样本。",
+    "CircleCI 的配置建议输出到新文件，节约值是预测；在相同作业的成功率、耗时和重试费用都确认之前，不能计为实际节省。"
+  ],
+  "contrarian": "主流设想是让第二个代理审核第一个代理，就能抵消新增代码带来的压力。单企业调查中，用 AI 评审与更容易跟上评审量并不相关；协作基准里，交接清单中还出现“已完成”却未通过对应测试的要求。编辑判断：当作者不解释变更意图、需求没有独立验收时，多一层自动评论可能只增加待处理信息。若按团队随机或交叉对照，在事故率不升、变更规模相近时持续缩短从提交到批准的总人工时间，这一判断应被推翻。",
+  "items": [
+    {
+      "title": "模拟工程交接：问对负责人之后，还要证明需求已实现",
+      "type": "工程组织模拟基准、开源实现与数据集",
+      "source": "2026-11-15（UTC，首版提交；上海时间11月16日）｜SWE-CoWork 作者，arXiv",
+      "summary": "一张工单很少包含全部背景。实验让代码代理从一段简短的交接说明出发，向职责不同的模拟同事补问，并从工作记录中找出相互矛盾或已经过时的要求，再到真实仓库实现变更。作者不只看代理能否联系到正确的人，还把它最后交接时宣称完成的事项对回各自的测试。对需要跨团队协调的内部工具需求，这个设计能区分三种返工：没有问清楚、已经问清却未实现、实现后未经验证便承诺交付。三者需要不同负责人，不能简单归因为模型能力不足。",
+      "design": "每项任务提供仓库、简报和模拟组织。二十六位模拟同事各有职责、知识范围和受控的协作行为；代理需要在工作记录与回复中寻找线索，而隐藏的可执行测试用于检查最终变更。角色知识边界只用于实验，不等同于企业身份和数据授权。作者还设置一开始给全需求的对照，区分需求发现与实现的问题。转成内部试点时，建议只让代理在副本中写补丁，将没有得到答复的条目列为未完成；由真实负责人确认后，再恢复处理并在交接上附测试结果。",
+      "evidence": "证据等级 B：作者在101个真实仓库构造101项任务，覆盖11种语言、12个应用领域，评估11个模型；模拟组织并不是对真实雇员的生产研究。两个领先模型约有63%的原本失败测试转为通过，但整项成功都低于8%。给全需求后，两个指定模型的该项测试指标约升16个百分点，整项成功率却未提高。针对一个模型的轨迹分析显示，自报完成的826条要求中255条未过相应测试，不能把这个比例套在全部模型上。公开代码与任务集增加复核可能性，但同属作者材料，不是独立重复实验。编辑判断是把逐条完成率与整项可交付率分列；团队真实工时和上线风险仍未测得。这尤其影响估算交接风险。",
+      "idea": "供内部产品与开发负责人使用。选择一个已结束的小需求，取出最初交接、责任人答复和验收测试，另建不含客户信息的回放副本。维护者标记哪些结论必须由人确认，对照代理清单计算未追问比例、虚报完成率和整项通过率，再决定是否扩展到第二个团队。",
+      "url": "https://arxiv.org/abs/2611.20218v1",
+      "image": {
+        "src": "/cases/entcollabbench.jpg",
+        "alt": "软件工程与交付工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "项目页",
+          "url": "https://tokenwave-ai.github.io/swe-cowork-page/"
+        },
+        {
+          "label": "代码",
+          "url": "https://github.com/TokenWave-AI/swe-cowork-bench"
+        },
+        {
+          "label": "任务集",
+          "url": "https://huggingface.co/datasets/Tokenwave-AI/swe-cowork"
+        }
+      ]
+    },
+    {
+      "title": "代码写得更快后，评审队列由谁承担？",
+      "type": "单企业访谈与问卷研究预印本",
+      "source": "2026-11-13（UTC，首版提交；上海时间11月14日）｜Newman 等，arXiv",
+      "summary": "代理生成大量修改后，谁来说明改动目的、拆分大提交、确定哪些风险值得花时间？研究者在一家广泛使用人工智能工具的跨国软件企业访谈与调查开发者。受访者提到，作者对提交的理解不足、变更体积和数量增加，会把原先由编写者承担的解释工作推到评审端。问卷中，使用人工智能做评审，并未与更容易应付评审量呈现相关。对工程主管，值得追踪的不是机器留了多少条评论，而是作者有没有把证据准备好，评审者是否仍有时间检查设计与意图。",
+      "design": "这是工作流研究，没有部署自动合并模型。研究先通过访谈归纳问题，再向近期在仓库评过代码的人发送问卷，把人工智能使用情况同自报评审困难相比较。访谈有意纳入评审负荷重的开发者；问卷排除已知机器人和访谈对象。研究没有提供一个忽略分工便可复制的检索或权限架构。团队若尝试作者自检，可让助手只读变更、列出意图与测试证据，作者负责纠错，评审者仍控制审批；证据缺失或工具超时就回到普通评审，不替人自动通过。",
+      "evidence": "证据等级 B：原始混合方法研究，有24名访谈对象；问卷发给28130人，2590人进入分析池，1806人答到末页。按作者口径，包含部分答卷的响应率为9%，只计完成者为6%，不同问题的有效人数应分开看。研究检验的是使用与感知之间的相关性，不是随机分配评审助手后的因果效应。样本集中在一家公司，自愿作答者与重负荷受访者可能与普通团队不同，也没有独立核算线上缺陷、评审耗时或工资成本。作者有企业关联，不应把员工回答当成工具供应商已证明的收益。编辑判断是把注意力移到作者交接质量与评审资源，并保留缺陷逃逸和实际工时两个验证指标。保持评估口径一致。",
+      "idea": "适合开发经理和轮值评审人。针对一个仓库的小型变更，在现有流程中轮换使用“作者说明为何修改、测试如何覆盖”的短模板；由评审者匿名记录理解难点。按相似变更大小比较等待时长、解释往返次数、复核分钟数和合并后返工，不采集个人排名。",
+      "url": "https://arxiv.org/abs/2611.18939v1",
+      "image": {
+        "src": "/cases/agent-adoption-interviews.jpg",
+        "alt": "软件工程与交付工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "研究方法与问卷表格",
+          "url": "https://arxiv.org/html/2611.18939v1"
+        }
+      ]
+    },
+    {
+      "title": "要求代理从插件加载工具，还差一张来源名单",
+      "type": "企业管理策略更新",
+      "source": "2026-11-16｜GitHub Changelog，企业云管理文档",
+      "summary": "同一个代理工具可以通过个人配置、项目目录、组织插件或托管设置交付。如果管理员只写“从插件安装”，该规则并没有同时回答“谁发布的插件可以用”。GitHub 的企业策略把这两个问题拆开：管理员可以要求某些类别的定制来自插件或托管设置，再用另外的策略限制可用市场。对已经有内部工具团队的公司，改动的价值在于让批准的工具继续工作，而不必为了阻止散装配置停掉整项能力。这种设计约束的是工具进入环境的渠道，不能替代对每次业务操作的授权。",
+      "design": "企业管理员可按类别选择技能、自定义代理、钩子、工具协议服务器或可执行扩展。启用来源限制后，用户与项目的独立配置受到拦截，符合其他策略的插件与托管设置仍可供应能力；单独的市场限制决定哪些市场合格。该逻辑由策略执行，不需要模型判断发布者是否可信。公告限定企业云及相应许可证，没有给出处置缓存、离线客户端、策略更新超时或追溯撤权的保证。建议先用不访问业务数据的测试插件检查允许与拒绝路径，出现未知状态则暂停推广并由管理员核对有效策略。",
+      "evidence": "证据等级 C：可以从厂商发布记录与管理文档确认两类策略的作用和支持范围。公告明确只要求来自插件并不等于只允许企业管理的插件，还指出这里的可执行扩展并非编辑器扩展商店里的全部扩展。上述限定是产品语义，不是实地效果。两份材料来自同一供应商，没有独立评测、误拒率、跨客户端一致性数据或企业实际接入时长。编辑判断是验收时让同一无害工具分别经由个人配置、认可市场和未认可市场三种入口提交，记录结果是否一致；还应核对被允许的工具是否具有过宽业务权限。即使来源检查全过，也未证明工具行为和返回数据符合要求。",
+      "idea": "供开发平台管理者使用。以一个业务组、两种可控插件来源为最小范围，再加入一个独立配置作对照；指定管理员人工审批名单变动。在不触及客户数据的环境中记录每条路径实际结果、错误放行与错误拒绝数、策略生效延迟和恢复旧设置耗时。",
+      "url": "https://github.blog/changelog/2026-11-16-control-where-github-copilot-customizations-come-from/",
+      "image": {
+        "src": "/cases/google-agent-governance-sprint.png",
+        "alt": "软件工程与交付工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "市场与插件管理说明",
+          "url": "https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/administer-copilot/manage-for-enterprise/use-managed-settings/manage-plugin-marketplaces-and-plugins"
+        }
+      ]
+    },
+    {
+      "title": "把构建费优化交给代理分析，把合并留给维护者",
+      "type": "构建平台公开预览与操作示例",
+      "source": "2026-11-13｜CircleCI Config Optimizer 官方发布记录",
+      "summary": "持续集成费用上升时，团队常凭印象调小机器，却不知道节省的点数是否被等待或重试抵消。CircleCI 的预览扩展读取项目配置和最近的作业用量，列出有依据的候选调整，例如缩小资源分配或修正从未命中的缓存键。厂商给出的代理用法止于生成一份新配置供人比较，不直接覆盖原配置。这里最值得借鉴的是任务边界：由工具根据用量提出变更，助手解释建议，维护者在合并之前验证运行结果。预计能省多少，以及同一工作负载实际花了多少，是两条不同记录。",
+      "design": "输入是已检出的项目配置与云端近期作业用量。分析命令只输出建议与理由，另一个操作把候选配置写入新文件；发布说明没有说优化器内部必须使用大模型，代理在示例中负责准备环境、调用工具与解释差异。示例要求先查登录状态，未登录就停止，由人自行完成登录；不得编辑原配置、提交或推送。维护者比较文件并测试后才决定合并。厂商没有披露用量缺失时的置信阈值或重试上限，内部可约定数据不足时只标记观察，不把资源缩减应用到线上。",
+      "evidence": "证据等级 C：厂商公告展示可核对的输入、输出和公开预览状态，并明确只支持云服务。它说明节省值是预测、以整条流水线的点数占比呈现，不是客户账单的历史下降比例；页面没有给出对照团队数、观察窗口长度、实际节省中位数、失败率或构建延迟分布。未见独立结果证明让代理操作比工程师亲自运行同一扩展更省钱。编辑推断是先核对建议值是否能预测实际点数，再评估代理解释是否节约人工时间。低用量的短期样本可能漏掉月末峰值，缩小机器也可能增加重跑和排队，必须把作业失败与等待的成本一起计算。否则账面节省会高估有效收益。",
+      "idea": "供构建平台和成本管理负责人使用。先只选一个非关键作业，冻结输入代码，运行原配置和候选配置；代理只能输出差异摘要，维护者决定是否保留。按成功完成一次任务的点数、重试次数、排队和运行时间中位数比较，任何失败都记入分母。同时保留样本量。",
+      "url": "https://circleci.com/changelog/find-credit-savings-in-your-config-with-the-config-optimizer-cli-extension/",
+      "image": {
+        "src": "/cases/ci-work.jpg",
+        "alt": "软件工程与交付工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "交接声明核验台",
+      "description": "面向跨团队开发负责人；试点只收一类需求的责任人答复、完成声明和测试结果。由维护者盲判不一致项，测虚报完成率、遗漏需求数和复核分钟数。",
+      "tags": [
+        "协作",
+        "验收"
+      ]
+    },
+    {
+      "title": "构建费用对照单",
+      "description": "面向持续集成平台负责人；选一个非关键作业，同一输入运行新旧配置，人工审核成本与时间后决定是否合并。测每次成功的总点数、重试率、等待时长与预测误差。",
+      "tags": [
+        "构建",
+        "费用"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "Retrospective written November 20, 2026. What remains for a human when an agent declares the work done? A simulated handoff experiment, developer survey, enterprise policy and build-configuration proposal define four aspects of delivery: who specified the requirement, which tests passed, what permissions were granted, and whether savings materialized. Sources were public by this issue's cutoff.\n\nFour records are not interchangeable: a handoff contains a claim, a reviewer reports an experience, a permitted plugin is a configuration choice, and estimated savings are a forecast. Check the first against its test, the second against review queues, the third by exercising the policy, and the fourth against charges for comparable workloads.",
+      "takeaways": [
+        "In the SWE-CoWork trajectory analysis, 255 of 826 completion claims failed their tests. Link each requirement to both an owner and an acceptance result rather than leaving a checkbox.",
+        "The review survey measures whether people feel able to keep up, not defect rates. Judge tools against reviewer effort, queue time and escaped defects together.",
+        "GitHub's plugin-source restriction blocks standalone configuration but does not turn eligible marketplaces into an enterprise allowlist. Test those controls with different fixtures.",
+        "CircleCI writes proposed configuration to a new file and reports predicted savings. Verify job success, duration and retry costs on comparable runs before recognizing realized savings."
+      ],
+      "contrarian": "A popular proposal is to offset extra code by assigning a second agent to review the first. In one company's survey, AI review use did not correlate with keeping up more easily. A collaboration benchmark also found handoffs marked done despite failing their tests. If authors do not explain intent and requirements lack independent acceptance, more automated comments may merely add to the queue. Reverse that judgment if randomized or crossover team comparisons consistently reduce total human review time to approval at comparable change sizes without raising incident rates.",
+      "items": [
+        {
+          "title": "Engineering handoffs: reaching the right owner is only the first check",
+          "type": "Simulated engineering benchmark, code and dataset",
+          "source": "2026-11-15 (UTC, v1 submission; November 16 in Shanghai) | SWE-CoWork authors, arXiv",
+          "summary": "Tickets rarely carry all their context. A coding agent receives a short handoff, questions simulated colleagues with different responsibilities, resolves conflicting or stale workplace records, and edits a real repository. The study checks not only whether the agent contacted the right colleague but whether each final completion claim passes its test. For internal software spanning teams, this separates three kinds of rework: requirements never clarified, clarified but not implemented, or announced as done without verification. They need different owners; a blanket diagnosis of weak model capability is insufficient.",
+          "design": "Each task provides a repository, brief and simulated organization. Twenty-six simulated colleagues have distinct responsibilities, bounded knowledge and controlled responses. Agents seek evidence in records and replies, while hidden executable tests grade the result. These simulated boundaries are not enterprise identity controls. An oracle condition gives complete requirements initially to separate discovery from implementation. In an internal trial, restrict edits to a copy and record unanswered points as open; resume only after the real owner confirms, and attach the corresponding test result at handoff.",
+          "evidence": "Evidence grade B: 101 assignments on 101 real repositories span 11 languages and 12 domains; 11 models were evaluated in simulated organizations, not in a production employee study. The two leaders turned about 63% of fail-to-pass tests green but each completed under 8% of assignments. For two specified models an oracle specification raised the test metric by roughly 16 percentage points without improving whole-task success. In trajectory analysis for one model, 255 of 826 reported-complete requirements failed their corresponding tests; do not apply this fraction to all models. Author-provided code and data support inspection, not independent replication. Report requirement-level and whole-task success separately; labor cost and release risk remain unmeasured. This matters particularly when estimating handoff risk.",
+          "idea": "For internal product and engineering leads, replay a closed request with its first handoff, owner replies and acceptance tests in a copy without customer data. Maintainers mark decisions requiring human confirmation; compare the agent's list against unanswered issues, false completions and whole-task success before extending to another team.",
+          "image": {
+            "alt": "Related illustration of software delivery workflows",
+            "caption": "Previously published related illustration, not an original image from this source."
+          },
+          "relatedLinks": [
+            {
+              "label": "Project page"
+            },
+            {
+              "label": "Code"
+            },
+            {
+              "label": "Dataset"
+            }
+          ]
+        },
+        {
+          "title": "Who carries the review queue when code gets faster to write?",
+          "type": "Single-company interview and survey preprint",
+          "source": "2026-11-13 (UTC, v1 submission; November 14 in Shanghai) | Newman and colleagues, arXiv",
+          "summary": "When agents generate more changes, who explains intent, splits large submissions and decides which risks deserve review time? Researchers interviewed and surveyed developers at a multinational software company with broad AI access. Participants described authors lacking ownership and larger or more numerous changes pushing explanatory work onto reviewers. Using AI for review did not correlate with finding review volume easier to manage. Engineering managers should track whether authors prepare evidence and whether reviewers have time for design and intent, rather than counting machine comments.",
+          "design": "This is a workflow study, not an autonomous merge deployment. Interviews established themes; the survey then asked recent repository reviewers about AI use and perceived difficulty. Interviews intentionally included reviewers with heavy workloads; the survey excluded known bots and interviewees. No reusable retrieval or authorization architecture is specified. In an author-precheck trial, an assistant could read changes and list intent and test evidence; the author corrects it and reviewers retain approval. Missing evidence or timeout returns the change to ordinary review without automatic approval.",
+          "evidence": "Evidence grade B: 24 interviewees; 28,130 invitations, 2,590 in the analytic pool and 1,806 survey completions. The authors report a 9% response rate including partial submissions and 6% for completions; question-specific denominators differ. This tests association with perceptions, not a randomized effect of review assistance. One company, self-selection and recruiting heavily burdened interviewees limit generalization. No independent accounting of production defects, time or wages is provided. Company-affiliated research and employee responses do not prove vendor returns. Focus on handoff quality and reviewer resources, retaining escaped defects and actual labor as outcomes. Keep evaluation definitions consistent.",
+          "idea": "For engineering managers and rotating reviewers, alternate a short author intent-and-test template on small changes in one repository. Reviewers anonymously log what was hard to understand. Match on change size and compare queue time, clarification exchanges, review minutes and post-merge rework without ranking individuals.",
+          "image": {
+            "alt": "Related illustration of software delivery workflows",
+            "caption": "Previously published related illustration, not an original image from this source."
+          },
+          "relatedLinks": [
+            {
+              "label": "Study methods and survey tables"
+            }
+          ]
+        },
+        {
+          "title": "A plugin-only tool policy still needs a source list",
+          "type": "Enterprise administration policy update",
+          "source": "2026-11-16 | GitHub Changelog and Enterprise Cloud administration docs",
+          "summary": "The same agent tool can arrive through user configuration, a project directory, an organizational plugin or managed settings. Requiring a plugin does not say which publishers are eligible. GitHub separates the questions: administrators may require selected customization categories to come from plugins or managed settings and constrain marketplaces with a separate policy. Companies can keep approved internal tools working without disabling a whole capability just to block standalone configuration. The control governs the delivery channel, not authorization of every business operation.",
+          "design": "Enterprise administrators select among skills, custom agents, hooks, MCP servers and executable extensions. The source restriction blocks standalone user and project configuration; eligible plugins and managed settings remain subject to other policies. Separate marketplace controls establish source eligibility. This is policy enforcement, not a model judging publisher trust. The release specifies Enterprise Cloud and applicable licenses but gives no guarantee on caches, offline clients, policy-update timeouts or retrospective revocation. Test allow and deny paths with harmless plugins; pause rollout on unknown states until an administrator checks the effective policy.",
+          "evidence": "Evidence grade C: the vendor release and docs establish policy semantics and supported scope. Requiring plugins does not mean enterprise-managed plugins exclusively, and executable extensions here are distinct from all editor-marketplace extensions. These are product definitions, not field outcomes. Both sources come from one supplier; independent evaluations, false-denial rates, client consistency and rollout times are not given. Exercise the same harmless tool via standalone configuration, an approved marketplace and an unapproved one and check expected outcomes. Also inspect excessive operational rights: passing source checks does not validate behavior or returned data.",
+          "idea": "For platform administrators, limit a pilot to one group, two controlled plugin sources and one standalone control. Have an administrator approve list changes. Without touching customer data, record observed outcomes, false permissions and denials, policy propagation delay and time to restore prior settings.",
+          "image": {
+            "alt": "Related illustration of software delivery workflows",
+            "caption": "Previously published related illustration, not an original image from this source."
+          },
+          "relatedLinks": [
+            {
+              "label": "Marketplace and plugin administration"
+            }
+          ]
+        },
+        {
+          "title": "Let an agent analyze build costs while maintainers retain the merge",
+          "type": "Build platform open preview and worked workflow",
+          "source": "2026-11-13 | CircleCI Config Optimizer official release notes",
+          "summary": "Faced with rising CI credits, teams may shrink machines without checking whether delays or retries erase the benefit. CircleCI's preview extension reads configuration and recent job usage, then identifies candidates such as smaller resource classes or cache keys that never hit. The vendor's agent workflow stops at creating a separate configuration for comparison, without overwriting the original. The tool proposes usage-based changes, an assistant explains them, and a maintainer verifies runs before merging. Forecast savings and actual spend for the same workload are distinct records.",
+          "design": "Inputs are the checked-out configuration and recent cloud job usage. Analysis reports suggestions and reasons; another operation writes a proposed file. The release does not say the optimizer itself requires an LLM. Its example uses a coding agent for setup, tool invocation and explaining diffs. It must check login, stop and leave sign-in to the user if needed, and avoid editing the original, committing or pushing. The maintainer compares, tests and then decides whether to merge. Confidence thresholds for missing usage and retry limits are not stated; an internal process can flag insufficient evidence without downsizing live jobs.",
+          "evidence": "Evidence grade C: the vendor documents inspectable inputs and outputs, open-preview status and cloud-only support. Savings are forecasts as a share of pipeline credits, not a historical decline in customer bills. There is no control-group size, observation-window length, median realized saving, failure rate or latency distribution. Independent evidence that agent operation saves more than an engineer using the same extension is absent. First check prediction against actual credits, then assess whether the explanation saves human time. Low-usage samples can miss month-end peaks; smaller machines may increase reruns and waiting, which belong in the cost comparison. Otherwise a nominal saving can overstate the effective benefit.",
+          "idea": "For build-platform and cost owners, choose one noncritical job, pin the input revisions and run old and candidate configurations. The agent only summarizes the diff; a maintainer decides. Compare credits per successful job, retries, median queue and runtime, counting failed attempts in the denominator. Retain the sample size as well.",
+          "image": {
+            "alt": "Related illustration of software delivery workflows",
+            "caption": "Previously published related illustration, not an original image from this source."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Handoff claim verifier",
+          "description": "For cross-team development leads: collect owner replies, completion claims and test outcomes for one class of request. A maintainer adjudicates mismatches blind; measure false completions, omitted requirements and review minutes.",
+          "tags": [
+            "Collaboration",
+            "Acceptance"
+          ]
+        },
+        {
+          "title": "Paired build-cost worksheet",
+          "description": "For CI platform leads: run old and new configurations for one noncritical job with identical inputs. A human reviews cost and latency before merge. Measure total credits per success, retry rate, waiting and forecast error.",
+          "tags": [
+            "Build",
+            "Cost"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "d74f522310741eb6"
+}

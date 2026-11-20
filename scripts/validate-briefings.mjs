@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { readBriefings, readIssueFiles, validateIssue } from "./content-lib.mjs";
 
+import { verifyFiledSource } from "./validate-source.mjs";
+
 const data = readBriefings();
 const index = JSON.parse(readFileSync("content/index.json", "utf8"));
 const files = readIssueFiles();
@@ -13,6 +15,7 @@ const dates = new Set();
 const issueIds = new Set();
 for (const issue of data.issues) {
   validateIssue(issue);
+  verifyFiledSource(issue);
   if (dates.has(issue.date)) throw new Error(`重复日期：${issue.date}`);
   if (issueIds.has(issue.issue)) throw new Error(`重复期号：${issue.issue}`);
   dates.add(issue.date);

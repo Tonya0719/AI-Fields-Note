@@ -1,0 +1,235 @@
+{
+  "issue": "ISSUE 085",
+  "date": "2026.11.19",
+  "thesis": "事后补刊，2026年11月20日撰写，仅采用截至11月19日公开的资料。一个助手可以记得客户偏好、给出销售待办，甚至在沙箱里安排换汇；是否能把这些能力交给一线员工，要看系统能否分别证明信息来自哪里、谁授权执行、业务记录最终变成了什么。\n\n四份资料可以组成一套验收顺序：先用原始记录核实记忆，再让负责人确认建议，之后由独立规则验证能否执行，最后重新读取被改动的业务记录。它们分别来自产品实验、销售预览、金融概念验证和合成工单研究，并不共同构成一条已投产的流水线；这套顺序是供小规模试点采用的编辑建议。",
+  "takeaways": [
+    "现代卡演示中，由人批准的授权范围在银行侧生效，客户代理比到更好报价也无权扩大额度。三类处理结果来自没有真实资金流动的测试环境。",
+    "OfficePrism 的同条件接口比较中，搜索式工具有30组胜出、19组落后、1组持平。选择接口应以本业务的回答和数据库状态联合验收，而不是把工作流一律改成搜索。",
+    "会后跟进可以从销售确认一条承诺开始。两家厂商公告没有报告试点赢单率，埃森哲已有的74万以上办公助手用户不能当作新集成的用户数。",
+    "OpenSearch Memory 在公开题集上把回答输入从约16.7万降到1.35万词元，正确率点估计也从95.2%降到93.0%；须把提取、纠错与撤权的实际成本一起评估。"
+  ],
+  "contrarian": "容易接受的说法是把更多业务上下文交给模型，便可减少人工确认。来源事实并不支持这一步推论：跨会话测试比的是答题，销售试点把确认留给员工，财资演示把执行授权留给银行。编辑判断：当错误会改变客户记录或资金指令时，新增记忆最多帮助定位证据，不能替代权限和最终状态核验。如果多家机构在同类真实业务的前瞻对照中证明，移除确认后错误写入、越权和返工均不增加，且总处理成本持续下降，就应重估哪些人工步骤有必要。",
+  "items": [
+    {
+      "title": "现代卡与摩根大通：能够询价的财资代理，不能给自己授权",
+      "type": "金融机构联合概念验证、技术白皮书",
+      "source": "2026-11-18｜摩根大通 Kinexys 与现代卡，财资测试项目",
+      "summary": "一家公司的欧元账户低于内部目标时，财资人员可能要查看余额、比较报价，再决定是否从另一个币种的账户调钱。现代卡与摩根大通把这个过程放进连接后台的测试环境：客户方代理监看指定法兰克福账户，如不足则向三家银行询价，比较后才向入选对手方发出请求。执行权留在银行侧，委托人先审定一份机器可读的授权。演示没有真实资金流动。它给企业财务的启发很具体：提出交易是模型的工作，是否符合币种、账户、额度和时段的约束，则要由能拒绝请求的独立系统核验。",
+      "design": "客户把代理公钥及其所属法人登记给银行，代理可以起草授权，人必须先审阅批准，之后由银行把授权与该公钥绑定。代理检查欧元账户，拟用指定伦敦账户的英镑填补缺口；银行验证身份与主体、确定性检查授权范围，并评估请求与目标是否一致，记录检查结果。在许可范围且低于升级阈值的模拟请求可执行，越过升级阈值的交人批准，超出授权的直接拒绝。原文没有提供延迟、并发负荷或从部分结算恢复的实测；若在企业内部仿做，遇到状态未知须先查既有指令回执，避免把重试当成一笔新交易。",
+      "evidence": "证据等级：参与机构的概念验证，有书面控制设计，无独立生产结果。新闻稿与白皮书可相互核对试验范围，但出自同一项目，并非独立复现。白皮书写明三家银行报价、五项检查、三类处理结局，也明确没有真实价值转移。它解释为什么授权代理的私钥并不等于授权它做任何转账，却没有报告测试了多少笔、拒绝了多少应放行的请求，或在市价急变时人类审批花了多久。编辑判断：证据支持的是可以分离建议与执行，并演示允许、升级和拒绝的分支；不能据此声称真实资金业务已上线，也不能估算节省的资金成本。真实试点还需要纳入异常回执和人工追索所占的工作量。",
+      "idea": "给企业财务做不连银行的资金调拨演练器，输入虚构余额、三个模拟报价及预签的币种与金额范围，代理只提案。财务人员批准阈值内待复核项，并专门检查全部越权样例。记录错放、误拒、审批等待时间和重复指令率，演练结果不得触发付款接口。",
+      "url": "https://www.jpmorgan.com/payments/newsroom/hyundai-card-kinexys-agentic-payments",
+      "image": {
+        "src": "/cases/kya-payments.jpg",
+        "alt": "既有业务工作流主题配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "项目技术白皮书",
+          "url": "https://www.jpmorgan.com/content/dam/jpm/static_sites/kinexys/documents/kinexys-trust-in-the-agentic-economy.pdf"
+        }
+      ]
+    },
+    {
+      "title": "OfficePrism：工单回复写对了，业务记录也要改对",
+      "type": "研究预印本、合成企业工作流基准",
+      "source": "2026-11-17｜Hanfeng Liu 等，arXiv 首版 OfficePrism",
+      "summary": "让模型回复“已更新”比核对它到底把哪张业务表改成了什么容易。OfficePrism为此把范围缩小到单个业务职能：每道中文工单都在独立的合成环境里运行，既核对最终文字，也检查相关数据库状态。研究不是一场跨部门比赛，而是先问一个更实用的问题：交给财务或人事团队的单个动作，代理能否在工具用对、记录改对的同时，把结果交代清楚。这样做有助于区分同一部门内字段或规则理解出错，与跨系统协作时的沟通失败；通过前者仍不意味着已经胜任后者。",
+      "design": "出题以调用者身份背景、业务规则、工具说明和初始记录为依据，生成中文请求、隐藏的可执行参考步骤与预期回复，再回放参考步骤，经过自动筛选和人工整理。测试时每项任务从干净环境开始，只加载一个业务职能；对同样的任务，一种接口展示完整工具描述，另一种要求先搜索再调用。最终将回答和状态合并判分，未满足其中一项就不能算联合通过。身份仅为合成试题上下文，不是生产权限认证。生产超时、人工补批和部分更新后如何回滚不在该设计验证范围；复刻可保留失败前后的数据快照供业务人员复盘。",
+      "evidence": "证据等级：研究团队报告的受控实验，未经独立现场验证。论文给出七个职能、420道题和124种模型、执行框架及接口组合；联合通过率为22.6%至76.4%，中位数67.9%。在50组模型与框架标签相同、可比较工具接口的配置中，搜索式接口30组更高、1组持平、19组更低。这个对照足以否定“先搜索工具一定更好”，却不是对任意企业新系统的成功率估计。与线上分布相比，人工筛过的合成请求、单职能边界和参考答案都可能偏向定义清楚的工作。没有真实员工对答复的接受率、跨部门交接或错误写入的恢复成本。编辑推断：上线前可用状态对照筛掉假完成，过了这关仍需测业务误操作。",
+      "idea": "给后台运营做两套并行验收题，只覆盖一种工单的字段修改；用脱敏副本固定输入，分别启用全工具表和先搜索接口。业务专家预先写好允许变化的字段与必需回复，复查每个分歧案例。报告文字通过但数据错误的比例、联合通过率和完成一次合格任务的时间。",
+      "url": "https://arxiv.org/abs/2611.22262",
+      "image": {
+        "src": "/cases/enterpriseops-gym.jpg",
+        "alt": "既有业务工作流主题配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "论文全文与评测方法",
+          "url": "https://arxiv.org/html/2611.22262v1"
+        }
+      ]
+    },
+    {
+      "title": "Copilotforce：销售通话后的下一步，先做成可确认的草案",
+      "type": "联合产品公告、销售组织试点",
+      "source": "2026-11-17｜微软与 Salesforce，Copilotforce 和销售工作流",
+      "summary": "一次客户会议结束后，销售代表要从邮件、会议记录和客户关系系统里找出双方答应的事，再决定哪些应写回商机。两家厂商公布的通话跟进功能，试图把这些步骤放进员工熟悉的办公界面：先生成后续活动和内部纪要的建议，再由销售看过确认。埃森哲既是设计和实施伙伴，也是自家销售组织的试点客户。这个案例适合拆成两道验收题：工具能否找对客户和那一次会谈；建议中的负责人、日期和承诺，是否真的在会议里出现。仅仅能在一个窗口打开客户记录，并不回答第二个问题。",
+      "design": "微软侧连接会议、文档和通信，客户关系系统通过已认证的工具连接提供商机上下文，并继续按销售人员已有权限控制可读记录和可执行动作。员工可审核通话后续草案，再确认下一步。另有数据互查能力，但两个方向的开放阶段并不相同，不能当作所有客户都已打通双向写入。公告没有说明过期凭证、两条相似商机、人工改过原记录时的冲突处理或草稿超时后的恢复。编辑建议只把草案送到当前业务负责人；查不到客户身份或目标记录版本变化时，暂停保存，重新对照原会谈，再由人确认该写哪张卡片。",
+      "evidence": "证据等级：联合发布公告与具名试点，未提供运营效果实验。双方公告可核对产品边界，但不是独立效果来源。当天客户关系功能在办公助手中是公开预览，销售云在团队协作应用中处于试点；从微软数据湖向客户数据平台查询已正式可用，反向共享仍是公开预览。埃森哲披露既有办公助手覆盖超过74万人，既有客户关系系统有5.5万名用户，这两个数不是新集成的试点人数。公开资料没有报告少录多少次、错误关联客户的比例、销售周期或赢单率。编辑判断：实际可试的是一段经人确认的跟进流程，不能把原平台用户总数解释为实际采用，更不能把联合发布等同于收入增长的证据。",
+      "idea": "给小型销售团队做会后承诺核对器，只处理一个团队的商机，列出行动、负责人、期限及出处，不自动发邮件或改预测。商机负责人逐条确认，缺少日期就保留空值。对照原会谈统计错误客户关联率、无来源承诺率、完成记录的分钟数及一周后人工撤回的比例。",
+      "url": "https://news.microsoft.com/source/2026/11/17/microsoft-and-salesforce-announce-copilotforce-bringing-trusted-customer-context-and-action-into-microsoft-ai-experiences",
+      "image": {
+        "src": "/cases/copilot-field-experiment.png",
+        "alt": "既有业务工作流主题配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "Salesforce 联合发布说明",
+          "url": "https://www.salesforce.com/news/stories/copilotforce-announcement/"
+        }
+      ]
+    },
+    {
+      "title": "客服跨会话记忆：少读十二分之十一的输入，仍可能答错旧事实",
+      "type": "技术发布、公开基准上的厂商实验",
+      "source": "2026-11-18｜AWS，Amazon OpenSearch Memory 发布与测试",
+      "summary": "客户下次来电，坐席希望知道上次协商过怎样联系，而不是翻遍全部聊天记录。AWS发布的记忆服务把原话与从原话提炼的偏好、事实、摘要分开：原始事件可查，派生记忆在后台整合，下次答复前只取靠前的相关项。厂商拿一套公开的跨会话题目，与把完整历史直接送入模型进行对照。这个设计能省下回答模型正在阅读的文字，却可能遗漏某次较新的更正。业务团队应特别关注两类不等价的问题：系统是否记住客户曾经说过什么，以及当前坐席是否仍被允许读取并使用这项信息。",
+      "design": "应用在每次交互后把原始事件写入记忆空间；后台模型提取事实和会话摘要，决定新增、更新或忽略，再用关键词、向量或混合搜索找回上下文。每次请求指明所属用户，可另限会话，并用身份权限策略限制代理可代表哪些人；原始事件和派生记忆可设保留期限。回答流程由应用决定要拼入哪些内容。权限能否随工单转移即时撤回、派生事实冲突时应如何向客户确认，没有统一的产品保证。编辑建议将最近的原始更正与摘要一起给坐席看；找不到原文或记忆互相矛盾时，暂停沿用旧偏好，由坐席重新核实。",
+      "evidence": "证据等级：产品正式发布及厂商在外部公开基准上的单次评测，无独立复现。LongMemEval-S含500道题。厂商给回答模型30条混合检索结果，每题约1.35万输入词元，正确率93.0%；完整历史约16.7万词元，正确率95.2%；只对原始轮次做关键词检索约2.27万词元、正确率88.6%。各方案均由同一模型回答，再独立调用该模型评分，厂商给出的95%置信范围约为上下两至三个百分点。论文作者提供题集，没有替厂商核验这些分数。编辑判断：省下的是回答端输入，未计入提取、存储与人工纠错总成本；没有证明真实客服中的撤权延迟达标，亦不能据此把准确率差异解释成确定无误的因果收益。",
+      "idea": "给售后团队做偏好回忆试验，只保存员工确认可用的联系方式偏好，不把地址或付款承诺作为记忆。用可撤回授权的模拟账户，让主管标注更正发生在哪一轮。比较完整历史和检索回复的正确率、过期偏好命中率、撤权后可见次数，并把人工重新确认时间计入成本。",
+      "url": "https://aws.amazon.com/blogs/big-data/introducing-amazon-opensearch-memory-persistent-memory-for-ai-agents/",
+      "image": {
+        "src": "/cases/ivr-cluster-rag.jpg",
+        "alt": "既有业务工作流主题配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "正式可用公告",
+          "url": "https://aws.amazon.com/about-aws/whats-new/2026/11/amazon-opensearch-memory-generally-available/"
+        },
+        {
+          "label": "技术文档",
+          "url": "https://docs.aws.amazon.com/opensearch-service/latest/developerguide/memory.html"
+        },
+        {
+          "label": "LongMemEval 原始基准",
+          "url": "https://arxiv.org/abs/2410.10813"
+        }
+      ]
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "跟进承诺的双重验收",
+      "description": "面向销售运营，只取一份会议纪要与一个商机的副本。销售主管先标出承诺出处，再核验记录究竟改变了哪些字段。测错客户关联、无来源承诺、未经许可字段变化及确认用时。",
+      "tags": [
+        "销售",
+        "状态校验"
+      ]
+    },
+    {
+      "title": "财资授权桌面演练",
+      "description": "面向财务内控，只用虚构账户与模拟指令，分应执行、应升级、应拒绝三类。财务负责人审核授权并裁决歧义案例。统计各类错判、重复指令、人工等待时间，不连接支付通道。",
+      "tags": [
+        "财资",
+        "人工审批"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "Retrospective written on 20 November 2026, using sources public by 19 November. An assistant can remember a customer preference, propose a sales follow-up or arrange a simulated currency exchange. To put it in frontline hands, separately verify where its information came from, who authorized the action and what business record actually changed.\n\nThe four sources suggest an acceptance sequence: check remembered facts against original records, have an owner confirm the proposal, enforce execution rules independently and reread the changed record. Product experiments, a sales preview, a financial proof of concept and synthetic tickets do not constitute one deployed pipeline; the sequence is an editorial suggestion for pilots.",
+      "takeaways": [
+        "In Hyundai Card’s demonstration, the bank enforces the human-approved mandate. A better quote does not let the client agent raise its limit. The three outcomes were demonstrated without live funds.",
+        "In OfficePrism’s matched comparisons, search won 30, lost 19 and tied one. Choose an interface using joint answer and record checks on local work, rather than automatically switching all workflows to search.",
+        "Start post-call follow-up with a seller confirming one commitment. The partners reported no pilot win rate; Accenture’s over 740,000 existing Copilot users are not the new integration’s user count.",
+        "OpenSearch Memory reduced answer input from about 167,000 to 13,500 tokens on a public benchmark, while estimated accuracy moved from 95.2% to 93.0%. Include real extraction, correction and revocation costs."
+      ],
+      "contrarian": "Giving a model more context is often expected to remove the need for human confirmation. The memory test measured answers, the sales pilot retained seller confirmation, and the treasury demo left execution authority with the bank. Our judgment: when errors can change customer records or payment instructions, added memory can locate evidence but cannot substitute for authorization and end-state checks. Prospective comparisons across institutions showing no rise in incorrect writes, unauthorized actions or rework after removing confirmation, with sustained lower total costs, would justify reassessing which human steps to retain.",
+      "items": [
+        {
+          "title": "Hyundai Card and J.P. Morgan: getting a quote does not confer authority to trade",
+          "type": "Joint financial-institution proof of concept and technical white paper",
+          "source": "2026-11-18 | J.P. Morgan Kinexys and Hyundai Card, treasury test project",
+          "summary": "When a euro account falls below its target, treasury staff may need to check balances and compare quotes before moving funds from another currency. In a test environment connected to backend systems, Hyundai Card’s agent monitored a designated Frankfurt account, sought quotes from three banks and sent a request to the selected counterparty. Execution authority stayed with the bank; the principal first approved a machine-readable mandate. No real funds moved. The useful distinction for corporate treasury is between proposing a trade and having an independent system able to reject it based on currencies, accounts, limits and time windows.",
+          "design": "The client registers the agent’s public key and legal entity. The agent may draft a mandate, but a person must approve it before the bank binds it to that key. A euro shortfall would be met by selling sterling from a specified London account. The bank verifies the credential and principal, checks mandate parameters deterministically, assesses coherence with the objective and records its checks. An in-scope simulated request below the escalation threshold can execute; above the threshold it needs approval; outside the mandate it is denied. No measured latency, concurrent load or partial-settlement recovery was given. A local simulation should check the prior instruction receipt on uncertain status rather than treat a retry as a new transfer.",
+          "evidence": "Evidence grade: participant proof of concept with documented controls, no independent production outcomes. The release and white paper corroborate scope but are from the same project. Three quotes, five checks and three outcomes are specified; no real value moved. The design explains why an agent credential alone cannot authorize every transfer. Transaction sample size, false refusals and human delays during price changes were not reported. The evidence supports separating proposal from execution and demonstrating approval, escalation and denial. It does not show live treasury operations or savings in funding costs. A real pilot also needs to count the work of recovering unclear receipts and pursuing exceptions.",
+          "idea": "Build an offline treasury exercise with fictitious balances, three simulated quotes and a preapproved currency and amount scope. Agents only propose. Treasury staff review in-scope escalations and check every out-of-scope example. Track erroneous releases, false rejections, waiting time and duplicate instructions; the exercise has no payment connector.",
+          "image": {
+            "alt": "Existing illustration of a related business workflow",
+            "caption": "Related illustration from the archive; not an original image from these sources."
+          },
+          "relatedLinks": [
+            {
+              "label": "Technical white paper"
+            }
+          ]
+        },
+        {
+          "title": "OfficePrism: a correct ticket reply must accompany the right database change",
+          "type": "Research preprint and synthetic enterprise workflow benchmark",
+          "source": "2026-11-17 | Hanfeng Liu and colleagues, first arXiv version of OfficePrism",
+          "summary": "It is easier to say “updated” than to check which record changed. OfficePrism tests one business function at a time in separate synthetic environments, grading the final Chinese ticket response and database state. Rather than treat cross-department coordination as a single contest, it asks whether a finance or HR agent can use the right tools, change the right records and explain its result. This helps separate local field or rule failures from communication failures across systems. Passing the former does not establish competence at the latter.",
+          "design": "Caller context, rules, tool schemas and starting records ground generation of a Chinese ticket, a hidden executable reference and an expected reply. Replaying the reference, automated filtering and human curation screen the tasks. Each starts in a clean environment with one function. One interface exposes full schemas; another requires search and dispatch over the same tools. A joint pass requires both acceptable text and database state. The synthetic caller context is not production identity enforcement. Production timeouts, human overrides and rollback after partial updates were not validated. A local test could retain before-and-after snapshots for business reviewers.",
+          "evidence": "Evidence grade: author-reported controlled experiment, no independent field validation. Across seven functions, 420 tasks and 124 combinations of model, harness and interface, joint pass rates ranged from 22.6% to 76.4%, with a median of 67.9%. Among 50 comparable model/harness pairs, search scored higher in 30, tied in one and lower in 19. This refutes a universal advantage for tool search but does not predict performance in a new enterprise. Curated synthetic requests, single-function boundaries and reference answers can favor well-defined work. Employee acceptance, cross-team handoffs and recovery costs for bad writes were not measured. State checks can eliminate false completions; production errors still need separate assessment.",
+          "idea": "For back-office operations, build paired tests for one ticket field change. Fix the input in a de-identified copy and compare full-schema and search-first tools. Domain experts prespecify allowed changes and required replies and review each disagreement. Report text passes with incorrect data, joint pass rate and time per qualifying completion.",
+          "image": {
+            "alt": "Existing illustration of a related business workflow",
+            "caption": "Related illustration from the archive; not an original image from these sources."
+          },
+          "relatedLinks": [
+            {
+              "label": "Full paper and evaluation method"
+            }
+          ]
+        },
+        {
+          "title": "Copilotforce: make the sales follow-up a proposal the seller can confirm",
+          "type": "Joint product announcement and sales-organization pilot",
+          "source": "2026-11-17 | Microsoft and Salesforce, Copilotforce sales workflows",
+          "summary": "After a customer meeting, sellers reconstruct commitments from messages, notes and CRM before deciding what belongs on the opportunity. The announced call-follow-up skill proposes activities and internal recaps in the employee’s familiar workspace for review and confirmation. Accenture is both design/implementation partner and pilot customer in its own sales organization. Test two distinct things: finding the right customer and meeting, and whether the proposed owner, date and commitment were actually stated. Opening CRM in the same window addresses neither the accuracy nor the provenance of those commitments by itself.",
+          "design": "Microsoft connects meetings, documents and communications; authenticated Salesforce tools provide the opportunity context. Salesforce retains the seller’s existing permissions for records and business actions. The seller reviews the draft and confirms the next step. Separate data federation features were at different release stages by direction; this does not imply universal two-way writes. The announcement does not describe expired credentials, similar opportunities, conflicting human updates or draft timeout recovery. We recommend sending drafts only to the responsible owner, pausing on uncertain identity or changed record versions, and checking the meeting before a person chooses the target card.",
+          "evidence": "Evidence grade: joint announcement and named pilot, no operating-outcome experiment. The two announcements corroborate product scope, not independent results. Salesforce in Copilot was in public preview, Sales Cloud in Teams in pilot. OneLake-to-Data 360 federation was generally available; sharing in the other direction was in public preview. Accenture’s existing Copilot deployment reached over 740,000 people and its existing Salesforce population was 55,000; neither is the new integration’s pilot population. No reduction in entries, customer-link error rate, cycle time or win rate was reported. A reviewed follow-up is testable. The installed base and a partnership announcement establish neither adoption nor revenue growth.",
+          "idea": "For one sales team, extract commitments on its opportunities with action, owner, deadline and source. Do not email customers or change forecasts. The owner confirms each item; leave missing dates blank. Against meeting records, measure wrong-account links, unsupported commitments, minutes to file and the fraction reversed within a week.",
+          "image": {
+            "alt": "Existing illustration of a related business workflow",
+            "caption": "Related illustration from the archive; not an original image from these sources."
+          },
+          "relatedLinks": [
+            {
+              "label": "Salesforce announcement"
+            }
+          ]
+        },
+        {
+          "title": "Cross-session support memory: using about one twelfth of the input can still miss a correction",
+          "type": "Technical release and vendor test on a public benchmark",
+          "source": "2026-11-18 | AWS, Amazon OpenSearch Memory release and evaluation",
+          "summary": "On a return call, an operator wants to recall an agreed contact preference without rereading every conversation. AWS separates original events from extracted facts, preferences and summaries: source turns remain searchable and derived memories consolidate in the background; only selected context goes to the answer model. The vendor compared this with supplying full history on a public cross-session test. Shorter model input may omit a recent correction. Ask separately whether the system remembers what someone said and whether this staff member is still entitled to read and use it.",
+          "design": "The application writes original events to a memory space. A background model extracts facts and session summaries, adds, updates or skips them, and makes context available through keyword, semantic or hybrid search. Each request identifies the actor, may specify a session and can be constrained by agent IAM policy. Events and derived memories can expire. The application chooses which context to supply. The release does not promise instant permission revocation when a case changes owners or prescribe how to confirm contradictory facts. We recommend showing recent original corrections with their summary and asking an operator to reconfirm rather than reusing a preference without support.",
+          "evidence": "Evidence grade: product release and single vendor run on an external public benchmark, no independent replication. LongMemEval-S has 500 questions. The top 30 hybrid results used about 13,500 answer-input tokens per question at 93.0% accuracy; full history used around 167,000 at 95.2%; keyword retrieval from raw turns used around 22,700 at 88.6%. The same model answered and graded in a separate call. The vendor reports 95% confidence ranges of roughly two to three points each way. The benchmark authors did not verify the vendor scores. Less answer input excludes extraction, storage and human correction costs; it proves neither real-world revocation latency nor a certain causal advantage for accuracy.",
+          "idea": "For after-sales support, test only staff-confirmed contact preferences, excluding addresses and payment promises. Use mock accounts with revocable permission and have supervisors identify the turn containing each correction. Compare full history and retrieval on accuracy, stale preferences and access after revocation. Include reconfirmation time in costs.",
+          "image": {
+            "alt": "Existing illustration of a related business workflow",
+            "caption": "Related illustration from the archive; not an original image from these sources."
+          },
+          "relatedLinks": [
+            {
+              "label": "General availability announcement"
+            },
+            {
+              "label": "Technical documentation"
+            },
+            {
+              "label": "Original LongMemEval benchmark"
+            }
+          ]
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Two checks for a follow-up commitment",
+          "description": "For sales operations, use one meeting note and one opportunity copy. The sales lead marks supporting passages and checks exactly which fields changed. Measure wrong customer links, unsupported commitments, unauthorized field changes and confirmation time.",
+          "tags": [
+            "Sales",
+            "State validation"
+          ]
+        },
+        {
+          "title": "Treasury mandate tabletop exercise",
+          "description": "For financial controls, use fictional accounts and mock instructions labeled execute, escalate or deny. A treasury owner approves mandates and resolves ambiguous cases. Track errors by category, duplicate instructions and review delay, without a payment connection.",
+          "tags": [
+            "Treasury",
+            "Human approval"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "8112ef507c27b7e1"
+}

@@ -1,0 +1,245 @@
+{
+  "issue": "ISSUE 086",
+  "date": "2026.11.20",
+  "thesis": "采购会上漂亮的分数、识别接口返回的正确字段、集群排期的预计小时数和一张看似齐全的表，都还差一次业务验收。本期选择过去一周首次发表或实质更新的资料，追问同一件事：哪个人要接过结果，凭什么确认这一单真的完成？独立开发者对旧版收据模型的测试仅作历史对照。\n\n银行评委看的是演示，工作簿裁判看的是答案和原文件；收据开发者可以核对字段，调度员最终关心的是实际释放资源的时刻。把这四种证据放在一起，最该先改的往往是验收单位：不要用维度平均值代替授权门槛，用字段代替单据，用运算量代替占用时长，或用对了几行代替整份清单完成。下一次试点应同时保存模型结果、人工结论和判错后发生的业务动作。",
+  "takeaways": [
+    "银行评估中九项能力评分高度相关。采购总分可以形成候选名单，不能代替权限测试，尤其不能用易用性高分抵消治理不合格。",
+    "Clairic 新版在厂商合成收据上获得字段满分，却尚未得到独立整单复测。换模型后应重新校准人工复核阈值，不沿用预览版的置信度经验。",
+    "共享集群的五折实验把时长预测的平均绝对误差从12.41小时降至1.71小时；由于没有计入排队，也没有在线调度对照，不能宣布交付提前了相同时间。",
+    "工作簿基准同时检查漏列和多列，可用于给例外清单定验收规则；困难样本和67项未公开任务意味着榜单不能直接定出日常工作的自动化比例。"
+  ],
+  "contrarian": "常见主张是评分越细，越能放心让代理自主完成流程。来源事实恰好提出两个限制：银行评委的九维分数可能受同一演示印象牵动；工作簿逐项计分后，如果把标准改成必须全部满足，最佳配置仍只有38.3%的尝试通过。编辑判断是：对一处漏项就会触发返工的任务，新增一个由业务方核对最终状态的步骤，可能比细分更多分值有用。若在留出的真实工单上，细分评分比终态复核更早且更便宜地发现严重错误，并在多个团队保持低误放率，这一判断应撤回。",
+  "items": [
+    {
+      "title": "银行采购代理平台：九项评分会不会只量到同一种印象？",
+      "type": "银行创新实验室评估／研究预印本",
+      "source": "2026-11-18，Ali、Siddiqui、Zahid，arXiv 首版",
+      "summary": "银行创新实验室请跨职能评委观看十种代理平台的表现，比较它们在交易对手信用风险、检索问答和流程自动化三项工作的适用性。困难在于，记忆、工具和协作明明是不同采购要求，评委却可能在每一栏都给演示最流畅的团队高分。如果总分掩盖了某一类任务上的弱项，银行就可能买到擅长展示、却无法留下逐步审批证据的平台。这份报告最有用的是把两件事分开：演示足以帮助买方决定接下来测试谁；让哪个系统有权改变一条业务记录，则需要另一份证据。",
+      "design": "已执行的评估收集平台资料和场景演示，由评委按九个能力维度形成评分。作者另提议，下一轮由买方固定测试资料、模型、提示和工具接口，记录每次运行的操作、结果和最终状态，再由预设规则判定任务是否成功。工具按作用范围、可逆性和后果分级，治理条件不达标的平台先出局，不能靠功能分数补回。候选名单交给业务负责人做小规模试点，平台版本变化再重测。后半段属于方法建议，报告没有给出银行生产身份系统如何接入，也没有提供真实超时或回滚的成功率。",
+      "evidence": "证据等级：B，单机构实测观察，尚非独立复现。可确认的是论文公布了十个平台、三类场景和九维评分的方法；作者报告九维内部一致性系数为0.98，其中八维与总分的秩相关至少为0.93，不同权重下仍可分成三档。作者把这种高度一致解释为演示的晕轮效应；它不是认定某个供应商操纵评分的证据，也无法排除有些能力本来就相关。厂商的具体展示并不等于买方在相同配置下重跑的结果。编辑判断是把它当作采购过程的诊断：报告没有独立客户的损失统计、获准写入后的错误率或长期审批成本，不能从三个梯队推算真实风险或选出通用赢家。",
+      "idea": "给采购经理做一张证据卡，先只评估一个只读问答流程，要求候选平台交出引用、拒答记录和超时后的状态。让业务和风控在不看品牌的情况下分别打分，出现分歧时回放原始记录。比较演示排序和重放排序、缺证比例与完成评审所需工时，再决定是否扩大到带写入的流程。",
+      "url": "https://arxiv.org/abs/2611.24039",
+      "image": {
+        "src": "/cases/acrm-credit-risk.jpg",
+        "alt": "与企业信用风险主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图或部署现场。"
+      },
+      "relatedLinks": [
+        {
+          "label": "评估框架全文",
+          "url": "https://arxiv.org/html/2611.24039v1"
+        }
+      ]
+    },
+    {
+      "title": "收据识别：字段全对，还是整张单据可以过账？",
+      "type": "模型发布／开放权重／独立开发者实测",
+      "source": "2026-11-18，Cloudflare 工程博客；对照为 Harshil Agrawal 2026-10-20 的预览版实测",
+      "summary": "报销单里最容易被忽视的错误，是商户、日期和币种都读对了，金额却差一个数字。Cloudflare 更新了专门抽取字段的 Clairic，并推出更小的 flash 版本，公布权重，新增直接读取文档页面的能力。与让对话模型用一段话总结账单不同，调用方明确指定所需字段，模型可以把品名、数量和价格一起还原为明细行。对处理成批收据的财务团队，这使原始单据与待确认记录之间多了一道可检查的接口。关键验收问题随之改变：会计能否发现那一个错数，而不仅是程序能否读懂返回格式？",
+      "design": "接口接收文本、图像或文档页面以及字段定义，每次图像与文档页合计最多四张；新版让普通文本和数字字段并行生成，每个字段自行结束，并保留置信度和字符位置等信号。厂商展示的是抽取，未披露企业账套权限或自动付款控制。对本地试点，建议读取脱敏副本，只把抽出的值、原件指针和版本号送进待审队列；金额与合计不符、超过页数或请求超时，就保留原件并转人工。会计核对后才使用自己的权限录入，重复请求只更新同一待审记录，不应生成第二张凭证。",
+      "evidence": "证据等级：C，新版属厂商自测；预览版另有独立但范围有限的工程测试。厂商在合成收据的576个字段上报告两个新版全部正确，预览版为369个；但在96个新文本请求的336个字段上，大版和小版分别答对335和328个。这是字段数，不是一次报销完整通过的单数。独立开发者此前用60张个人发票和361张公开扫描收据测的是预览版组合，指出噪声会使数字读错；这不能代替对新权重的复测。编辑判断：同一模板内的多个字段可能同时失误，不能把字段分数直接相乘来承诺整单准确率。缺少不同商户、退票及低质量扫描上的整单误放统计，也没有持续运行的财务损失对照。",
+      "idea": "为报销审核员做金额核对页，只覆盖单张收据的商户、币种和总额；原图与字段并排，模型不给付款指令。让审核员先盲录金额，再揭示机器答案并标记歧义。按商户模板分组留出测试集，比较完全正确的单据比例、误放金额与每单复核时间，另列因缺页被退回的数量。",
+      "url": "https://blog.cloudflare.com/open-clairic/",
+      "image": {
+        "src": "/cases/dacl-contract.jpg",
+        "alt": "与单据提取主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图或部署现场。"
+      },
+      "relatedLinks": [
+        {
+          "label": "大模型权重",
+          "url": "https://huggingface.co/Cloudflare/clairic"
+        },
+        {
+          "label": "轻量版权重",
+          "url": "https://huggingface.co/Cloudflare/clairic-flash"
+        },
+        {
+          "label": "开发者预览版实测",
+          "url": "https://harshil.dev/writings/clairic-vs-glm-receipt-extraction/"
+        }
+      ]
+    },
+    {
+      "title": "微调排期：从拿到显卡到交付模型到底要多久？",
+      "type": "生产作业日志／工程实验",
+      "source": "2026-11-18，Dharma-AI 在 Hugging Face 发布的团队工程报告",
+      "summary": "平台团队接到一张训练申请，不能只用模型大小和训练词元数回答“几点能交付”。下载权重、定期评估、保存检查点、上传成品都会占用显卡已经分配给这张工单的时间。Dharma-AI 用自家共享集群的历史作业，将单纯按浮点运算量推算时长，与利用提交配置预测实际占用时间的回归模型作比较。对需要协调多个实验团队的值班人员，这份记录提供了一个有用的口径：从分配到释放的时间可以用来估算资源何时空出，但客户从提交到拿到结果还要等队列，两者需要分开向业务报告。",
+      "design": "历史运行日志提供分配资源至结束的时长标签，输入特征只允许取自派发之前，包括数据规模、模型参数、每张卡的负载、评估频率及保存策略。团队把理论耗时也作为一个输入，让梯度提升树学习计算以外的修正，最终模型使用二十四项特征；它输出一个预计时长，不负责启动训练或改变优先级。报告没有给出值班角色如何授权，也没有展示用预测器自动排程的在线试验。作为试点，遇到新卡型、配置缺项或异常长任务，就显示历史区间交给调度员确认；人工调整保留原预测，才能追查偏差。",
+      "evidence": "证据等级：B，同一企业的生产记录和离线对照，结果由团队报告。样本是272次监督微调，合计约7382个显卡小时，全部使用H200。五折分层交叉验证中，较好的运算量基线平均绝对误差为12.41小时，树模型为1.71小时，中位绝对误差为0.51小时；超过60小时的作业只有13次，长尾更难估计。这里的小时差是预测误差下降，并不是已经节省的训练时间或显卡账款。预测不含排队时间，样本也不是对新集群的独立测试。编辑判断是先做同一硬件的影子预测，按时间切分复测；只有观察到延期减少，同时没有牺牲其他团队的等待时间，才能把预测改善记作业务收益。换一批硬件须重新收集标签。",
+      "idea": "为集群值班员做只读交期看板，先覆盖同一型号显卡上的监督微调申请；分别显示排队时长和预计占用时长，不改变原调度顺序。值班员在配置罕见时填入自己的估计。每周比较人工、理论基线和模型的绝对误差，单列最长作业的低估小时数，以及有多少次确实改变了交付承诺。",
+      "url": "https://huggingface.co/blog/Dharma-AI/predicting-fine-tuning-time",
+      "image": {
+        "src": "/cases/agent-deployment-monitor.png",
+        "alt": "与作业监控主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图或部署现场。"
+      }
+    },
+    {
+      "title": "工作簿验收：让裁判打开原文件，检查答案有没有多一行",
+      "type": "研究预印本／评测代码与公开任务集",
+      "source": "2026-11-13，Surge AI 研究团队论文首版；基准首次公开为 2026-09-30",
+      "summary": "运营人员经常问的是“列出所有符合条件的订单”，而非“举出几个符合条件的例子”。即使回答中每一行看起来都正确，只要漏了一项，业务人员仍要重新筛整张表。Surge AI 的工作簿基准在九月发布，十一月论文详细报告了工具、判分和不同模型配置的结果。题目由专业人士围绕真实工作需求编写，并附完整表格与逐条判定标准；对于集合型答案，不但不能漏列，也不能夹入多余记录。这使试点有办法把“有帮助的回答”与“可以直接交给下一位同事的完整清单”区分开来。",
+      "design": "每次尝试在容器中运行，代理可用文件编辑器、电子表格库和办公软件检查单元格、重新计算公式或渲染页面；对外网络只通向模型服务，任务证据要从原文件取得。代理交付文字答案后，同一环境内的裁判可以再次打开原文件，逐个判断标准是否满足，不能替代理补上没写出的结果。一次尝试限二百轮、六十分钟，单次模型调用限六百秒。公开评测未设置企业账套写入，也没有证明裁判可以替代业务复核；应用时宜保留输入快照，超时或裁判意见冲突时把差异行送回表格负责人。",
+      "evidence": "证据等级：B，有公开评测框架和样例，完整榜单未获独立复现。作者报告十三个领域的70项任务、218万个非空单元格和791条标准；二十种模型配置按一次尝试全部条件均满足的比例排名，最佳为38.3%，中位数为19.3%。这不是答对单元格的比例。专业人士特意挑选了模型曾使他们失望的工作，适合发现困难案例，却会高估普通办公室日常任务的难度。对外只放出三项，另外67项保留以防训练污染，外部团队因此难以逐项复核总分。编辑判断是借用完整性和排他性规则，验收自己的订单清单；不能以这张榜单推算自家每周节省的人工时间。留出的内部表也要重新判分。",
+      "idea": "让运营分析师从已结案的月度表中选一种例外清单，保存原文件副本和经两人核对的订单编号集合。系统只生成建议清单，不写回任何工作簿；负责人逐行确认误加和漏加的原因。记录整单一次通过率、每份清单人工复核分钟数，并用未参与制定规则的下一批表测试。",
+      "url": "https://arxiv.org/abs/2611.17766",
+      "image": {
+        "src": "/cases/godaddy-analytics-agent.png",
+        "alt": "与业务分析主题相关的既有配图",
+        "caption": "相关既有配图，非本期资料原图或部署现场。"
+      },
+      "relatedLinks": [
+        {
+          "label": "详细方法",
+          "url": "https://arxiv.org/html/2611.17766v1"
+        },
+        {
+          "label": "评测代码",
+          "url": "https://github.com/surge-ai/gdp-xlsx"
+        },
+        {
+          "label": "公开任务",
+          "url": "https://huggingface.co/datasets/surgeai/GDP.xlsx"
+        },
+        {
+          "label": "作者榜单",
+          "url": "https://surgehq.ai/benchmarks/gdp-xlsx"
+        }
+      ]
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "采购演示证据卡",
+      "description": "给平台采购和风控团队限定一项只读查询，由两名评委独立看匿名运行记录；缺权限证明或引用无法回查就退回。核对演示入围率、重放合格率、评委分歧率和单项评审用时。",
+      "tags": [
+        "采购",
+        "权限审查"
+      ]
+    },
+    {
+      "title": "报销例外清单复核器",
+      "description": "给财务共享中心只生成待核对的单据编号和疑似金额差异，不写入账本。审核员用原件逐条复核，按整张单据衡量漏报、误报、误放金额与核对时间，并分别报告新旧模板。",
+      "tags": [
+        "财务",
+        "整单验收"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "A strong procurement score, a correctly extracted field, an estimate of GPU hours and a plausible spreadsheet still need business acceptance. This issue selects material first published or substantially updated over the past week and asks who takes the result and how they know the job is complete. An independent developer’s earlier receipt-model test is included only for historical comparison.\n\nBank reviewers saw demonstrations, whereas the workbook judge can inspect answers and originals. A receipt developer can verify fields; a scheduler cares when resources are released. The first change to a pilot is often the unit of acceptance: an average cannot replace an authorization gate, a field a receipt, compute an occupancy interval, or several correct rows an entire list. Save the model result, the human decision and the subsequent business action when an error is found.",
+      "takeaways": [
+        "The nine bank assessment scores were highly correlated. Totals may shortlist platforms but cannot replace authorization tests or let ease of use compensate for failed controls.",
+        "Clairic earned full marks on the vendor’s synthetic receipt fields, without independent whole-receipt validation of the new release. Recalibrate review thresholds after a model change rather than carrying over preview confidence results.",
+        "Five-fold testing on a shared cluster reduced duration forecast MAE from 12.41 to 1.71 hours. Queue time was excluded and scheduling was not tested online, so this is not a delivery-time saving of the same size.",
+        "The workbook benchmark grades omissions and additions, useful acceptance rules for exception lists. Difficult examples and 67 withheld tasks prevent the rankings from determining what portion of everyday work can be automated."
+      ],
+      "contrarian": "It is tempting to assume that more granular scores justify more autonomy. Yet the bank’s nine scores may share a demonstration halo, and even the best workbook configuration passed only 38.3% of attempts when every criterion had to be met. Where one omission forces rework, we judge that business verification of final state may add more than further subdivisions of a score. We would withdraw that judgment if, on held-out real work, fine-grained scores detected serious errors earlier and more cheaply than final-state checks while keeping false acceptance low across teams.",
+      "items": [
+        {
+          "title": "Bank procurement: when nine scores measure one impression",
+          "type": "Bank innovation lab evaluation / research preprint",
+          "source": "2026-11-18, Ali, Siddiqui and Zahid, first arXiv submission",
+          "summary": "A bank innovation lab convened a cross-functional panel to assess ten agent platforms for counterparty credit risk, retrieval-based Q&A and process automation. Memory, tools and coordination are distinct procurement requirements, yet a polished demonstration can lift all three ratings. A total that hides a weak workload could favour a good presenter over a platform that can document each approval. A demonstration can inform the shortlist; allowing a system to change a business record calls for different evidence.",
+          "design": "The completed evaluation collected platform materials and demonstrations, which a panel assessed across nine capabilities. For a future round, the authors propose that buyers pin data, models, prompts and tool interfaces, record actions and final state on repeated runs and score outcomes against predicates. Tools are tagged by scope, reversibility and severity. Failed governance controls rule out a platform regardless of its capabilities. Business owners would pilot the shortlist and repeat tests when versions change. This remains a proposal; no production identity integration, timeout recovery rate or rollback success rate is demonstrated.",
+          "evidence": "Evidence grade B: a single institution’s observations, not an independent replication. The paper documents ten platforms, three scenarios and nine score dimensions. The authors report internal consistency of 0.98, rank correlations of at least 0.93 with the total for eight dimensions and three tiers robust to alternative weights. Their halo-effect interpretation does not show that any vendor manipulated results or exclude genuinely correlated abilities. Vendor demonstrations are not controlled buyer reruns. We read this as a procurement diagnostic. There are no independent client losses, error rates after granting write access or long-term approval costs from which to infer operational risk or a universal winner.",
+          "idea": "Give procurement managers an evidence card for one read-only Q&A workflow. Require citations, abstentions and post-timeout state. Have business and risk reviewers score independently without seeing the brand, then replay disputed runs. Compare demo and replay rankings, missing evidence and review hours before testing write workflows.",
+          "image": {
+            "alt": "Existing illustration related to corporate credit risk",
+            "caption": "Related existing illustration, not an original image from this source or a deployment photograph."
+          },
+          "relatedLinks": [
+            {
+              "label": "Full evaluation protocol"
+            }
+          ]
+        },
+        {
+          "title": "Receipt extraction: correct fields or a receipt ready to post?",
+          "type": "Model release / open weights / independent developer test",
+          "source": "2026-11-18, Cloudflare engineering blog; preview comparison by Harshil Agrawal, 2026-10-20",
+          "summary": "A receipt can have the right merchant, date and currency and still be wrong by a digit. Cloudflare updated the specialist field extractor Clairic, released a smaller flash variant and published weights; the release adds direct PDF page input. Instead of asking a chat model to summarize a bill, callers name fields; descriptions, quantities and prices can be returned together as line items. That gives finance teams an inspectable interface between original receipts and proposed records. Acceptance should ask whether an accountant can catch the wrong digit, beyond whether a program can parse the response.",
+          "design": "The API takes text, images or PDF pages plus field definitions, with four images or PDF pages combined per request. Ordinary text and number fields generate in parallel and finish individually; confidence and character spans remain available. The vendor demonstrates extraction rather than ledger permissions or payment controls. For a local pilot, use redacted copies and send values, a pointer to the original and model version to a review queue. Reconciliation failures, excess pages and timeouts retain the original for a human. Only an accountant posts with their own permissions; retried requests update the same draft rather than issuing another voucher.",
+          "evidence": "Evidence grade C for the vendor’s new-version tests, with a limited independent engineering test of the preview. Cloudflare reports both new models correct on all 576 synthetic receipt fields versus 369 for the preview. On 336 fields in 96 fresh text requests the larger and smaller models scored 335 and 328. Fields are not fully approved expense claims. An independent developer tested the preview combination on 60 personal invoices and 361 public scans and observed wrong digits on noisy inputs; that does not validate the new weights. Errors within a template can be correlated, so multiplying field scores cannot establish whole-receipt accuracy. There are no whole-receipt false acceptance or sustained loss comparisons across merchants, returns and poor scans.",
+          "idea": "Build an amount-review page for expense auditors covering merchant, currency and total on single receipts. Show the original alongside the fields, with no payment instruction. Auditors first enter the amount blind, then reveal the prediction and flag ambiguity. Hold out merchant templates and compare complete-receipt accuracy, falsely accepted amounts, minutes per review and counts rejected for missing pages.",
+          "image": {
+            "alt": "Existing illustration related to document extraction",
+            "caption": "Related existing illustration, not an original image from this source or a deployment photograph."
+          },
+          "relatedLinks": [
+            {
+              "label": "Larger model weights"
+            },
+            {
+              "label": "Flash weights"
+            },
+            {
+              "label": "Developer test of the preview"
+            }
+          ]
+        },
+        {
+          "title": "Fine-tuning schedules: how long from GPU allocation to a finished model?",
+          "type": "Production job logs / engineering experiment",
+          "source": "2026-11-18, Dharma-AI engineering report on Hugging Face",
+          "summary": "A platform team cannot answer a delivery-time question from model size and training tokens alone. Weight downloads, evaluations, checkpoints and final uploads use time after GPUs have been allocated. Dharma-AI compared a compute-only duration estimate against regression on submitted configuration and actual occupancy from its shared cluster. For staff coordinating several experiment teams, the measurement matters: allocation-to-release time helps predict when resources free up, but customer turnaround includes a queue and should be reported separately.",
+          "design": "Logs supply allocation-to-finish labels. Features are restricted to pre-dispatch information such as data size, parameter count, per-GPU load, evaluation cadence and checkpoint policy. A gradient-boosted tree takes theoretical duration as another input and learns corrections; its final version uses 24 features. It predicts duration, neither starting jobs nor changing priorities. The report specifies no operator authorization model or online test of automatic scheduling. In a pilot, show a historical range for manual handling on unfamiliar hardware, missing configuration or very long jobs; retain the original forecast after overrides to track bias.",
+          "evidence": "Evidence grade B: one company’s production records and offline comparisons, self-reported. The sample covers 272 supervised fine-tuning runs and about 7,382 GPU-hours, all on H200s. Under stratified five-fold cross-validation the better compute-only baseline had mean absolute error of 12.41 hours, versus 1.71 for the tree; median absolute error was 0.51 hours. Only 13 jobs exceeded 60 hours, making tail estimates difficult. The improvement is in forecast error, not time or GPU spend already saved. Queueing is excluded and no other cluster independently validated the result. We recommend shadow forecasts on the same hardware with a time-split retest. Fewer missed deadlines without longer waits for other teams would be evidence of business benefit. New hardware requires fresh labels.",
+          "idea": "Build a read-only ETA panel for operators, initially for supervised fine-tuning on one GPU type. Show queue time separately from expected occupancy and leave scheduling order intact. Have operators enter an estimate for unusual configurations. Each week compare absolute errors for humans, the theoretical baseline and the model, and report underestimated hours on the longest runs and how often a delivery commitment actually changed.",
+          "image": {
+            "alt": "Existing illustration related to job monitoring",
+            "caption": "Related existing illustration, not an original image from this source or a deployment photograph."
+          }
+        },
+        {
+          "title": "Workbook acceptance: let the grader open the file and check for an extra row",
+          "type": "Research preprint / evaluation code and public tasks",
+          "source": "2026-11-13, first Surge AI research preprint; benchmark initially released 2026-09-30",
+          "summary": "Operations teams often ask for every qualifying order, not a few examples. Even if all returned rows look plausible, one omission can force a colleague to refilter the whole workbook. Surge AI released its benchmark in September; its November paper details tools, grading and results across model configurations. Professionals supplied workplace requests, complete files and individual criteria. For set-valued answers, every required record and no extra record must be present. That distinction separates a helpful response from a list another employee can actually use.",
+          "design": "Each attempt runs in a container with a file editor, spreadsheet libraries and office software to inspect cells, recalculate formulas or render pages. Network access is restricted to the model service, so evidence must come from the file. Once the agent submits text, a judge in the same environment may reopen the input and score each criterion, without credit for omitted results. Limits are 200 turns and 60 minutes per attempt and 600 seconds per model call. This benchmark neither writes into enterprise ledgers nor demonstrates that judging replaces business review. In use, keep input snapshots and send discrepant rows to the spreadsheet owner after timeouts or disputed verdicts.",
+          "evidence": "Evidence grade B: evaluation harness and examples are public; the full leaderboard lacks independent replication. The authors report 70 tasks across 13 domains, 2.18 million populated cells and 791 criteria. Under strict all-criteria pass per attempt, the best of 20 configurations reached 38.3% and the median 19.3%; this is not cell accuracy. Professionals selected workflows where models had disappointed them. That is useful for finding difficulties but can overstate the difficulty of routine office work. Only three tasks are released; withholding 67 limits contamination but prevents full per-task external review. We would reuse the completeness and exclusivity rules on local order lists rather than convert the ranking into weekly hours saved. Held-out internal workbooks also need fresh scoring.",
+          "idea": "Have operations analysts select one exception list from closed monthly workbooks, retaining originals and a set of order IDs verified by two people. Generate a proposed list without modifying files. Owners record reasons for every addition or omission. Track full-list first-pass acceptance and review minutes; test the next batch of workbooks, which was not used to design the rules.",
+          "image": {
+            "alt": "Existing illustration related to business analytics",
+            "caption": "Related existing illustration, not an original image from this source or a deployment photograph."
+          },
+          "relatedLinks": [
+            {
+              "label": "Full methodology"
+            },
+            {
+              "label": "Evaluation harness"
+            },
+            {
+              "label": "Public tasks"
+            },
+            {
+              "label": "Authors’ leaderboard"
+            }
+          ]
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Procurement evidence card",
+          "description": "Limit procurement and risk teams to one read-only query. Two reviewers independently assess anonymized traces, returning cases without permission evidence or verifiable references. Compare demo shortlisting, replay acceptance, reviewer disagreement and review time.",
+          "tags": [
+            "Procurement",
+            "Authorization review"
+          ]
+        },
+        {
+          "title": "Expense exception list reviewer",
+          "description": "For shared finance teams, generate only receipt identifiers for review and suspected amount discrepancies; do not write the ledger. Auditors compare each item to the original. Measure missed and false flags, wrongly accepted amounts and time per whole receipt, separately for new and known templates.",
+          "tags": [
+            "Finance",
+            "Whole-receipt acceptance"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "6d0385de89bf2a4a"
+}

@@ -1,0 +1,210 @@
+{
+  "issue": "ISSUE 080",
+  "date": "2026.11.14",
+  "thesis": "事后补发：2026 年 11 月 20 日补写，按 11 月 14 日的资料截点从最近七天选取四组材料。文件问答出错，有时第一步就找错了合同、页面或采购行；先测证据定位，再决定是否让模型解释。\n\n这四个场景需要不同的命中单位：文件夹里要区分协议，演示稿里要区分页，采购单里要区分行，目录里要区分手册版本。把它们都汇总成一个「相关」比例，无法告诉工程团队应改索引、改字段映射还是改界面。建议保留从第一次候选到人工确认原件的记录，再按首个错误归责。",
+  "takeaways": [
+    "PULSAR 的 156 毫秒是生产向量搜索中位耗时，不能拿来承诺整份尽调答复的速度；回答阶段还需要读取能看清单位的原页。",
+    "Conare 在同一代理的测试中分别报告合同身份命中和答案正确率；这是供应商的对照结果，两项指标也不能互换。",
+    "采购单合计通过仍可能存在互换的数量。工程教程给出了校验步骤，却没有提供错误放行率，试点应追踪人工在放行后改了什么。",
+    "Google 的公开预览在用户输入时返回文档；它没有测用户打开正确手册的时间，知识库验收不能只数第一次点击。"
+  ],
+  "contrarian": "常见主张是只要检索更快、输出更规整，就可以减少人工查证。来源事实是 PULSAR 的速度指标止于向量检索，采购单即使符合字段约束仍要核对原行。编辑判断：当合同版本或数量错配会改变业务动作时，返回原件位置比追加流畅解释更值得先投入。若盲测显示解释组在相同权限、成本和复核时间下持续降低关键错引与错误放行，且能重现于新供应商和新版本，这一优先级就应改变。",
+  "items": [
+    {
+      "title": "PULSAR：在尽调演示稿上找原图，先粗排再精排",
+      "type": "同行评审产业论文、机构部署",
+      "source": "2026-10-24 至 10-29｜EMNLP 产业分会；本期采用 ACL 标注 2026-11-10 的修订版",
+      "summary": "投资团队临近交易时频繁更换尽调演示稿。把每张图表先识别为文字，再让模型描述图意，既要重复生成描述，也可能丢失图例、分组和位置。穆巴达拉投资公司的团队把整页图像作为检索对象：先用压缩表示找候选页，再对候选精排，最后回到原页作答。它针对的是分析师需要指出数字来自哪一页的场景。检索只负责定位，读数仍可能出错；因此设计中把找页所需的分辨率与作答时阅读图表所需的分辨率分开选择，避免对全库每页都付出仔细读图的成本。",
+      "design": "新文件按页渲染，冻结的视觉检索模型为页面局部生成向量；索引先用紧凑向量召回，再对少量候选用保留更多细节的表示重新打分，回答阶段读取更清晰的原页。更新走优先队列，可利用页面哈希恢复中断的处理。论文讨论的检索响应并不包含分析师的审批，未给出足以复建全部权限策略的细节。若做内部试点，应在召回前限定交易授权，附上文件版本和页码，过期索引先停用；新版本完成处理后再恢复查询，图中单位或标签难辨时由分析师核对，答案不得自动进入投资决议。",
+      "evidence": "证据等级 B：产业论文经过同行评审，部署规模与内部数据由实施团队报告，并非客户之外的独立审计。作者称系统覆盖约七万八千份文档、约二百四十万页。在公开基准上，与不做池化的配置相比，向量搜索中位耗时缩短至约十五分之一，报告倍数为 15.1，前十位排序质量及召回指标的绝对损失均小于 0.01；生产并发下向量搜索中位数为 156 毫秒。两组口径不同，都不能解释为端到端回答耗时。入库每页成本约二十分之一也是按调用次数估算，未包含实施人力和完整服务账单。编辑判断：值得复验的是同样相关性约束下的索引取舍，而不是把该机构的规模或提速数字直接写进采购预算。",
+      "idea": "面向并购资料室管理员，只选择获准共享的旧演示稿，对同一批找图问题比较文字索引和页图索引。分析师先独立标注正确页及单位，再盲看两种返回结果；遇到无法确定原页的回答一律退回。记录前五页命中率、换版到可查的分钟数、误引旧版次数和每次人工复核时间。",
+      "url": "https://aclanthology.org/2026.emnlp-industry.39v2.pdf",
+      "image": {
+        "src": "/cases/enterprise-rag-pipeline.png",
+        "alt": "企业文档与语言工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "论文记录",
+          "url": "https://aclanthology.org/2026.emnlp-industry.39/"
+        }
+      ]
+    },
+    {
+      "title": "合同问答答错之前，先查检索器找的是哪份合同",
+      "type": "厂商对照测试、公开数据集",
+      "source": "2026-11-09｜Conare 测试数据日期；关联 LegalBench-RAG 原始研究发表于 2024-08-19",
+      "summary": "两份并购协议可能都提到对价，却涉及不同交易。Conare 用同一个代理回答合同问题，只更换背后的搜索服务，再追查每次首条结果究竟属于哪份合同。这个设计把「检索到近似条款」与「拿到指定协议里的条款」分开；两者在普通语义相似度上看起来可能差不多，在法律运营中却不是可以互换的依据。页面除了展示回答正确率，还把未找到、回答不完整、回答错误分列。对合同库负责人来说，这给出一个低成本诊断顺序：先核对取证对象，再判断模型是否读错了已找到的内容。",
+      "design": "输入是指向某份合同的问题和同一批合同；检索服务返回候选，代理阅读条款并作答。测试以律师标注的证据片段作参照，报告还列出只允许搜索一次的对照，并检查首条结果的文件身份。基准没有展示企业授权继承、员工读取限制、拒答阈值或超时后的工单流程。若部署为内部助手，编辑建议先用合同编号、交易方及版本缩小授权候选，在结果旁显示文件身份；查不到时返回待核材料清单而非推断条款。只有法务复核过版本与引文后，答复才可进入对内意见草稿。",
+      "evidence": "证据等级 B：公开基准上的厂商自测。Conare 报告在 714 份合同的 776 道题上，自家方案答对 89.4%，其余三个配置依次为 74.5%、70.2% 和 66.9%；限制为一次搜索时，自家降至 84.9%。首条命中正确合同的比例为 92.0%，该指标只查文件，不能当作引文完整率或法律判断正确率。原始基准论文独立说明了证据片段的构造，不能独立确认厂商选择的配置及本次排序。比较由参测供应商执行，真实合同的修订、语言、扫描件和索引预算可能不同，未给出在读者自有资料上的运行成本或错误后果。编辑推断是错误应按所处环节归因，尚不足以断言换一家检索器就能达到同样表现。",
+      "idea": "面向法务运营，把已获授权的历史合同按交易和修订版分组，让审阅律师制作同名条款的困难题。助手只交付原文链接和候选段落，不提供签约意见。分别统计首条文件正确率、条款完整率及每题查证分钟数；人工裁定究竟是选错文件、漏掉例外，还是读到了过期版本。",
+      "url": "https://conare.ai/benchmarks/",
+      "image": {
+        "src": "/cases/dacl-contract.jpg",
+        "alt": "企业文档与语言工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "原始基准论文",
+          "url": "https://arxiv.org/abs/2408.10343"
+        }
+      ]
+    },
+    {
+      "title": "采购单抽取：格式正确的记录也要回到原行核数",
+      "type": "工程教程、示例流程",
+      "source": "2026-11-12｜BYD Tech，文档抽取工程教程",
+      "summary": "一份采购单可以顺利转成字段齐全的记录，却把上一行的数量配给下一行的物料。BYD Tech 从这个问题出发，区分原生文字、扫描识别和直接读图三条路径，给出按字段约束输出后再用程序复核的做法。教程的价值在于把两个验收问题拆开：系统是否给出了可处理的记录，以及记录是否忠实于纸面。尤其在跨页表格中，字段类型全对也可能少一行，合计不符就是可以廉价发现的信号。案例适合用于收货前的录入草稿，而不是凭生成结果直接入账。",
+      "design": "原生文件先取文字层，扫描件结合文字识别与位置，复杂布局再让视觉模型读页图。作者建议按页或章节拆分，表格逐行返回带列名的对象并保留页码，跨页重复传入表头，再由代码合并，检查行号、总量和必要字段。教程涉及复核队列，但未规定读者企业如何委派身份、开放采购系统写权限或恢复超时任务。试点可向处理服务只提供获批文件，设置批次去重和失败队列；金额或数量校验失败就保留原页，交采购员更正后重新验证，通过的记录仍只进入待审核草稿。",
+      "evidence": "证据等级 C：公开工程教程和可检查的示例，支持设计审查，不是企业现场实验。可以核对的是作者展示了采购单字段约束、跨页表格处理和合计校验的不同职责；这些步骤没有证明任何供应商模型能在真实订单上达到固定准确率。本期资料未给出按供应商、模板或扫描难度分层的测试集、样本数、双人核验结果、错误放行率及处理账单，也没有独立复现。示例中的等式还可能在两行数字互换时照样成立。编辑判断是总量校验只适合拦住部分明显错误，验收仍要抽查行与物料的对应关系，特别记录校验通过但人工改动过的订单，否则仪表盘会漏算最需要了解的风险。",
+      "idea": "面向采购共享服务中心，用已脱敏的跨页采购单拟制字段核对台，仅提取物料、数量、页码以及原文行。遇到换页或合计不符，由采购员查看原页并记录错误位置；财务入账仍需人工批准。报告逐行精确匹配率、漏行率、校验通过后仍被改动的比例以及人工处理分钟。",
+      "url": "https://bydtech.in/blog/llm-document-extraction",
+      "image": {
+        "src": "/cases/mm-bizrag.jpg",
+        "alt": "企业文档与语言工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "资料目录：用户尚未打完名称时，显示文档而非猜下一个词",
+      "type": "产品发布说明、配置文档",
+      "source": "2026-11-10｜Google Cloud Agent Search，自定义搜索应用公开预览",
+      "summary": "员工记得设备编号的前半段，却不知道手册全称，此时最有帮助的通常是一组可辨认的文件，而不是一串替他补全的关键词。Google Cloud 在自定义搜索应用中预览逐字检索：输入尚未结束，页面就刷新匹配文档的排序列表，用户可以中途选择。它改变的是查询界面返回的对象以及选择时机，不等于模型已经回答了手册里的问题。对于频繁按编号或题名导航的知识库，读者可以先比较「找到正确文件需要多久」，再决定是否增加生成式回答和随之而来的审核工作。",
+      "design": "应用管理员配置支持逐字检索的结构字段；用户输入前缀，搜索系统按当前输入返回候选文档，前端更新列表，用户决定打开哪一项。发布说明没有要求调用生成模型，也未给出特定排序算法、人员审批链或企业目录的权限实现。编辑建议用手册号和公开题名试验，访问校验早于结果展示，因为只显示文件名也可能泄露未授权事项。连续快速输入应忽略过时请求的返回，超时或无结果时保留完整查询入口；用户选择文件后再按照原系统权限打开，不能因前缀匹配而放宽访问范围。",
+      "evidence": "证据等级 B：厂商发布说明可确认公开预览日期、配置入口以及逐字返回文档这一产品行为；关于查找效率的商业收益则没有独立实测。公告没有给出首个正确候选的出现时间、每次按键的延迟分布、误点率、请求费用或对非拉丁输入法的对照结果。返回得更早并不必然意味着找到得更早：短前缀可能同时命中多个部门的同名文件，候选频繁换位还可能增加误选。编辑判断是将该功能作为目录导航对照组，而非直接作为知识问答质量的证明；验收时必须把首次点击与最终打开正确版本区分，并用中文输入法的组合输入验证不会中途暴露或误选结果。",
+      "idea": "为内部设备支持团队做一个只读手册选择器，用相同题目交替展示整句搜索和逐字候选。维修人员确认型号及版本后才打开手册，管理员另以无权账号核验列表。测到达正确版本的时间、错选型号率、每次成功查找的请求数，并单列中文输入法及手机窄屏的表现。",
+      "url": "https://docs.cloud.google.com/generative-ai-app-builder/docs/release-notes#November_10_2026",
+      "image": {
+        "src": "/cases/enterprise-rag-constraints.jpg",
+        "alt": "企业文档与语言工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "字段配置",
+          "url": "https://docs.cloud.google.com/generative-ai-app-builder/docs/configure-field-settings"
+        }
+      ]
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "合同首条命中核对",
+      "description": "为法务知识库管理员，在授权的同名合同中记录第一次命中的文件及版本；律师盲核条款，比较首条正确率、错引旧版率和查证时间。",
+      "tags": [
+        "合同",
+        "检索评估"
+      ]
+    },
+    {
+      "title": "采购行错配抽检",
+      "description": "为采购共享中心，仅对跨页物料行生成待核草稿。采购员对照原页确认后才能交下游；测漏行率、错配率以及合计检查通过后的纠正比例。",
+      "tags": [
+        "单据抽取",
+        "人工核验"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "Retrospective written November 20, 2026, using four groups of sources from the seven days through November 14. Many document-answering errors begin with the wrong contract, page or order line. Measure evidence location before deciding whether a model should interpret it.\n\nThese settings have different units of success: agreement, slide, purchase-order row and manual revision. A single relevance rate cannot tell engineers to fix indexing, field mapping or interface design. Keep the path from the first candidate to the human-confirmed original and identify the first error.",
+      "takeaways": [
+        "PULSAR’s production median of 156 ms covers vector search, not a completed diligence answer. The answering stage still needs a page on which units are legible.",
+        "Conare separately reports contract-identity hits and answer accuracy with the same agent. Both are vendor test results; they are not interchangeable.",
+        "An order with swapped quantities may pass totals. The tutorial describes checks but gives no false-release rate; track corrections made after acceptance.",
+        "Google’s preview returns documents as users type but does not measure time to the right manual. Catalog acceptance must go beyond the first click."
+      ],
+      "contrarian": "A common claim is that faster search and cleaner records reduce the need for verification. PULSAR measures speed only through vector search; valid purchase-order schemas still require row checks. Our judgment: where wrong revisions or quantities change an action, invest in returning the source location before adding fluent explanations. Reverse this priority if blinded trials at matched permissions, costs and review time consistently show fewer critical miscitations and false releases with explanations, including on new suppliers and revisions.",
+      "items": [
+        {
+          "title": "PULSAR: finding the original slide with a two-stage page index",
+          "type": "Peer-reviewed industry paper and institutional deployment",
+          "source": "October 24–29, 2026, EMNLP Industry Track; this issue uses the ACL revision marked November 10, 2026",
+          "summary": "Deal teams frequently replace diligence decks near closing. OCR and generated chart descriptions have to be refreshed and can lose legends, grouping and position. The team at Mubadala retrieves whole page images: compressed representations identify candidates, detailed rescoring ranks them, and the original page supplies evidence. This suits analysts who must name the page behind a number. Finding a page does not guarantee reading it correctly; the design separates the resolution needed to find a page from that needed to read its chart, avoiding fine interpretation of every page up front.",
+          "design": "Files are rasterized page by page, with local vectors from a frozen visual retriever. A compact index retrieves candidates; higher-detail representations rescore a short list, and a clearer original page is used for reading. Priority queues and page hashes support recovery of interrupted ingestion. Search latency excludes analyst approval, and the paper does not specify enough to reproduce all authorization policies. A pilot should constrain retrieval by deal access, attach version and page, suspend stale indexes until their replacements finish, and send ambiguous units or labels to an analyst. Answers must not automatically enter investment decisions.",
+          "evidence": "Evidence B: peer-reviewed industry paper, with deployment size and internal results supplied by the implementers, not an independent audit. The authors report about 78,000 documents and 2.4 million pages. On a public benchmark, median vector search was 15.1 times faster than without pooling, with absolute losses below 0.01 in both top-ten ranking quality and recall. Under production concurrency median vector search took 156 ms. Neither measurement is end-to-end answer time. Estimated twentyfold lower per-page ingestion cost is based on call counts, excluding engineering labor and complete bills. Re-test the index trade-off at matched relevance; do not transfer the figures directly into procurement budgets.",
+          "idea": "For diligence-room managers, compare text and page-image indexes on the same chart questions over authorized historical decks. Analysts label correct pages and units before blindly reviewing results. Return answers with no verifiable page. Record top-five page hit rate, minutes from revision to searchability, stale citations and review time.",
+          "image": {
+            "alt": "Existing illustration of an enterprise document or language workflow",
+            "caption": "Related existing illustration, not an original image from this source."
+          },
+          "relatedLinks": [
+            {
+              "label": "Paper record"
+            }
+          ]
+        },
+        {
+          "title": "Before grading a contract answer, check which contract was retrieved",
+          "type": "Vendor comparison and public dataset",
+          "source": "November 9, 2026, date of Conare’s benchmark results; original LegalBench-RAG research posted August 19, 2024",
+          "summary": "Two merger agreements can both discuss consideration while referring to entirely different transactions. Conare held the answering agent fixed, changed the search service and checked which contract produced the first hit. A semantically similar clause is not evidence from the named agreement. Alongside answer accuracy, the page distinguishes failures to find a clause, incomplete answers and wrong answers. Contract-library owners can first verify the source document, then investigate whether the model misread a clause it actually found.",
+          "design": "Questions identify a contract in a shared collection. A search service returns candidates for the agent to read and answer from. The evaluation references lawyer-marked evidence, includes a one-search comparison and checks the identity of the first result. It does not establish enterprise access inheritance, refusal thresholds, staff reading permissions or timeout workflows. For internal use, restrict authorized candidates by contract number, party and version and display that identity beside the result. Return a list of missing evidence rather than inferring a clause. Legal staff should verify both version and quotation before a draft opinion is shared internally.",
+          "evidence": "Evidence B: vendor-run test using a public benchmark. Conare reports 89.4% correct across 776 questions and 714 contracts, versus 74.5%, 70.2% and 66.9% for the other configurations. With only one search, Conare scored 84.9%. Its first hit came from the correct contract 92.0% of the time; that measures document identity, not citation completeness or sound legal judgment. The original benchmark substantiates how evidence spans were constructed but does not independently validate this vendor’s configurations or ranking. Version histories, languages, scans and budgets may differ in production. Costs and consequences on a reader’s documents are unknown. Diagnose by stage rather than assuming a new retriever will reproduce the result.",
+          "idea": "For legal operations, group authorized contracts by deal and revision. A lawyer builds hard questions about similar clauses. Return source links and excerpts, not signing advice. Track correct first document, complete clauses and minutes to verification; a reviewer distinguishes wrong agreements, missing exceptions and obsolete versions.",
+          "image": {
+            "alt": "Existing illustration of an enterprise document or language workflow",
+            "caption": "Related existing illustration, not an original image from this source."
+          },
+          "relatedLinks": [
+            {
+              "label": "Original benchmark paper"
+            }
+          ]
+        },
+        {
+          "title": "Purchase orders: a valid record still has to match the printed row",
+          "type": "Engineering tutorial and worked workflow",
+          "source": "November 12, 2026, BYD Tech document-extraction engineering tutorial",
+          "summary": "A purchase order may convert into complete-looking fields while assigning a quantity to the wrong item. BYD Tech distinguishes native text, OCR and page-image reading, then constrains model output before validating fields in code. This separates machine-readable records from faithful transcription. A multi-page table can lose a row while still passing type checks; a total mismatch is a cheap warning. The example fits preparation of receiving records, not automatic posting.",
+          "design": "Take native text where available, add OCR and positions for scans, and use a visual model for difficult layouts. The tutorial splits by page or section, returns named columns by row with page numbers, repeats headers across page breaks and merges in code. Verify row sequence, totals and mandatory fields. Review queues are discussed; enterprise delegation, purchasing write permissions and timeout recovery are not specified. A pilot can restrict input, deduplicate batches and queue failures. On a quantity or amount mismatch retain the original page; staff correct and revalidate, then send only a draft for approval.",
+          "evidence": "Evidence C: public design tutorial and inspectable examples, not a field experiment. It separates schema constraints, handling cross-page tables and checking totals. These do not establish any model’s accuracy on real orders. It gives no supplier- or layout-stratified test set, sample size, dual review results, erroneous release rate, operating bill or independent reproduction for the workflow. Two swapped numbers can leave a total unchanged. Totals catch only some obvious errors; acceptance tests should sample item-to-row alignment and log orders that passed checks but required human changes.",
+          "idea": "For shared purchasing teams, build a field-checking desk on redacted multi-page orders. Extract only items, quantities, page numbers and original lines. Staff inspect page breaks and total mismatches, record error locations and retain approval over posting. Report exact row matches, missing rows, corrections after checks and review minutes.",
+          "image": {
+            "alt": "Existing illustration of an enterprise document or language workflow",
+            "caption": "Related existing illustration, not an original image from this source."
+          }
+        },
+        {
+          "title": "Catalogs: show documents before a user finishes typing the name",
+          "type": "Product release notes and configuration documentation",
+          "source": "November 10, 2026, Google Cloud Agent Search public preview for custom search applications",
+          "summary": "An employee remembering part of an equipment code may need recognizable manuals, not suggested queries. Google Cloud previewed search-as-you-type in custom search apps: each keystroke refreshes a ranked list of matching documents, allowing selection before entry is complete. This changes what the interface returns and when users select it; no manual question has been answered. For catalogs navigated by code or title, first measure time to the correct document, then decide whether generating and reviewing answers adds value.",
+          "design": "An administrator enables suitable schema fields. As the user types, the service returns documents ranked for the current prefix; the interface refreshes and the user chooses what to open. The announcement requires no generative model and specifies no ranking algorithm, approval chain or enterprise authorization implementation. Trial manual identifiers and public titles, checking access before display since even a filename can disclose restricted information. Discard replies to obsolete requests; on timeout or no result preserve the ordinary search path. Opening a match must still use the source system’s permissions.",
+          "evidence": "Evidence B: the vendor documents preview status, configuration and return of documents as the user types. There is no independent business test here. The notice does not report time to the first correct candidate, keystroke latency distribution, misclicks, request costs or non-Latin input-method comparisons. Earlier results can include identically named files from several departments; changing ranks can increase erroneous selection. Use this as a catalog-navigation comparison, not evidence of better answers. Distinguish first click from opening the right version and verify Chinese composition input does not reveal or misselect premature results.",
+          "idea": "For equipment support, compare full-query search with a read-only live manual picker on matched tasks. Technicians confirm model and revision before opening; administrators test restricted identities separately. Measure time to correct revision, wrong-model choices and requests per successful lookup, breaking out Chinese input methods and narrow mobile screens.",
+          "image": {
+            "alt": "Existing illustration of an enterprise document or language workflow",
+            "caption": "Related existing illustration, not an original image from this source."
+          },
+          "relatedLinks": [
+            {
+              "label": "Field configuration"
+            }
+          ]
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "First-hit contract review",
+          "description": "For legal knowledge managers, log the first agreement and revision among similarly named authorized contracts. Lawyers blindly verify clauses; compare correct first hits, obsolete citations and verification time.",
+          "tags": [
+            "Contracts",
+            "Retrieval evaluation"
+          ]
+        },
+        {
+          "title": "Purchase-row mismatch audit",
+          "description": "For purchasing operations, draft cross-page line items only. Buyers verify original pages before downstream handoff; measure omitted rows, mismatches and corrections after totals passed.",
+          "tags": [
+            "Document extraction",
+            "Human review"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "05f34d52850a91cb"
+}

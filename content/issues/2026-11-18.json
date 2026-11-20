@@ -1,0 +1,199 @@
+{
+  "issue": "ISSUE 084",
+  "date": "2026.11.18",
+  "thesis": "事后补刊，2026年11月20日撰写；以下仅使用截至11月18日已公开的资料。对账部署加速、坐席少点几次鼠标、桌面试点和客服自动化率，各自测量的是业务的不同片段。要判断是否值得上线，先找到人工究竟在哪一步少做了什么。\n\n四个案例共同提示应给每件业务保留一个可追踪的编号，从打开账户或订单，到最后一次复核或再次联系都归到同一件事。对账部署属于上线前成本，坐席查询属于每次来电成本，桌面租用属于每次执行成本，客服回访则是事后成本。四个分母不能相加，只有回到同类业务单位才能判断哪种方案真正节省人力。",
+  "takeaways": [
+    "Duco 的十倍指对账流程部署速度，70%成本下降来自一家银行；评估异常调查时还要测错并、漏报和人工复核时间。",
+    "LoanPro 展示了减少页面切换的机制，但150个标注账户上的准确率目标不能证明所有借款人来电都能安全少用15%的时间。",
+    "微软披露的是原工具包把周期从25小时降至10.3小时；4小时是云电脑组合的目标，采购桌面前应测它相对现有流程的增量。",
+    "NV Gallery 的约70%自动化没有区分其中的审稿工作；另一客户的35%自主与45%审稿说明，覆盖率不能直接换算排班。"
+  ],
+  "contrarian": "常见判断是自动化覆盖更多环节就能按比例减少人手。来源事实是家具商的交互指标没有给出人工分钟数，微软部分收益仍是目标，LoanPro的通话节省还有“最多”的限定。编辑判断：当异常集中到少量人工队列，且客户会因答案有误再次来电时，应按最终解决一件事的总劳动而非自动操作次数排班。若同类客户、同等服务质量的长期对照显示覆盖率提高时复核、返工、排队及外包工时一并稳定下降，这个判断就需要修正。",
+  "items": [
+    {
+      "title": "Duco：让对账分析师先看异常证据，再决定怎样处理",
+      "type": "厂商与实施方联合工程案例",
+      "source": "2026-11-16｜AWS 与 Duco，金融数据自动化架构",
+      "summary": "银行把旧账迁到新对账系统，需要有人读懂历史表格、匹配规则和没人愿意改动的宏。Duco把这一步和每天检查差异的工作分别拆开：前者将旧配置转换成新流程，后者找出哪些记录可能属于同一个问题，附上证据后送给分析师。部署一套对账流程更快，不等于每笔交易都更容易匹配；调查人员也可能因为证据组织得好而节省时间，即使原来的匹配规则毫无变化。案例适合正在迁移老系统的运营团队，特别是同一条差异可能由迟报、参考数据不一致或真正错账导致的场合。",
+      "design": "每个机构有自己的身份池、数据库、存储和工具网关。请求先验证租户签发的身份，再由底层服务核对调用人能否操作；代理可发现工具不代表能使用它。系统按需载入工具说明，为新发现的差异查历史记录和相关证据，区分已调查的旧问题与新增问题，把可能的原因、调整建议及备选方案交给有责任人的分析师。高风险动作须明确授权，复杂或低把握情形升级人工；公开材料没有给出置信阈值、超时后的重试次数或对账写入如何避免重复。复刻时应保留原始流水供复核，不能把工具执行成功当作账目已平。",
+      "evidence": "证据等级：实施方生产案例，非独立审计。可核对的是架构描述把租户隔离、调用授权、差异调查和最终裁决分开。双方报告对账部署速度为原来的10倍；另以一家全球银行为例，新增对账流程的接入成本降低70%，直通处理提升超过20%，没有说明后者是相对增幅还是百分点。工具说明等主上下文从约20万降到约2万词元，指请求输入的规模，不能按比例折算账单。没有公开逐家客户样本、基线的计价办法、漏报差异率和观察周期。编辑判断：该案例值得借鉴的是交给人之前先聚齐证据；若容易迁移的流程先被选中，十倍加速不能用来估计其余银行或复杂产品的迁移工期。",
+      "idea": "给清算团队做一个差异分组台，只处理单一账户的一类对账文件，把疑似同因记录和两边原值并列，不生成调整分录。分析师逐组确认或拆分，保留误分理由。按周比较查清一组差异的中位分钟数、错并率和再次打开比例，并单独抽查被模型标为时间差的记录。",
+      "url": "https://aws.amazon.com/blogs/machine-learning/how-duco-transforms-financial-data-automation-with-amazon-bedrock-agentcore/",
+      "image": {
+        "src": "/cases/acrm-credit-risk.jpg",
+        "alt": "既有业务工作流主题配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "Duco 对交易后运营的说明",
+          "url": "https://du.co/agentic-operations-new-operating-model-for-post-trade/"
+        }
+      ]
+    },
+    {
+      "title": "LoanPro：把来电开始时的账户查阅压到一次打开",
+      "type": "客户与云厂商联合技术案例",
+      "source": "2026-11-17｜LoanPro 与 AWS，贷款服务坐席助手",
+      "summary": "借款人来电时，坐席首先要弄清楚余额、最近发生了什么、上一个处理人留下哪些问题。过去这些信息散在多个页面。LoanPro在已有服务门户里放入账户摘要和追问入口，让接线员先看到与当前账户有关的叙述，再沿着具体问题查询。它解决的是通话开头整理背景的时间，而非决定客户有没有借款资格。将摘要限定为坐席可看到的账户，可以直接对照原界面核查；若一句话把逾期与尚未入账的付款混在一起，即使节省点击，也会把解释错误的成本留给客户和下一位接线员。",
+      "design": "请求经队列进入协调程序，分别调用负责资料汇总和下一步推荐的代理。模型经工具网关取数，摘要工具核对单点登录签名，原贷款系统还按坐席角色和权限检查每次访问。门户显示摘要并接受自然语言追问；调用和问答写入审计记录，可对应到具名责任人。研究材料没有说明摘要缺字段时会否自动停用、模型超时能否回到原始界面、以及高影响建议是否逐条要求审批。编辑建议试点只开放读取与引用原字段，当来源冲突时把两项记录都给坐席核对，未核实的还款安排不得以客户承诺的口吻发送。",
+      "evidence": "证据等级：客户、云厂商及实施伙伴自报数据。团队用150个专家标注账户评测取数、摘要和动作选择，称达到99%的准确率目标，未说明三项怎样加权。早期合作贷款机构涉及超过800名坐席，伙伴称通话时长最多减少15%；查账户由五至七次点击变为一次，估计每通省一分钟至接近两分钟。LoanPro还报告内部工单接近下降8%，不能与通话节省相加。没有独立对照、分组通话量、涉及投诉时的错误率或峰值等待时间。编辑判断：能复核的是设计减少了切换页面的步骤；观察到的节省未必由助手单独造成，尤不能据此断言减少人手后仍会维持相同的服务质量。",
+      "idea": "给贷后服务主管做只读摘要卡，先限最近三次账务活动及尚未关闭的事项，每句都可展开查看原始记录。坐席可以删改、标注矛盾或完全退回旧界面。用同一批脱敏账户比较首次找到事实的时间、摘要中无依据的陈述比例和回拨率，另记使用者纠错所花时间。",
+      "url": "https://aws.amazon.com/blogs/machine-learning/how-loanpro-built-an-agentic-ai-loan-servicing-assistant-with-amazon-bedrock-agentcore/",
+      "image": {
+        "src": "/cases/bofa-erica-assist.jpg",
+        "alt": "既有业务工作流主题配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "微软业务运营：只有界面能做的步骤，才交给代理操作桌面",
+      "type": "企业内部试点报告与演示视频",
+      "source": "2026-11-17｜Microsoft Inside Track，Windows 365 for Agents 业务试点",
+      "summary": "一张订单有时必须在旧桌面软件里核对，某些验证只在界面执行；即使已有接口，直接调接口也可能跳过操作员平常看到的提示。微软业务运营部门披露，在一个运营单元分阶段试用配有独立身份的云电脑，让数字员工进入这类应用，做完指定工作后归还设备。原有业务自动化工具包继续负责流程和知识。值得注意的是，已有工具包的节省与新增桌面能力的试点属于不同阶段；文章同列两组数字，团队评估是否引入桌面操作时，应当把已有流程当作基线，而不能从全人工起点重新记一次收益。",
+      "design": "任务经过业务流程工具包，能用稳定接口的环节仍可走原通道；缺少可靠接口或验证只在界面上出现时，代理可领取受管理的云电脑，在限定应用和文件上工作，完成后归还机器。设备状态与代理专属身份让运营方可控制资源范围，不必借用员工的个人账号。演示说明人工监督仍是流程的一部分，文章没有逐项给出权限矩阵、截图保存期限或弹窗变化后的恢复规则。编辑建议把无法辨认的确认框设为暂停点，记录订单号和已完成步骤；交回人处理前先核对后台状态，以免员工和代理各提交一次。",
+      "evidence": "证据等级：企业内部试点自述，并有原方演示，未见独立效果审计。确认事实是该部门说一个运营单元的试点已上线，尚处于分阶段推广。团队报告原有工具包使人工介入减少75%、周期由25小时缩至10.3小时，并称完成数千笔订单而无返工。文中同时出现的最多减少95%人工介入、处理缩至4小时，是纳入云电脑后追求的目标，不是这次试点已经测得的结果。无返工也不等于无错误；没有给出订单种类、返工认定、同期对照、桌面租用费和异常值分布。编辑判断：能用同一种订单比较仅有工具包与加入桌面两组，连同等待人工和恢复所花时间都算进去，才可归因于新组件。",
+      "idea": "给销售运营做一个旧系统核对试点，只比较订单页的币种和数量，不按提交键。碰到未知弹窗或页面布局变化时截取不含客户敏感信息的状态，交由值班员判读。用同一批脱敏测试订单比较接口、人工和云桌面的完成率、每单占机分钟数及人工接手后的重复操作数。",
+      "url": "https://www.microsoft.com/insidetrack/blog/when-digital-workers-need-a-computer-how-were-using-windows-365-for-agents-at-microsoft/",
+      "image": {
+        "src": "/cases/colorbrowser-agent.jpg",
+        "alt": "既有业务工作流主题配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "微软演示视频",
+          "url": "https://youtu.be/4bfWVo4lseo"
+        }
+      ]
+    },
+    {
+      "title": "NV Gallery：把客服自动回复和坐席核稿分开计数",
+      "type": "客户访谈引述与供应商案例",
+      "source": "2026-11-17 更新｜Klark，家具品牌 NV Gallery 客服案例",
+      "summary": "家居电商的配送咨询常常长得相似，回答却取决于这张订单是仍在生产、正在安排大件送货，还是已经报损。供应商Klark引述家具品牌NV Gallery的经验：在营收增长期间客服团队人数保持稳定，约七成交互由系统自动化。这里最有用的问题是人工究竟留在哪一步。对“包裹在哪”给出查件结果、替坐席写一封待审核的回复，以及为损坏的家具承诺赔付，所需授权和后续劳动并不相同。原文还列出另一家服饰商户的流量拆分，可以看出仅看一个总覆盖率很容易误判排班需求。",
+      "design": "供应商将工作分为可按规则直接处理的请求，以及生成草稿交给坐席校正和发送的请求。案例点名交货时间、破损和退货等咨询，通用产品说明还列出查件、标签和发票，但没有披露这一家具品牌具体启用了哪些写入工具、每种渠道怎样核验客户、何时转交经理。不能由此假定系统有权取消任意订单。编辑建议先按订单身份查物流，用商家批准的话术说明状态，对索赔和地址变更只建待办；查不到记录、承运商状态矛盾或请求超时就转给人工，记录已查渠道，使接手者不必让客户重述一遍。",
+      "evidence": "证据等级：供应商收录的具名客户案例，数字未经独立核验。该品牌被报告营收达到原来的四倍、客服团队人数不变，约70%的交互实现自动化。文章另举一家具名信息未披露的服饰品牌，35%的请求自主解决、45%由系统起草后人工批准，合计80%得到系统支持；不能把这两项比例贴在家具商的数据上。营收增长也不等于订单数同倍增长，客单价、业务组合和联系方式都可能变化。没有交互的统一定义、绝对数量、观察起止日、重复来信率或外包工时。编辑判断：对排班有意义的是每百单经人工参与的总分钟数，即使团队没扩招，也不能从此推出每位坐席的压力或总体服务成本下降。",
+      "idea": "给电商客服主管做一个按订单归并的报表，只选物流状态和大件延迟两类请求。区分自动结案、人工审稿、人工全程三类，让质检员抽样重听或复读并标记七日内再次求助。比较每百单人工分钟数、重复联系率和错误承诺率，再决定要不要扩大自动回复范围。",
+      "url": "https://www.klark.ai/en/post/croissance-service-client-sans-recruter",
+      "image": {
+        "src": "/cases/customer-service-rag.png",
+        "alt": "既有业务工作流主题配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "账户事实卡片",
+      "description": "面向贷后或结算坐席，仅为一种账户生成带原文位置的摘要。员工逐句确认、改正或回到原界面。比较首次找到事实的时间、无依据陈述率及因摘要错误造成的二次联系。",
+      "tags": [
+        "坐席",
+        "只读"
+      ]
+    },
+    {
+      "title": "每百单人工分钟账",
+      "description": "面向零售运营，关联客服回复、人工接手和七日内重开，只选一种配送业务。质检人员抽样核准分组；同时报告每百单人工分钟、错误承诺率与重复联系率。",
+      "tags": [
+        "运营",
+        "评估"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "Retrospective written on 20 November 2026, using only material public by 18 November. Faster reconciliation deployment, fewer clicks for agents, a desktop pilot and the share of support interactions automated measure different parts of a process. Before rolling out a system, identify exactly which work people no longer need to do.\n\nKeep a traceable identifier from account or order opening through the last review or repeat contact. Reconciliation deployment measures setup, account lookup measures cost per call, desktop rental costs accrue per execution, and follow-up contacts occur after initial handling. These denominators cannot be added; compare like business units to judge labor savings.",
+      "takeaways": [
+        "Duco’s tenfold increase concerns deployment speed; the 70% onboarding cost reduction is from one bank. Evaluate break investigations separately on incorrect merges, missed breaks and review time.",
+        "LoanPro shows how screen switching can fall. The accuracy target on 150 labeled accounts does not prove that every borrower call can safely be 15% shorter.",
+        "Microsoft attributes the 25-to-10.3-hour change to the existing toolkit. Four hours is a Cloud PC target; measure incremental gains over the existing workflow before buying desktops.",
+        "NV Gallery’s approximately 70% automation figure does not break out review work. A different customer’s 35% autonomous and 45% reviewed shares show why coverage cannot directly determine staffing."
+      ],
+      "contrarian": "More automated steps are often assumed to reduce staff needs proportionally. The retailer reports interactions, not staff minutes; some Microsoft benefits are targets, and LoanPro describes a maximum. Our judgment: when exceptions concentrate in a small human queue and errors trigger callbacks, staff for total labor per resolved case rather than automated actions. Sustained like-for-like comparisons showing review, rework, queues and outsourced hours all falling at constant service quality as coverage increases would change that judgment.",
+      "items": [
+        {
+          "title": "Duco: assemble discrepancy evidence before an analyst decides",
+          "type": "Joint engineering case from the operator and its cloud provider",
+          "source": "2026-11-16 | AWS and Duco, architecture for financial data automation",
+          "summary": "Migrating reconciliations means deciphering old spreadsheets, matching rules and macros people hesitate to change. Duco separates translating legacy configurations from investigating daily breaks. Its investigator groups records that may share a cause and sends the evidence to an analyst. Deploying a reconciliation faster is different from matching individual transactions more successfully; better evidence can shorten investigations without changing a rule. This matters when late records, inconsistent reference data and real discrepancies look alike.",
+          "design": "Each institution has its own identity pool, database, storage and tool gateway. The tenant credential is validated first; downstream services check the caller's rights. Discovering a tool does not grant permission to use it. Tool descriptions load on demand. The agent examines records and prior investigations, then sends proposed causes, remedies and alternatives to an accountable analyst. High-risk actions need authorization; complex or low-confidence cases escalate. Thresholds, timeout retries and duplicate-write prevention are undisclosed. A pilot should retain the original transactions: successful tool execution does not mean the books balance.",
+          "evidence": "Evidence grade: implementer-reported production case, no independent audit. The architecture distinguishes tenant isolation, authorization, investigation and final decisions. The partners report 10 times faster deployment; one global bank reported a 70% drop in new reconciliation onboarding costs and over 20% higher straight-through processing, without specifying relative change or percentage points. Main context fell from about 200,000 to 20,000 tokens; the measure is not the bill. Per-client samples, cost baseline, missed breaks and observation period are absent. Editorial judgment: gathering evidence before review is transferable. Starting with easier processes would make the deployment multiplier a poor forecast for other banks or products.",
+          "idea": "For clearing operations, group breaks from one account and file type. Show original values side by side and do not create adjustment entries. Analysts confirm or split groups and record why. Compare weekly median investigation minutes, incorrect merges and reopenings; audit cases classified as timing differences separately.",
+          "image": {
+            "alt": "Existing illustration of a related business workflow",
+            "caption": "Related illustration from the archive; not an original image from these sources."
+          },
+          "relatedLinks": [
+            {
+              "label": "Duco on post-trade operations"
+            }
+          ]
+        },
+        {
+          "title": "LoanPro: replace the opening account search with a single view",
+          "type": "Joint customer and cloud-provider engineering case",
+          "source": "2026-11-17 | LoanPro and AWS, loan servicing assistant",
+          "summary": "At the start of a borrower call, an agent needs the balance, recent activity and unresolved issues from previous contacts. These used to live across screens. LoanPro put an account narrative and follow-up chat into the existing servicing portal. The target is time spent assembling context, not deciding eligibility for a loan. Restricting summaries to records already visible to the operator allows checks against the existing interface. Confusing a late payment with a payment not yet posted might save clicks but shifts the cost of correcting the record to the caller and the next operator.",
+          "design": "A queue feeds a coordinator that routes requests to retrieval, summarization and next-action agents. Models call a tool gateway; the summary tool validates the single-sign-on signature, and the loan system checks the operator's role and permissions on each request. The portal displays the narrative and accepts questions. Tool actions and interactions are logged against a responsible person. The case does not specify what happens to incomplete summaries, whether a timeout restores the old view, or which recommendations require separate approval. For a pilot we recommend read-only access with field references, displaying conflicting records together and never sending an unverified payment arrangement as a customer commitment.",
+          "evidence": "Evidence grade: customer, cloud provider and delivery partner reports. The team tested retrieval, summary and action selection on 150 expert-labeled accounts and says it met a 99% accuracy target, without explaining the weighting. Early lender partners involved over 800 servicing staff. The partner reports calls up to 15% shorter and five to seven account-orientation clicks reduced to one, saving an estimated one to nearly two minutes per call. LoanPro also reports nearly 8% fewer internal tickets; this cannot be added to call-time gains. There is no independent comparator, per-group call volume, complaint-case error rate or peak wait distribution. Fewer screens are verifiable; the assistant's isolated contribution and the effects of cutting staffing are not.",
+          "idea": "For a servicing supervisor, pilot a read-only card with the last three account activities and outstanding issues. Link each sentence to its source. Operators may edit, flag contradictions or use the old interface. On the same de-identified accounts, measure time to the first fact, unsupported statements, callbacks and staff correction time.",
+          "image": {
+            "alt": "Existing illustration of a related business workflow",
+            "caption": "Related illustration from the archive; not an original image from these sources."
+          }
+        },
+        {
+          "title": "Microsoft Business Operations: use an agent desktop only where the interface matters",
+          "type": "Internal enterprise pilot report and demonstration video",
+          "source": "2026-11-17 | Microsoft Inside Track, Windows 365 for Agents operations pilot",
+          "summary": "Some orders must be checked in a legacy desktop application. A direct API call may omit a validation or warning that a human sees. Microsoft reports a phased pilot in one operating unit. A digital worker with its own identity uses a managed Cloud PC for these steps and returns it to the pool. The existing toolkit still supplies the workflow and knowledge. Its historical savings and the new desktop pilot belong to different phases. When evaluating a desktop, use the existing automated process as the baseline instead of crediting the new component with the entire gain over manual work.",
+          "design": "The workflow toolkit can keep stable API steps on their normal path. Where a reliable API is missing or validation exists only in the interface, a worker checks out a managed Cloud PC, works within its applications and files and returns the device. Device posture and agent-specific identity constrain access without borrowing an employee account. The video describes human supervision, but an action-level permissions matrix, screenshot retention and recovery from changed dialogs are undisclosed. We recommend pausing on unfamiliar prompts, recording the order and completed steps, and checking backend state before handoff to avoid double submission.",
+          "evidence": "Evidence grade: internal pilot and provider demonstration, no independent outcome audit. Microsoft reports one operating unit live within a phased rollout. The existing toolkit reportedly reduced human touch by 75%, shortened cycles from 25 to 10.3 hours and completed thousands of orders without rework. Up to 95% less human touch and a four-hour processing time are targets for the Cloud PC combination, not measured pilot results. No rework is not equivalent to no errors. Order mix, rework definition, concurrent comparison, device costs and outliers are missing. Compare the toolkit alone with the toolkit plus desktop on like orders, including time waiting for people and recovery, before assigning the incremental gain to the new component.",
+          "idea": "For sales operations, compare currency and quantity on a legacy order screen without submitting changes. On unknown dialogs or layouts, capture state without sensitive customer information and hand off to the operator. Use identical de-identified orders to compare API, human and Cloud PC completion rates, device minutes per order and repeated actions after handoff.",
+          "image": {
+            "alt": "Existing illustration of a related business workflow",
+            "caption": "Related illustration from the archive; not an original image from these sources."
+          },
+          "relatedLinks": [
+            {
+              "label": "Microsoft demonstration video"
+            }
+          ]
+        },
+        {
+          "title": "NV Gallery: count autonomous replies and staff-approved drafts separately",
+          "type": "Vendor case with a quoted customer",
+          "source": "Updated 2026-11-17 | Klark, customer support at furniture retailer NV Gallery",
+          "summary": "Similar delivery queries require different answers for an order in production, a bulky shipment awaiting delivery or damaged goods. Klark describes NV Gallery growing revenue without enlarging its support team and automating about seven in ten interactions. The question for staffing is where work remains: returning tracking information, drafting an answer for a human and promising compensation for damaged furniture require different authority and labor. The article includes a separate fashion retailer's breakdown, illustrating how an overall coverage figure can mislead staffing decisions.",
+          "design": "Klark distinguishes rule-bound requests handled directly from drafts that an operator reviews and sends. The case mentions delivery timing, damage and returns. Its general product description covers tracking, labels and invoices but does not list the furniture retailer's write tools, channel identity checks or escalation criteria. Do not infer permission to cancel any order. For a pilot, authenticate the order, report tracking using approved wording and create human tasks for claims or address changes. On missing, inconsistent or timed-out carrier data, hand off the sources checked so customers need not repeat the story.",
+          "evidence": "Evidence grade: named customer case published by the supplier, without independent verification. NV Gallery reportedly quadrupled revenue with the same support team and automated around 70% of interactions. A separate unnamed fashion brand resolved 35% autonomously and used human-approved drafts for 45%, or 80% assisted. Neither figure belongs to the furniture retailer. Revenue and order counts can move differently when prices, mix or channels change. The interaction definition, absolute volumes, observation dates, repeated contacts and outsourced hours are undisclosed. For staffing, we would count total human minutes per hundred orders. A stable headcount does not establish lower workloads or total costs.",
+          "idea": "For an e-commerce support lead, group shipping-status and bulky-delivery delay contacts by order. Distinguish autonomous closure, staff-reviewed drafts and fully human handling. Have reviewers audit a sample and tag repeat contacts within seven days. Compare staff minutes per hundred orders, repeat contacts and incorrect promises before widening automatic replies.",
+          "image": {
+            "alt": "Existing illustration of a related business workflow",
+            "caption": "Related illustration from the archive; not an original image from these sources."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Account fact card",
+          "description": "For servicing or settlement staff, generate a source-linked summary for one account type. Staff confirm or correct each statement or return to the old interface. Measure time to first fact, unsupported statements and repeat contacts caused by errors.",
+          "tags": [
+            "Servicing",
+            "Read only"
+          ]
+        },
+        {
+          "title": "Staff minutes per hundred orders",
+          "description": "For retail operations, link replies, handoffs and reopenings within seven days for one delivery service. Reviewers audit the grouping. Report staff minutes per hundred orders, incorrect promises and repeat contacts together.",
+          "tags": [
+            "Operations",
+            "Evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "446637145d349794"
+}

@@ -1,0 +1,206 @@
+{
+  "issue": "ISSUE 082",
+  "date": "2026.11.16",
+  "thesis": "事后补刊，2026年11月20日编写。一个代码代理交来补丁，维护者首先要知道：它从哪个版本开始、读到了哪些规则、在哪个环境跑过、哪些结果足以拒绝合并。本期对照两项产品更新与两项工程基准，资料按原始发布日期列示；其中分布式调试实验回溯到11月7日的修订版。\n\n四组材料分别检查四种可能错位的对象：需求与评分项、目录与规则、账号与目标仓库、症状与真正的故障层。试点可以把每项对应关系写进一次交接记录；某项不确定就标明由谁补证，而不是把不确定性折算成一个总分。",
+  "takeaways": [
+    "ExpertCrowd 的部分得分能定位缺失功能，但在80项任务上没有一个模型五次都得满分；个人开发工具的选择不能代替团队的放行标准。",
+    "Cursor 把空文件也纳入目录规则加载，说明读操作完成与约束到位是两件事；厂商修复记录没有测量团队因此少了多少违规改动。",
+    "GitHub 企业服务器可以接入桌面应用，但云端会话不在此次支持范围；上线前应把账号登录、仓库选择和执行位置拆开验收。",
+    "DDBench 的19个百分点增益来自配对实验中有限的调试材料；失去采集条件和来源标识，日志数量本身没有相同的证据效力。"
+  ],
+  "contrarian": "一个常见主张是，给代码代理更多资料、更大权限就更容易交付。分布式调试实验中，真实但远离根因的记录也会误导模型；企业服务器接入公告则明确把云会话排除在支持范围之外。编辑判断：在范围可枚举且能回放的维护任务里，先检查信息与具体故障的关系，再考虑扩大入口。若在同一批任务、相同成本和复核标准下，全量资料持续降低误修而没有增加越界访问或审查时间，这一判断就应修正。",
+  "items": [
+    {
+      "title": "在陌生仓库改对几处，不等于整项可以合并",
+      "type": "工程评测预印本与开放数据集",
+      "source": "2026-11-09（UTC，首版提交）｜ExpertCrowd-SWE 作者，arXiv",
+      "summary": "一个补丁即使改对了大部分文件，遗漏阻断性条件仍会被维护者退回。研究者请工程师在真实开源项目的固定提交上编写跨文件工单，为每项要求安排分值，并另列不能妥协的合并条件。这样，评审者既看得到模型完成了哪部分，又能指出为什么整项工作不能交付。对准备在遗留代码库试行代理的团队，这比统计生成了多少行代码更接近实际决策：同样是未通过，一份补丁可能只欠一种边界检查，另一份则可能根本没有实现预期行为。",
+      "design": "输入是工单和固定版本的仓库，代理使用各自供应商的工具接口修改代码。评分器大多执行检查，按预设权重给分，并用封存的参考解校准；原始仓库和没有实质改动的补丁应得零分。这里没有让模型自行投票判定完成，也没有把候选提交合入真实项目。研究未给出企业身份委托、人工值守、超时重启等策略。用于内部练习时，可让维护者在执行前封存阻断条件；环境异常单列，重建同一快照后重跑，不把失败环境误记为模型未修复。保留原始输出供复查。",
+      "evidence": "证据等级 B：可部分复查的作者基准，非独立生产审计。作者在87个项目、11种语言的100项难题上评测7个模型，每个模型每题计划运行5次，实际有3495次计分运行。前两名加权得分为67.3%和63.7%，差距未达统计显著；80项任务上，没有一个模型能在五次尝试中次次得满分。已公开24项，其余76项保留以减少污染，外部复核因此不完整。样本按对前沿模型的难度筛选，不能据此估计本公司工单的失败比例。编辑判断是同时报告部分得分与阻断项，不把平均分当可合并补丁占比；实际节省的复核工时仍需另测。只公开部分任务也意味着不能逐项判断未开放样本是否偏向某类代码库。",
+      "idea": "供维护旧服务的工程师使用。先选一个非生产仓库，把验收标准拆成可部分给分的行为与必须通过的阻断项；代理只提交差异文件。由不了解模型名称的维护者复审边界案例，记录阻断项漏检率、重复运行的一致性及人工判定所用分钟数。保存分歧理由。",
+      "url": "https://arxiv.org/abs/2611.13246v1",
+      "image": {
+        "src": "/cases/github-llm-evals.png",
+        "alt": "软件工程与交付工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "开放任务与评分器",
+          "url": "https://huggingface.co/datasets/ExpertCrowd/ec-swe"
+        },
+        {
+          "label": "作者榜单",
+          "url": "https://www.toptal.com/expertcrowd/benchmarks/expertcrowd-swe-benchmark"
+        }
+      ]
+    },
+    {
+      "title": "空文件也有目录规则：给代码代理补一道回归检查",
+      "type": "开发工具版本说明",
+      "source": "2026-11-12｜Cursor CLI 版本记录 v2026.11.12",
+      "summary": "在一个目录中，代理读取的第一个文件恰好是空文件，接下来它是否仍会遵循该目录的约定？Cursor 公告记录了这样一种缺陷：匹配路径的规则或嵌套技能可能在读取特殊文件时被静默丢弃，之后再读同目录文件也不能让它回来。新版本把规则是否适用和文件内容是否可读分开处理。这个细节关系到代码审查，因为生成的补丁看似正常，却可能缺少项目需要的约束；让作者在交接时说明用了哪些规则，比看到一次成功读取更有意义。这也便于定位责任环节。",
+      "design": "路径模式与目录层级决定规则或技能是否适用；按公告，读取空文件、图片或大到无法完整读取的文件时，匹配内容仍会提供给代理。同版还让代理在向用户提问前先说明发现了什么、为什么需要回答。公告没有公开模型选择、内部检索顺序、权限校验或规则交付失败时的重试流程。内部验收可以在测试副本中放置预先登记的无害约定，让工程师比较三类文件与普通文件的行为；若缺失则暂停后续编辑，从干净副本重新开启会话。并保留比较结果。",
+      "evidence": "证据等级 C：厂商发布记录可证实其公开说明的缺陷与修复范围，没有独立复现报告。厂商举出空初始化文件的例子，同时列出图片与超大文件；没有给出受影响会话占比、语言分布、修复前后的任务成功率，或规则虽被加载却未被模型遵循的概率。修复对哪一类输入生效与代理是否理解规则，是不同问题；不能把一次版本升级直接换算成返工减少。编辑建议把观察分成两层：先用可见结果检查约定是否到达，再单独检查最后的补丁有没有遵循约定。若仅凭模型自述判断，两层都会受到相同的误报影响，复测应保留可判定的实际产物。特别是规则生效的边界案例。",
+      "idea": "供维护内部代码规范的平台团队使用。做一组无客户数据的目录夹具，给各目录配置不同、可观察的格式要求；让工程师分别从普通文件和特殊文件进入，盲评生成差异。按文件类型统计漏用规则率、重复运行偏差以及升级前后的复核时间。保留失败样本。",
+      "url": "https://prod.cursor.com/docs/release-notes",
+      "image": {
+        "src": "/cases/ci-work.jpg",
+        "alt": "软件工程与交付工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "企业仓库接进 Copilot 应用，云会话仍须单独验收",
+      "type": "产品正式发布与管理员文档",
+      "source": "2026-11-13｜GitHub Changelog，GitHub 企业服务器登录文档",
+      "summary": "企业团队常把“可以在应用里打开仓库”理解成“可以把后台任务派给云代理”。GitHub 把企业服务器账号接入 Copilot 应用从选择加入的预览转为正式可用，但专门注明该服务器不支持云会话。此次更新让工程师在同一应用中使用企业服务器上的仓库、议题与合并请求，适合先试验从工单到代码审查的交接。采购和平台负责人可以据此缩小试点：先检查一个成员能否在正确的账号下找到指定对象，再讨论任务在哪运行、内容发往何处以及如何批准修改。",
+      "design": "先用云端账号登录应用，再通过账号设置添加企业服务器并由浏览器完成授权。发布记录给出的最低应用版本是1.2.0；配套文档把访问仓库和能够向模型发请求分别说明，后者涉及带许可证的云账号或另行配置的模型提供方。两步登录不等于企业将同一权限授予所有模型。公告未描述具体检索、数据保留、写权限继承和断线恢复。企业可先限定一个测试仓库，用不同权限的测试身份核验可见对象；授权失败就返回人工账号检查，不能把任务自动转到其他账号。",
+      "evidence": "证据等级 C：版本公告和同一厂商的登录文档互相印证支持对象、账号顺序与限制，不是两份独立成效证据。可以确认的是厂商宣布正式提供接入，并明确应用版本门槛和云会话例外；不能确认的是客户实际采用规模、任务完成率、双账号配置的出错概率或交付周期节省。尤其不能从服务器由企业自管推出所有模型处理都在内网，也不能反过来假设代码一定被传到某一位置。编辑判断是上线审查要分别查证源代码可见性、模型处理路径和动作授权；不清楚的路径应在实测与合同核对前保留为空项，不能在评估表中默认合格。尤其应留下审查证据。",
+      "idea": "供开发平台管理员使用。只选一个测试组织、一份虚构议题和两种不同权限的账号，让操作者用应用打开对象并记录身份来源；不要推送真实修改。人工核对允许和拒绝结果，统计错用账号次数、错误放行与错误拒绝比例，以及恢复到正确账号所花时间。",
+      "url": "https://github.blog/changelog/2026-11-13-github-enterprise-server-support-in-the-github-copilot-app/",
+      "image": {
+        "src": "/cases/github-stacked-prs.png",
+        "alt": "软件工程与交付工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      },
+      "relatedLinks": [
+        {
+          "label": "企业服务器登录说明",
+          "url": "https://docs.github.com/en/enterprise-server@3.22/copilot/copilot-on-ghes/sign-in-on-copilot-app"
+        }
+      ]
+    },
+    {
+      "title": "给分布式故障附上有限现场材料，修复率怎样变化",
+      "type": "研究基准与配对实验",
+      "source": "2026-11-07（UTC，第二版；首版08-14）｜DDBench 作者，arXiv",
+      "summary": "服务报错的位置常常只是故障传播的终点。DDBench 把同一历史故障交给代理两次：一种条件只给代码库与可见症状，另一种额外提供整理过的日志、跟踪、运行时状态或代码调查笔记。两组任务相配，研究者可以比较增加材料之后的变化，而不必拿不同难度的工单比较。对值班团队而言，这个设计回答的不是应采购哪种模型，而是下一次升级故障工单时该带上什么：一份说明观测位置、时间和范围的材料，可能比多贴几屏相同错误更有用。还能帮助核查时序。",
+      "design": "研究者从开源分布式系统选取历史缺陷，按推理范围分层，在两组条件下让模型分析仓库并提出代码修复，再比较测试通过情况。额外材料有边界，不等于让代理连接真实生产集群或无限检索全部遥测。论文所述比较没有给企业提供账号委托、当班人审批、超时后的重试预算或生产回滚机制。建议回放时由值班人员先脱敏并签注明确的采集位置；代理只在副本中生成候选补丁，证据冲突、无法复现或测试超时即停，重现原故障后才恢复评审。",
+      "evidence": "证据等级 B：作者报告受控实验，论文标注已被 NeurIPS 2026 接收，非生产值班实测。样本包含13个开源系统的60个历史缺陷，比较10个模型；加入调试材料后总体通过率提高19.0个百分点。作者还观察到较弱模型更多表现为通过率提高，较强模型更多表现为效率改善；即便记录内容为真，若观测点远离故障根因，也可能把模型引向错误层级。配对设计支持判断这批任务上额外材料的作用，但材料由研究者整理，真实告警往往缺数据、误标时间，采集与脱敏另有成本。未见独立复现或真实事故恢复时间的对照，不能据此承诺缩短停机时长。试点核算时应将收集材料的人力另列。",
+      "idea": "供维护微服务的值班小组使用。选一类可离线复现的故障，每案准备症状版和附带少量脱敏材料版，使用同一模型与时间预算；人工隐藏根因并盲评候选补丁。比较修复通过率、错误定位比例、人工准备材料分钟数及从告警到验证完成的时间。另登记重跑次数。",
+      "url": "https://arxiv.org/abs/2608.14863",
+      "image": {
+        "src": "/cases/agent-incident-metr.png",
+        "alt": "软件工程与交付工作流相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "遗留工单验收卡",
+      "description": "目标用户是维护者；只覆盖一个项目的退回工单，手工封存阻断项与参考结果，代理离线提交补丁。由另一人盲评，记录满分补丁率、误放率和每次复核分钟数。",
+      "tags": [
+        "维护",
+        "验收"
+      ]
+    },
+    {
+      "title": "故障现场材料对照试验",
+      "description": "目标用户是值班负责人；仅对一种脱敏历史故障生成两份信息包，固定模型和预算，由当班人保管答案。与仅提供症状的基线比较修复率、错误定位和准备耗时。",
+      "tags": [
+        "值班",
+        "回放"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "Retrospective written on November 20, 2026. A maintainer receiving a patch needs its starting revision, applicable rules, execution environment and grounds for refusing a merge. This issue compares two product updates with two engineering benchmarks, using original source dates, including the November 7 revision of the distributed debugging experiment.\n\nThe four sources expose four potential mismatches: requirements versus grading criteria, directories versus rules, accounts versus target repositories, and symptoms versus the faulty layer. Record those relationships in each handoff and name someone to supply missing evidence rather than folding uncertainty into one score.",
+      "takeaways": [
+        "Partial credit in ExpertCrowd locates missing functionality, but on 80 tasks no model scored full marks on all five runs. Choosing a developer tool does not set a team's release criteria.",
+        "Cursor now loads directory rules even for empty files. Finishing a read and having the applicable guidance are different events; the changelog does not quantify any reduction in policy violations.",
+        "GitHub Enterprise Server can be added to the app, but this release excludes cloud sessions. Test account login, repository selection and execution location separately.",
+        "DDBench's 19-percentage-point lift came from bounded debugging material in paired runs. A larger pile of logs without collection conditions or provenance does not carry the same evidence."
+      ],
+      "contrarian": "A common assumption is that giving coding agents more data and access makes delivery easier. In distributed debugging, true observations far from the cause could mislead a model. The enterprise-server announcement explicitly excludes cloud sessions. Our judgment for replayable maintenance work with known scope is to check how the evidence relates to the fault before widening access. Revise that view if, on matched tasks at equal cost and review standards, unrestricted evidence consistently reduces bad repairs without more out-of-scope access or reviewer time.",
+      "items": [
+        {
+          "title": "Partial credit in an unfamiliar repository does not clear a change for merge",
+          "type": "Engineering benchmark preprint and public dataset",
+          "source": "2026-11-09 (UTC, v1 submission) | ExpertCrowd-SWE authors, arXiv",
+          "summary": "A patch can change most files correctly and still fail a maintainer's blocking requirement. Engineers wrote cross-file tickets against pinned revisions of real open-source projects. The benchmark awards credit for individual requirements and separately encodes non-negotiable merge conditions. A reviewer can see what the model achieved and why the whole change is unacceptable. For an agent trial on legacy repositories this is more informative than counting generated lines: one failing patch may lack a boundary check; another may not implement the intended behavior at all.",
+          "design": "Inputs are the ticket and pinned repository. Agents edit through their provider-native tool interfaces. Mostly executable graders apply predefined weights and are calibrated with a sealed solution; unchanged repositories and inert patches must score zero. The agent does not vote on completion or merge into a live project. Enterprise identity delegation, on-call human review and restart policies are not specified. For an internal exercise, maintainers should freeze blockers before execution and rerun broken environments from the same snapshot rather than recording an infrastructure fault as a failed repair. Retain the original output for inspection.",
+          "evidence": "Evidence grade B: an author-run, partly inspectable benchmark, not an independent production audit. Seven models were tested on 100 difficult tasks across 87 projects and 11 languages, with five runs per model and task planned and 3,495 scored. The two leading weighted scores were 67.3% and 63.7%, not significantly different. On 80 tasks no model achieved full credit on every run. Only 24 tasks were released; holding back 76 limits contamination and external replication. Selection for difficulty prevents estimating your ticket failure rate. Report partial scores alongside blockers rather than equating a mean score with mergeable patches, and measure review time separately. Partial disclosure also prevents checking whether the withheld tasks favor a particular kind of codebase.",
+          "idea": "For legacy-service maintainers, use one non-production repository and split acceptance requirements into partially creditable behavior and mandatory blockers. The agent submits only a diff. Blind the reviewer to model identity and measure missed blockers, run-to-run consistency and minutes spent adjudicating edge cases. Record reasons for disagreement.",
+          "image": {
+            "alt": "Related illustration of software delivery workflows",
+            "caption": "Previously published related illustration, not an original image from this source."
+          },
+          "relatedLinks": [
+            {
+              "label": "Public tasks and graders"
+            },
+            {
+              "label": "Authors' leaderboard"
+            }
+          ]
+        },
+        {
+          "title": "Empty files still inherit rules: a regression check for a coding agent",
+          "type": "Developer tool release notes",
+          "source": "2026-11-12 | Cursor CLI v2026.11.12 release notes",
+          "summary": "If the first file an agent opens in a directory is empty, will it still follow the directory's conventions? Cursor documented a defect where a matching rule or nested skill silently disappeared after certain reads; subsequent reads in the directory did not restore it. The new behavior separates whether the path matches from whether the contents are readable. A patch may look plausible while omitting project constraints, so reporting which rules applied at handoff is more meaningful than reporting a successful read. It also helps identify where the failure occurred.",
+          "design": "Path patterns and directory hierarchy determine the applicable rules or skills. The release says they are supplied even for empty files, images or files too large to read. In the same version, the agent explains its findings and reason before asking a user a question. Model choice, retrieval order, authorization checks and retry behavior for rule delivery are undisclosed. To test this internally, register harmless conventions in a copy, compare the three file types against ordinary files, and suspend further edits if a convention is missing; start a clean session from the fixture. Keep the comparison results.",
+          "evidence": "Evidence grade C: a vendor changelog documents its reported bug and scope of the fix, without independent reproduction. The example is an empty initialization file; images and oversized files are also listed. The affected session share, language mix, before-and-after task success and probability of ignoring a delivered rule are unknown. Fixing eligible inputs differs from understanding an instruction; the update cannot be converted into rework savings. We recommend observing delivery and adherence separately: first check the convention reaches the agent, then inspect whether the patch obeys it. A self-report can mislead both measures; retain a verifiable output for retesting. This matters particularly at the boundaries of rule applicability.",
+          "idea": "For platform teams maintaining coding standards, create directories with no customer data and distinct, observable formatting rules. Start from ordinary or special files and blind-review the diffs. Compare missing-rule rates by file type, run-to-run variation and review time before and after upgrading. Keep failing examples.",
+          "image": {
+            "alt": "Related illustration of software delivery workflows",
+            "caption": "Previously published related illustration, not an original image from this source."
+          }
+        },
+        {
+          "title": "Adding an enterprise repository to Copilot does not enable cloud sessions",
+          "type": "Generally available product release and administrator documentation",
+          "source": "2026-11-13 | GitHub Changelog and Enterprise Server sign-in documentation",
+          "summary": "Teams can mistake opening a repository in an app for delegation to a cloud agent. GitHub moved Enterprise Server account support in the Copilot app from opt-in preview to general availability while explicitly excluding cloud sessions for that server. Engineers can work with its repositories, issues and pull requests in one app, a narrow place to test handoff from a ticket to code review. Procurement and platform teams can start by checking whether one member finds the intended object under the correct account, then examine execution location, data flow and approval of changes.",
+          "design": "First sign in with a cloud account, then add Enterprise Server in account settings and authorize in a browser. The release gives 1.2.0 as the minimum app version. The linked docs distinguish repository access from model requests, which require a licensed cloud account or a separately configured model provider. Two logins do not delegate identical rights to all models. Retrieval, retention, inherited write access and reconnection behavior are not described. Test visibility using different test identities against one repository; return failed authorization for human inspection, without silently transferring the task to another account.",
+          "evidence": "Evidence grade C: the release and sign-in docs agree on objects, login order and limitations; both are from one vendor and provide no independent effectiveness evidence. The announcement confirms general availability, a minimum version and the cloud-session exclusion. It does not establish adoption, completion rate, dual-account mistakes or lead-time savings. Self-hosting the server does not establish where all model processing happens; neither should a specific transmission path be assumed. Audit source visibility, model data flow and action permission separately. Leave unknowns unapproved until checked by testing and against contractual terms. Retain the evidence used for that review.",
+          "idea": "For developer-platform administrators, use a test organization, a synthetic issue and two accounts with different rights. Open objects and record which identity was used, without pushing real changes. Have an operator verify allow and deny results and count wrong-account uses, false approvals, false denials and time to recover the right account.",
+          "image": {
+            "alt": "Related illustration of software delivery workflows",
+            "caption": "Previously published related illustration, not an original image from this source."
+          },
+          "relatedLinks": [
+            {
+              "label": "Enterprise Server sign-in instructions"
+            }
+          ]
+        },
+        {
+          "title": "What changes when distributed bugs come with bounded diagnostic evidence?",
+          "type": "Research benchmark and paired experiment",
+          "source": "2026-11-07 (UTC, second version; first version Aug 14) | DDBench authors, arXiv",
+          "summary": "An error may appear where a failure ends rather than where it begins. DDBench gives agents the same historical bug under two conditions: repository and symptoms alone, or those plus curated logs, traces, runtime state or investigation notes. Paired tasks isolate the change in available evidence without comparing tickets of different difficulty. For on-call teams the useful question is what to attach during escalation, not which model to buy: a record identifying where, when and over what scope an observation was made may be more useful than more copies of the same error. It also helps check event order.",
+          "design": "Researchers selected historical bugs from open-source distributed systems and stratified them by reasoning scope. Models inspected repositories and proposed repairs under both conditions, and test outcomes were compared. Bounded evidence is not access to production clusters or an unrestricted telemetry search. The comparison does not specify enterprise delegation, on-call signoff, timeout budgets or production rollback. For a replay, an operator should remove sensitive values and label collection points. Generate patches only in a copy and stop on conflicting evidence, failed reproduction or timeouts; resume review once the original bug is reproducible.",
+          "evidence": "Evidence grade B: the authors report a controlled experiment; the paper records acceptance at NeurIPS 2026. This is not a production on-call study. Across 60 historical bugs in 13 open-source systems and 10 models, extra debugging context lifted aggregate pass rate by 19.0 percentage points. Weaker models gained more in pass rate and stronger ones in efficiency. Even a truthful observation distant from the cause could lead a model to the wrong layer. Pairing supports an effect on these tasks. Real alerts may lack observations or have inaccurate timestamps, and collection and redaction cost time. No independent replication or controlled incident-recovery measurements establish a reduction in downtime. Itemize the labor of gathering evidence when costing a pilot.",
+          "idea": "For a microservice on-call team, choose one offline-reproducible fault class. Prepare paired symptom-only and redacted-evidence versions under the same model and time limit. Hide the cause and blind-review patches. Compare repair pass rate, wrong-layer diagnoses, preparation minutes and time from alert to verified result. Log rerun counts separately.",
+          "image": {
+            "alt": "Related illustration of software delivery workflows",
+            "caption": "Previously published related illustration, not an original image from this source."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "Legacy-ticket acceptance cards",
+          "description": "For maintainers: replay rejected tickets in one project, freeze blockers and expected outcomes, and accept only offline patches. A second person grades blind; record fully passing patches, erroneous approvals and review minutes.",
+          "tags": [
+            "Maintenance",
+            "Acceptance"
+          ]
+        },
+        {
+          "title": "Paired incident-evidence trial",
+          "description": "For on-call leads: build two evidence packs for one class of redacted incident and fix the model and budget. An operator keeps the answer key. Compare repair rate, wrong-layer diagnoses and preparation time against symptoms alone.",
+          "tags": [
+            "On-call",
+            "Replay"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "48aefb2dd6062941"
+}
