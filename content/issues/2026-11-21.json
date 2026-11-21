@@ -1,0 +1,249 @@
+{
+  "issue": "ISSUE 087",
+  "date": "2026.11.21",
+  "thesis": "今天的四份材料都在讲速度，但最值得看的是被省掉的那一步。机组排班系统不再反复读取整张班表；数据湖先筛掉多数候选表；运维平台先发通知，不碰生产；研究助手却在一次很快的改稿中丢掉了几乎全部正文。我们选入一篇 11 月 12 日的较早研究，正是因为它保留了最后这个失败的完整轨迹。\n\n对排班员、分析师和运维人员来说，验收终点分别是查全违规记录、找到可用原表、确认生产性能改善，不是少用了几个词元或少等了几秒。四份资料没有共同样本，不能合并计算收益；可以共用的是一种测试：保留原件和未优化的对照，让业务人员在不知道方案名称的情况下完成同一件事。",
+  "takeaways": [
+    "RMIT 的失败发生在改稿写回时：证据已经找到，完整答复仍被一句话覆盖。检查引用之外，还要检查未要求修改的内容是否保留。",
+    "Flightscape 的五问和百问样例都省了词元，但没有逐题正确率。要验收分页取数，必须专门出一道答案落在最后一页的问题。",
+    "SageMaker 的周度通知只是启动对照压测的理由。只有把生产流量下的改善与测试作业费用一起核算，才有依据说这次换机划算。",
+    "Thetis++ 的近邻预筛可以缩短查询，却未必改善前几名。找表工具的验收应同时看首批结果是否可用，以及有没有遗漏关键表。"
+  ],
+  "contrarian": "“返回更少、响应更快，用户就更高效”在窄问题上可能成立，但排班样例没有证明取全率，找表实验还观察到某些配置下头部排序变差。编辑判断：当一次漏查会让人重新核对整单时，宁可第一次查询慢一点。若在真实任务的盲测中，精简方案在漏查和返工不增加的前提下持续缩短从提问到签收的总时间，这一判断就应撤回。",
+  "items": [
+    {
+      "title": "只让助手补一条引用，为什么整份报告消失了？",
+      "type": "学术预印本／开放评测／代码仓库",
+      "source": "2026-11-12｜RMIT-ADM+S 团队，arXiv；补充此前未覆盖的 TREC 评测与失败轨迹",
+      "url": "https://arxiv.org/abs/2611.16425",
+      "relatedLinks": [
+        {
+          "label": "论文全文与逐题分析",
+          "url": "https://arxiv.org/html/2611.16425v1"
+        },
+        {
+          "label": "参赛代码",
+          "url": "https://github.com/rmit-ir/trec-rag-26"
+        },
+        {
+          "label": "赛道说明",
+          "url": "https://trec-rag.github.io/"
+        }
+      ],
+      "summary": "一份已有正文的研究报告，只需给开头补一条引用。助手交回一句修好的话，程序却把这句话当作整份新稿。澳大利亚研究团队在开放检索评测中保留了运行轨迹，能追溯到故障发生在改稿，而不是搜索。对要从内部政策库生成客户答复的团队，这个区别很实际：增加检索次数救不了一份在最后一步被覆盖的报告。另一个值得留意的现象是，两套系统的人工偏好次序随评测批次改变。要决定一份答复能否交付，既得查关键点是否遗漏，也得看人能否读懂并据此办事。",
+      "design": "每道题输入一段研究需求，系统只在指定语料中找证据。以混合检索方案为例，模型先列答复要求，再根据关键词和语义检索融合后的结果撰稿；可保留相关片段并展开前后文。程序把片段映射到原文编号、标记没有引文的句子，再将独立审阅模型的意见交回撰稿模型，修改后导出。研究人员比较的是离线报告，没有代客户操作系统；评审者在生成后参与评测，不是逐条审批的业务人员。论文未给出企业身份隔离、超时恢复或误替换后的自动回滚方案，不能从赛道规则推定这些能力。",
+      "evidence": "证据等级：B，独立赛道评测加作者公开的代码和逐题分析，不是生产对照试验。确认事实：团队对119道题提交7套结果，论文转述的正式评测中，6套在三组覆盖度评测上均高于赛道中位数。第一批17题里有13题的整体偏好倾向开放权重方案；第二批25题换了题目和评审办法，偏好方向改变，但按题比较不显著。作者记录，某题已搜索12次并保存5次证据，922词初稿却被21词修订替换，8次人工配对比较全输。没有厂商客户收益数据。编辑判断：这足以支持为改稿增加完整性检查，不能估计这种故障在线上的发生率，更不能把第二批的变化单独归因于评审办法。",
+      "idea": "给知识库运营团队做一个修订前后对照页，只支持给政策答复补引文，不允许直接发送。用历史答复生成一份局部改动的参考稿，让审阅人标记消失的段落是否应当保留。比较有无拦截时的关键条款漏失率、正常修订误拦率和复核耗时；异常稿保留原文。",
+      "image": {
+        "src": "/cases/case-aware-rag-judge.jpg",
+        "alt": "研究报告评估相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "机组培训排班：让助手按页查违规记录，不把整份班表塞进每轮对话",
+      "type": "客户与厂商合著工程案例／开源示例",
+      "source": "2026-11-17｜Flightscape、AWS 机器学习博客",
+      "url": "https://aws.amazon.com/blogs/machine-learning/reducing-token-costs-and-latency-in-amazon-bedrock-agentcore-json-workloads/",
+      "relatedLinks": [
+        {
+          "label": "配套示例代码",
+          "url": "https://github.com/aws-samples/sample-reducing-token-costs-and-latency-in-amazon-bedrock-agentcore-json-workloads"
+        }
+      ],
+      "summary": "机组培训计划生成后，调度员还要弄清谁被排进哪堂课、哪项安排没有通过业务规则。Flightscape 与 AWS 介绍的助手有四十多种工具，原本每次调用都可能把大段结果带进下一轮；即使只追问一个人，也要为刚读过的数据再付一次等待成本。团队保留完整班表，把默认返回值改成记录数量、少量样本和可继续取数的引用。这里值得复制的不是航空规则，而是让“只问一条”和“列出全部”走不同的取数路径，同时保留追查原始记录的能力。",
+      "design": "优化器接收排班请求并输出候选安排；规则校验器另行生成报告。助手用语言模型理解问题，工具读取这三份结构化文件，不由模型判定业务规则。大对象存在对象存储中，会话只保存引用；长列表按页取，嵌套字典先给字段概况，再按需取细节。恢复会话时工具可按引用读回数据，输出供调度员查询和解释。文章没有披露按机组人员隔离访问的策略，也没有说明超时后是否自动重试。编辑建议：引用失效或无法确认已读完时明确标记结果不全，交人工核对，不据此变更排班。",
+      "evidence": "证据等级：B，客户与云厂商联合报告，有示例代码可查，无独立复测。作者在约23 MB的代表性输入上，让优化前后系统回答同一组问题。五问对话的总词元约从289,500降至82,900，平均追踪延迟从15.4秒降至3.1秒；另按100个样例问题计，总词元从2,360万降至850万，平均延迟从7,930毫秒降至2,461毫秒。前一组的约七成和近八成降幅不是全部生产流量的均值。可确认的是对比口径和实现方式；作者称能力未受损，但能取回原件不等于每次都会取全。没有逐题正确率、值班人员耗时、存储开销与观察周期，不能据此推算净节省或漏查率。",
+      "idea": "为培训排班组做一个仅读取历史校验报告的助手，只支持“某人有哪些异常”和“列出某类全部异常”。排班员对照完整报告签收，不允许写回。用相同问题分别测试整表和分页模式，按人员、跨页和空结果分组，比较清单漏项率、每个正确答案的词元数及人工复核分钟数。",
+      "image": {
+        "src": "/cases/agent-ops.png",
+        "alt": "排班代理工具相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "推理端点变慢后，先压测，再决定要不要换机器",
+      "type": "产品公告与工程文档",
+      "source": "2026-11-19｜AWS 产品公告、机器学习工程博客及 SageMaker 开发指南",
+      "url": "https://aws.amazon.com/about-aws/whats-new/2026/11/sagemaker-monitors-endpoints/",
+      "relatedLinks": [
+        {
+          "label": "工程说明",
+          "url": "https://aws.amazon.com/blogs/machine-learning/amazon-sagemaker-ai-now-detects-latency-drift-idle-gpus-and-missed-optimizations-on-your-inference-endpoints/"
+        },
+        {
+          "label": "操作与回滚说明",
+          "url": "https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-improvement-notifications.html"
+        }
+      ],
+      "summary": "内部助手每天都在答题，值班表上没有故障，用户却觉得等第一句话越来越久。亚马逊推出的推理端点监控针对的正是这种慢变化：把同一服务本周的首个词元等待时间和端到端耗时分别与上周相比，也检查显卡闲置和服务配置是否落后。发现问题并不会直接换机器，平台给负责团队发一份通知，说明看到什么、值得测什么。对要为推理账单负责的人，这条分界线很实用：告警可以成为排查工单，却不是批准采购新实例的依据，更不是已经节省下来的钱。",
+      "design": "监控默认覆盖使用显卡实例和指定推理引擎 vLLM 的实时端点，只读延迟、利用率和配置，不读取客户的请求或回复正文。规则按端点汇总发现，通过健康通知送达，也可接入事件总线建工单；查阅通知不代表有权改动服务。工程师需有工作室环境、相应权限和实例配额，才能另起算力对比当前配置与备选项，看响应时间、吞吐和每百万词元成本。是否采纳由人决定，文档建议先改一个生产变体，保留原配置用于回退。配额不足或没有可用对照时不应变更；产品没有承诺自动修复。",
+      "evidence": "证据等级：B（厂商发布记录与操作规范，非独立效果评估）。可确认的是，十一月十九日的公告列出七个可用区域，包括新加坡；监控本身不额外收费，启动对照作业仍按算力计费。开发指南明确以端点自身的周度中位数为延迟基线，通知出现时压测尚未运行。厂商表示这种设计能帮助找到优化机会，但两份材料均出自同一方，没有给出受监控端点的样本数、告警误报率，或扣掉测试费用后的客户净节省。编辑判断：中位响应不变时，少量超长请求依然可能拖慢最急的一批工单；反过来，业务增长引起的延迟也不必然意味着配置错误。没有按请求长度和峰值时段分组的对照，不能据此估算换机收益。",
+      "idea": "给企业内部助手的值班工程师做一张只读的端点复核单：先挑一个服务，按请求长度区分短问答和长文档，分别登记典型等待时间、最慢一成请求的等待时间与峰时吞吐。负责人决定是否花钱压测，不授予自动部署权限；两周后用有效告警占比、验证用时和测试费用判断是否值得扩展。",
+      "image": {
+        "src": "/cases/agent-deployment-monitor.png",
+        "alt": "推理服务监控相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "分析师找表：关键词相同与实体相近，是两条不同的线索",
+      "type": "研究预印本与开源实现",
+      "source": "2026-11-19｜Christensen、Lissandrini 与 Hose，arXiv 首版",
+      "url": "https://arxiv.org/abs/2611.25691",
+      "relatedLinks": [
+        {
+          "label": "研究全文与实验图表",
+          "url": "https://arxiv.org/html/2611.25691v1"
+        },
+        {
+          "label": "作者实现",
+          "url": "https://github.com/dkw-aau/Thetis-extended"
+        }
+      ],
+      "summary": "分析师记得两家供应商的名字，却不知道哪张表记录了类似企业。关键词检索擅长找出名称直接出现的表，实体检索则可能找到词面完全不同、但所列对象相似的表。研究者用同一批示例分别运行这两种搜索，发现即使两路的总体分数接近，排在前面的相关表也往往不是同一批。研究的问题不是怎样请模型给出一段听起来合理的答案，而是怎样让分析师少错过一张有用的原表。作者进一步比较了筛选候选表的索引，以及把两路结果合并排序的不同方法。",
+      "design": "输入是包含若干示例实体的一行或多行数据。词法路线从原行提取文字，用倒排索引计算词项匹配分；语义路线把实体关联到知识图谱，根据实体类型或向量判断候选表的相关性，并可先用近邻图缩小精排范围。输出是一份排序后的表清单，不是已经连接好的数据，也不需要生成模型代替分析师回答问题。论文未给出企业目录的授权、超时或人工审批流程。用于内部试点时，建议仅检索用户有权发现的表，展示匹配依据；实体无法识别就退回关键词检索，由分析师核对表的口径再决定是否使用。",
+      "evidence": "证据等级：B，作者公开的离线对照实验，有实现可查，未见独立生产复测。研究选取一百组示例查询，比对一行和五行输入，维基表的相关性标签来自类别与导航链接。相对不做预筛的语义检索，指定近邻图配置下，单行查询平均加速四点七倍，五行平均三点六倍；五行输入时预筛虽能找回更多相关表，无预筛结果的头部排序质量反而更高。另一个规模测试涉及八十六万四千四百七十八张表，但该集合没有相关性真值，不能借它证明大规模下仍找得准。这里不是厂商收益承诺；编辑判断是，公开实体与公司内部编码差距很大，且论文没有测量分析师确认可用表的时间，不能将查询提速直接计为节省工时。",
+      "idea": "给数据目录管理员做一个只读对照页：从一个业务域选取员工实际提过的找表请求，同屏展示关键词与混合检索各自的前五名，不展示无权访问的表。请业务分析师在不知道算法名称的条件下选出可用表，记录首个可用表的位置、确认耗时及两路各自独有的有用结果。",
+      "image": {
+        "src": "/cases/enterprise-rag-pipeline.png",
+        "alt": "企业数据检索相关配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "班表末页漏查测试",
+      "description": "为培训排班员做只读验证：用同一份脱敏班表生成首条、末页和全量三种查询，让调度员按原表复核。比较两种返回方式的漏项率、核对用时和每次验收的词元成本。",
+      "tags": [
+        "排班",
+        "分页"
+      ]
+    },
+    {
+      "title": "找表结果双盲验收",
+      "description": "让数据分析师用十组已知业务问题，对关键词与混合检索的匿名候选清单逐项确认；只展示有权限的表，不导出内容。记录首张可用表出现的位置、确认时长及漏掉必需表的次数。",
+      "tags": [
+        "检索",
+        "数据目录"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "Today's four sources examine what gets skipped in the pursuit of speed: rereading a crew schedule, scanning candidate tables, changing production before testing, or inadvertently keeping only one sentence of a report. The November 12 study is included because its trace documents that last failure.\n\nThe business endpoints are finding every violation, locating a usable source table and confirming a production improvement. The studies have no common sample; their gains cannot be pooled. A shared test is possible: preserve originals and an unoptimized baseline and have operators complete the same task blind to the method.",
+      "takeaways": [
+        "The RMIT failure occurred on writeback after retrieval succeeded. Check unchanged content as well as citations.",
+        "Flightscape saved tokens on both workloads but did not report per-question accuracy. Include a test whose answer is on the last page.",
+        "A weekly SageMaker finding warrants a benchmark. Count its compute cost alongside any production improvement before declaring a saving.",
+        "Thetis++ can reduce query time without improving the top ranks. Check both the usability of early hits and omissions of essential tables."
+      ],
+      "contrarian": "Returning less, faster may help on narrow questions, but the scheduling case did not establish completeness, and some table-search settings worsened the leading ranks. Our judgment: where one omission forces a full recheck, a slower first query may be preferable. Withdraw that judgment if blinded trials on real tasks consistently shorten time to sign-off without increasing omissions or rework.",
+      "projectIdeas": [
+        {
+          "title": "Last-page omission test for crew schedules",
+          "description": "Give training schedulers first-record, last-page and exhaustive queries against the same de-identified read-only schedule. Have them verify results against the original; compare omission rate, review time and tokens per accepted answer.",
+          "tags": [
+            "Scheduling",
+            "Pagination"
+          ]
+        },
+        {
+          "title": "Blinded table-discovery acceptance test",
+          "description": "Give analysts ten known business questions and anonymized keyword and hybrid candidate lists. Show only permitted tables and export nothing. Measure rank of the first usable table, time to confirm and how often an essential table is missed.",
+          "tags": [
+            "Retrieval",
+            "Data catalog"
+          ]
+        }
+      ],
+      "items": [
+        {
+          "title": "One citation edit erased the rest of a report",
+          "type": "Preprint / public evaluation / code repository",
+          "source": "2026-11-12 | RMIT-ADM+S, arXiv; earlier TREC evaluation and failure trace not previously covered",
+          "summary": "A report needed one citation in its opening sentence. The assistant returned the corrected sentence, and the program accepted it as the entire revised report. The Australian team's traces locate the failure in revision, not search. For a team drafting customer replies from internal policies, more searches cannot rescue a report overwritten at the final step. Human preferences between two systems also changed across evaluation batches. Before delivering an answer, check both whether it omits essential points and whether a reader can use it.",
+          "design": "Each narrative specifies a research need, and retrieval is confined to the designated corpus. In the hybrid system, a model outlines requirements, then drafts from fused lexical and semantic results. It can retain passages and expand their context. Code maps chunks to document IDs and flags uncited sentences. A separate model reviews the draft and the writer revises it before export. These are offline reports, not actions on a customer's systems. Human assessors evaluate finished outputs rather than approving each business action. The paper does not establish enterprise identity isolation, timeout recovery, or automatic rollback of accidental replacements.",
+          "evidence": "Evidence grade B: an independent shared-task evaluation plus the authors' code and topic-level analysis, not a controlled production trial. Seven systems submitted results for 119 narratives. The authors report that six exceeded the track median on all three official coverage collections. On 13 of 17 first-batch topics, holistic preference favored the open-weight system. The direction reversed across the 25-topic second batch, but the topic-level difference was not significant; both topics and assessment instructions changed. In one trace, 12 searches and five evidence commits preceded a 922-word draft replaced by a 21-word revision. It lost all eight human comparisons. No vendor customer returns were measured. The case supports a revision-integrity check, not an estimate of production failure rates or a causal explanation based on assessment instructions alone.",
+          "idea": "Build a revision diff for knowledge-base editors. It can add citations to a policy reply but cannot send it. Use historical replies and reference edits, and have reviewers mark which missing passages should have survived. Compare critical-clause omissions, false blocks of legitimate edits, and reviewer time with and without the check. Retain the original whenever a revision is flagged.",
+          "relatedLinks": [
+            {
+              "label": "Full text and topic analysis"
+            },
+            {
+              "label": "Track submission code"
+            },
+            {
+              "label": "Track overview"
+            }
+          ],
+          "image": {
+            "alt": "Report evaluation",
+            "caption": "Related archive image, not an original illustration from this source."
+          }
+        },
+        {
+          "title": "Crew training schedules: page through exceptions instead of sending the entire roster on every turn",
+          "type": "Joint customer/vendor engineering case study and open-source example",
+          "source": "2026-11-17 | Flightscape and AWS Machine Learning Blog",
+          "summary": "After a crew training plan is generated, a dispatcher still needs to know who was assigned to a class and which assignments broke a business rule. Flightscape and AWS describe an assistant with more than forty tools. Each call could carry a large result into the next turn, so a question about one person incurred another wait for data the system had already read. The team kept the full roster but changed the default response to a count, a sample and a reference for further retrieval. The transferable idea is to give single-record lookups and exhaustive lists different read paths without losing access to the original records.",
+          "design": "An optimizer processes a scheduling request and produces candidate assignments. A separate rules validator produces a report. The language model interprets the question; tools read those three structured files. The model does not decide which business rules pass. Large objects live in object storage; the session retains references. Long lists are paged, while nested dictionaries return field descriptors before details are retrieved on demand. Tools can restore the data from references when a session resumes. Output helps dispatchers query and explain assignments. The article does not specify crew-level access isolation or timeout retries. Editorial recommendation: flag an expired reference or incomplete read for manual verification and do not change the schedule on that basis.",
+          "evidence": "Grade B: joint customer and cloud-provider report with sample code but no independent replication. Using a representative input of about 23 MB, the authors compared the same questions before and after optimization. In a five-question conversation, total tokens fell from about 289,500 to 82,900 and mean trace latency from 15.4 to 3.1 seconds. Across 100 sample questions, total tokens fell from 23.6 million to 8.5 million and mean latency from 7,930 to 2,461 milliseconds. The roughly 70% and nearly 80% reductions in the first comparison are not production-wide averages. The method and design are documented. The authors say capabilities were preserved, but access to the original does not mean the assistant always retrieves every record. Without per-question accuracy, dispatcher time, storage overhead or a reported observation period, net savings and omission rates cannot be inferred.",
+          "idea": "Build a read-only assistant for the training scheduling team over historical validation reports. Support only two requests: exceptions for one person, and all exceptions of one type. A dispatcher signs off against the complete report; no writeback is allowed. Compare full-table and paged modes on identical questions, grouping by person, cross-page lists and empty results. Measure omitted entries, tokens per correct answer and minutes of human review.",
+          "relatedLinks": [
+            {
+              "label": "Companion code"
+            }
+          ],
+          "image": {
+            "alt": "Agent operations",
+            "caption": "Related archive image, not an original illustration from this source."
+          }
+        },
+        {
+          "title": "When an inference endpoint slows down, benchmark before changing machines",
+          "type": "Product announcement and engineering documentation",
+          "source": "2026-11-19 | AWS announcement, machine learning engineering blog and SageMaker Developer Guide",
+          "summary": "An internal assistant may still be answering every day without an outage while users wait longer for its first words. Amazon's monitoring compares an endpoint's time to first token and end-to-end latency with the preceding week. It also looks for idle GPUs and lagging configurations. Rather than changing instances, it tells the team what it observed and what to test. For the owner of the inference bill, a notification can justify an investigation, not the purchase of a new instance or a claim of savings.",
+          "design": "Monitoring defaults on for eligible real-time GPU endpoints using vLLM. It reads latency, utilization and configuration, not customer prompts or responses. Rules consolidate findings per endpoint for AWS Health; an event bus can open a ticket. Seeing a notice does not grant permission to change production. An engineer needs a Studio environment, relevant permissions and instance quota to compare the current and candidate configurations on separate compute, measuring response time, throughput and cost per million tokens. A person decides whether to apply the result. The guide recommends changing one production variant first and retaining the old configuration for rollback. Without quota or a usable comparison, do not change production; the product does not promise automatic remediation.",
+          "evidence": "Evidence grade: B (vendor release and operating instructions, not an independent impact evaluation). The November 19 announcement lists seven regions, including Singapore. Monitoring costs nothing extra; benchmark jobs incur compute charges. The guide identifies an endpoint's own weekly median as the latency baseline and says no benchmark has run when a notice arrives. The vendor says this can identify opportunities. Both sources come from the same organization; neither provides fleet size, false-positive rates or net customer savings after test costs. Our editorial judgment: an unchanged median can conceal delays in a few urgent long requests, while slower service during growth does not necessarily mean misconfiguration. Without comparisons by request length and peak period, one cannot estimate gains from replacing instances.",
+          "idea": "Give engineers on call for one internal assistant a read-only endpoint review form. Separate short questions from long documents and record typical waits, waits for the slowest tenth and peak throughput. The owner decides whether to pay for a benchmark; the tool has no deployment permission. After two weeks, review the share of actionable alerts, verification time and test costs before expanding.",
+          "relatedLinks": [
+            {
+              "label": "Engineering overview"
+            },
+            {
+              "label": "Operation and rollback guide"
+            }
+          ],
+          "image": {
+            "alt": "Inference service monitoring",
+            "caption": "Related archive image, not an original illustration from this source."
+          }
+        },
+        {
+          "title": "Finding a table: matching words and matching entities lead to different results",
+          "type": "Research preprint and open-source implementation",
+          "source": "2026-11-19 | Christensen, Lissandrini and Hose, first arXiv version",
+          "summary": "An analyst remembers two suppliers but does not know which table lists comparable firms. Keyword search finds names that occur literally; entity search can surface tables about similar objects without a literal match. Running both on the same examples, the researchers found that similar aggregate scores often concealed different sets of relevant tables near the top. The goal is not to generate a plausible answer, but to avoid overlooking a useful source table. They compare candidate-pruning indexes and alternatives for combining the two rankings.",
+          "design": "The input is one or more rows containing example entities. The lexical route extracts row text and scores matches with an inverted index. The semantic route links entities to a knowledge graph, uses types or embeddings to judge table relevance, and can prune candidates with a nearest-neighbor graph before ranking. It returns a ranked list, not joined data or a generated answer. The paper does not specify enterprise discovery permissions, timeouts or human approvals. In a pilot, search only discoverable tables, show why each matched, fall back to lexical search for unresolved entities, and ask the analyst to verify definitions before use.",
+          "evidence": "Grade B: an author-run offline comparison with public implementation, not an independent production replication. The team selected 100 example queries and compared one- and five-row inputs. Wikipedia categories and navigation links supplied relevance labels. Against semantic search without pruning, the specified graph configuration averaged 4.7× speedup for one row and 3.6× for five. With five rows, pruning improved recall but the unpruned ranking scored better near the top. A separate scalability set of 864,478 tables lacked relevance labels and cannot demonstrate search quality at scale. These are not vendor ROI claims. Internal identifiers differ from public entities, and time for analysts to confirm a usable table was not measured; query speed is not labor saved.",
+          "idea": "Give catalog stewards a read-only comparison page. From a single business domain, collect actual discovery requests and show the top five results from lexical and hybrid search without exposing inaccessible tables. Have analysts blinded to the ranking method select usable tables; record rank of the first usable table, time to confirm, and useful results unique to each method.",
+          "relatedLinks": [
+            {
+              "label": "Full paper and experiments"
+            },
+            {
+              "label": "Authors’ implementation"
+            }
+          ],
+          "image": {
+            "alt": "Enterprise retrieval",
+            "caption": "Related archive image, not an original illustration from this source."
+          }
+        }
+      ]
+    }
+  },
+  "contentHash": "6e5f50fb448b85ac"
+}
