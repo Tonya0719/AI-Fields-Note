@@ -1,0 +1,235 @@
+{
+  "issue": "ISSUE 090",
+  "date": "2026.11.24",
+  "thesis": "客服主管拿到一个节时数字，值班工程师看到一段事故摘要，哪一刻才算事情办完？本期从四个容易误判的瞬间看企业 AI：草稿生成后有人改了多久，文件撤权后旧片段还能查多久，事故交班后谁能结案，以及代理改对历史答案后是否仍遵守现行制度。\n\n四组材料给试点留下了四份有用的对照记录：人工改过或弃用的草稿、刚失去权限的测试账号、尚未解决的事故原单、与历史标签相矛盾的现行条款。这些记录的价值在于能推翻一个看似正确的结果。验收时让排班主管、文档所有者、事故负责人和流程负责人分别签认自己管的那一步，不要让模型用自己的输出证明工作已完成。",
+  "takeaways": [
+    "欧莱雅案例的新版按是否改稿拆开了节时结果。如果排班表只记录采纳的草稿，就算每封计时都准确，也算不出整班净省工时。",
+    "SharePoint 知识源按索引里的权限筛选片段。验收撤权应从源系统变更开始计时，以原用户最后一次还能看到内容为准；管理员查不到同步报错不是同一指标。",
+    "PagerDuty 的登录用户权限限制了可操作的事故，但不指定工具组仍会呈现完整核心目录。只需回答「谁来接班」的助手，可以在配置层就拿掉写入能力。",
+    "ARISE 把四个样例从全错改成全对，用的是与书面流程不一致的历史标签。在这类边界案例中，评分器能判标签一致，却不能替流程负责人决定哪条规则有效。"
+  ],
+  "contrarian": "自动化项目常把「完全不用改」作为最好的结果。欧莱雅的不改稿组确实节时更多，但案例没有披露这组的质量或重开率；ARISE 则给出了更直接的反例：按标签判对的答案可能正好偏离书面要求。编辑判断：只要质量和政策版本还没有独立核验，就不应把免修改率当作放量门槛。如果随机盲审显示，不改稿组在同等难度下既省去净工时，又不增加政策错误、重开和漏升级，这项判断便不再适用于该流程。",
+  "items": [
+    {
+      "title": "欧莱雅客服节省了多少时间？先看哪些回复不用改",
+      "type": "具名客户部署案例／地区版本对读",
+      "source": "2026-11-23，Salesforce 美国客户案例；对照 2026-09-11 欧洲版，同一次北美部署的指标表述不同。",
+      "url": "https://www.salesforce.com/customer-stories/loreal/agentic-service-advisor-assistance/",
+      "relatedLinks": [
+        {
+          "label": "9 月欧洲版：原先的平均值表述",
+          "url": "https://www.salesforce.com/eu/customer-stories/loreal/agentic-service-advisor-assistance/?bc=OTH"
+        }
+      ],
+      "summary": "客服回一封邮件，查订单、找品牌政策、决定措辞和实际发送原本是同一人的连续工作。欧莱雅从加拿大一个品牌试起，把摘要、草拟回复和生成优惠码放进坐席原有的工单界面，后续覆盖北美二十五个品牌。值得注意的不是又上线了一次，而是同一供应商对节时幅度的说明变了：早期欧洲版称平均办理时间缩短近三分之二，新版美国案例把它限定为草稿不必修改的工单。对排班主管而言，真正要知道的是一班下来有多少邮件得改、改多久，还有多少根本没有合适的草稿。",
+      "design": "工单进来后，系统将对话、历史工单和客户记录与批准使用的知识文章、订单系统中的信息关联。推理引擎选择摘要、起草邮件或标记意图不符；品牌指令管语气，知识文章约束答复内容。欧莱雅为各代理指定允许读取的数据范围。坐席在原界面复核、修改并发送，关单前再检查所选的工单类别是否符合对话。生成优惠码也是独立操作，不等于所有草稿都有权发券。案例没披露折扣审批、重复请求或系统超时的处理；若试点包含发券，应先查询是否已出码，再决定是否重试。",
+      "evidence": "证据等级：B（具名客户访谈与厂商披露，效果未独立验证）。可确认的是两版原文口径不同：九月欧洲版把约七分钟降至两分半写成平均结果；十一月美国版明确，缩短约百分之六十四对应无需改稿的工单，改稿组则约缩短百分之四十。两版都称优惠码从约十分钟降至一分钟，每日有三百多名坐席使用；前者是单项操作，并非全部服务时间。两页出自同一供应商，不能互作效果复现。未披露样本量、改稿组占比、分组基线、观察期或重开率。编辑判断：没有工单结构和未采纳草稿的记录，就不能把最好一组的节时直接换算成可减少的班次。",
+      "idea": "给客服质检组做一周只读抽样：选一个品牌的一种来件，把无需修改、改后发送、完全弃用三类都放进分母。质检员在不知道分组时复核答案与订单、政策是否相符，再看实际办理分钟数和七天内重开数；若只在直接采纳组省时，就先优化返工最多的步骤，不据此调整排班。",
+      "image": {
+        "src": "/cases/customer-service-rag.png",
+        "alt": "客户服务相关既有配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "员工已经失去文档权限，知识库要多久才会忘记？",
+      "type": "产品正式发布／权限同步技术文档",
+      "source": "2026-11-18，Microsoft Foundry 发布公告；关联资料为 Microsoft Learn 的索引与权限文档。",
+      "url": "https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/foundry-iq-sharepoint-indexed-knowledge-source-is-now-generally-available/4573317",
+      "relatedLinks": [
+        {
+          "label": "如何同步权限、哪些租户不受支持",
+          "url": "https://learn.microsoft.com/en-us/azure/search/search-indexer-sharepoint-access-control-lists"
+        },
+        {
+          "label": "索引型知识源的配置",
+          "url": "https://learn.microsoft.com/en-us/azure/search/agentic-knowledge-source-how-to-sharepoint-indexed"
+        }
+      ],
+      "summary": "客服升级手册里，普通坐席可以看标准流程，却未必能看仅供主管使用的例外条款。微软将面向其企业搜索服务的索引型 SharePoint 知识源列为正式可用：文档拆成片段后，检索仍可以按提问者的身份筛选证据。真正值得测试的是一次岗位变动：昨天能查到例外条款的人，今天已被撤权，助手还能不能引用昨天的片段？与直接向源系统查询不同，这种方案用的是索引里保存的权限副本。管理员看到源文件已撤权，不能据此断言知识库已经同步。",
+      "design": "管理员选定文档库并设置索引；处理管线抽取内容、切分段落，将支持的用户及组权限随片段保存。查询时，应用凭证用于访问搜索服务，用户令牌说明代表谁检索；搜索服务先按索引中的权限过滤，再向助手返回可用证据，模型不裁决权限。单项权限变化要等同步成功；从父目录继承的权限变动可能需要管理员显式重新同步。编辑建议：对涉及刚撤权的敏感资料，若无法核实同步状态，先暂停该资料的问答，提醒业务负责人到原库核查；确认同步后用原测试账号复测，不以管理员能打开文件当作恢复依据。",
+      "evidence": "证据等级：B（厂商正式公告与同厂配置文档，未见独立效果测量）。两份材料可相互核对的是权限在索引阶段被复制，而非每次提问都回源鉴权。公告称有数百家客户测试过相关知识源和索引器，但未给出精确分母、租户配置、持续时间，或撤权至最后一次可见之间的延迟分布；案例中的普通员工与升级组对照是演示，不是实测通过率。技术文档另列限制：不支持启用了微软身份平台条件访问的租户。编辑判断：采购时应先确认部署条件，然后分别测量文件自身与上级目录发生权限变动的两条路径；不能用一次成功屏蔽说明全库都及时生效。",
+      "idea": "给支持团队建一个只含虚构资料的手册库：为坐席和主管各设一个测试账号，用同一句问题记录撤权前后返回的片段与出处。让文档管理员分别改一次文件权限和父目录权限，再由另一位复核人核对时间线。记录最后一次不当可见时间、过度屏蔽条数和修复所需人工分钟。",
+      "image": {
+        "src": "/cases/permission-aware-rag.webp",
+        "alt": "检索权限相关既有配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "交接班助手该查事故，还是有权把事故结案？",
+      "type": "运维产品发布说明／权限与故障处理文档",
+      "source": "2026-11-23，PagerDuty 平台发布说明；关联托管 MCP 服务配置及开发文档",
+      "url": "https://docs.pagerduty.com/get-started/release-notes",
+      "relatedLinks": [
+        {
+          "label": "工具范围、授权与故障处理",
+          "url": "https://docs.pagerduty.com/ai-automation/advance/pagerduty-mcp-server"
+        },
+        {
+          "label": "开发文档：远程服务与工具发现",
+          "url": "https://docs.pagerduty.com/developer/mcp-tooling-remote-server"
+        }
+      ],
+      "summary": "接班工程师通常先问三件事：哪项服务还在报警、刚才改了什么、现在该找谁。PagerDuty 宣布其托管的模型上下文协议服务正式可用，让值班人员能在常用的助手里查询事故、变更记录和轮班安排，再决定是否需要调整事故状态。新接入点的价值不只是少开一个窗口：调查和结案看似是同一段对话，却是两项权限不同的工作。团队可以先给交接班助手配置只读调查工具，让它整理出带事故编号的待查事项，而不把一句「看起来恢复了」变成系统里的结案记录。",
+      "design": "助手按值班人员的问题选择工具，托管服务以登录者在事故平台的身份执行；账户套餐决定哪些能力可用。未指定工具组时，服务呈现完整核心目录；只选事故调查组，则限于只读分诊、告警调查和服务依赖查询。拥有相应权限并暴露写工具时，助手可以添加备注、确认接手或标记解决。官方未说明每次写操作都会经过人工批准，故建议把结案留在原平台，由事故负责人核验服务状态后执行。遇到限流要按响应指定的时间等待；过期授权应重新登录，而不是把未经查询的事故记为正常。",
+      "evidence": "证据等级：B（厂商公告和配置文档可交叉核对；不是独立效果研究）。可以确认的是，十一月二十三日的公告宣布正式可用，文档明确区分工具目录、套餐权益与登录者权限：看得到某类工具，不表示可以操作所有事故。配置中用于排除工具的名称若拼错，服务会报错，不会悄悄忽略。厂商认为缩小工具范围可以减少无效令牌消耗和选错工具，但没有公开事故样本数、对照组、复核时间、每次交接的成本或平均恢复时间变化。编辑判断：只选某类服务的白天轻微故障试用，可能低估夜间跨组交接的难度；应把无权读取、事故未解和系统限流都留在分母里，不能只看生成了交接摘要的班次。",
+      "idea": "让一个值班小组用一周历史事故做只读交接试验，每份摘要只列事故编号、最近变更、当前负责人和未确认项。接班人不看自动稿先做一份人工清单，再逐项比对。计量缺失未解事故数、负责人配错数和核对后的交接分钟数；权限不足时要求注明未知，不允许助手代替人员结案。",
+      "image": {
+        "src": "/cases/agent-incident-metr.png",
+        "alt": "事故管理相关既有配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "代理记住了错单，还是记住了与制度冲突的答案？",
+      "type": "工程研究预印本｜代理记忆消融实验",
+      "source": "2026-11-17（UTC），Jiangyun Zhang 等，arXiv；Amazon 研究团队",
+      "url": "https://arxiv.org/abs/2611.23588",
+      "relatedLinks": [
+        {
+          "label": "全文：记忆筛选、成本与两个案例",
+          "url": "https://arxiv.org/html/2611.23588v1"
+        }
+      ],
+      "summary": "流程代理遇到老问题，重训模型之外还有一条路：记下上次错在哪儿，先试着改工作说明。亚马逊研究团队的 ARISE 把一次失败分成两种记忆，一种只供相似个案参考，另一种经验证后写入通用规则。论文里有个值得业务主管亲自看的例子：书面流程要求缺失超过两项才停止补值，历史标签却在恰好缺两项时就标为无法判断。记住这个差异之后，一次测试中四个同类样例从全错变为全对。这个进步回答的是能否复现历史标签，不是该以哪份制度为准。",
+      "design": "输入包括工作说明、任务执行记录和可核验结果。执行模型本身或另一个教师模型分析错因，形成个案改正建议，再提出通用规则。只有在留出的验证集上超过原规则一定幅度，新规则才替换旧版；连续多轮没有改善就停止。运行时每次提供通用规则，个案检索通过单独检查后，才按相似度补充少量旧例。工具和模型权重不变，研究也没有因此赋予代理改动生产权限的能力。作者说运营人员可在发布前审查规则，但没有证明每次确有人工签字。编辑建议：标签与现行制度相冲时冻结该建议，交流程负责人裁定。",
+      "evidence": "证据等级：B（作者离线对照及消融，非独立生产验证）。研究覆盖两个基准、十四个工作流领域和五个模型；作者报告，教师方案较基线在 SOP-Bench、τ²-bench 上分别提升十点九、五点八个百分点。在前一基准固定已学规则、关闭个案检索，仍保留了十点二个百分点的提升。这不能解释为历史个案无用，因为提炼规则本身就用到了个案。跨十四个领域，平均每项任务的推理代币费用下降百分之一，未计向量化、存储和检索，也不是企业总成本。结果来自可判对错的任务；未见第三方现场重复、政策变更后的错单率或审核人工成本。编辑判断：把是否符合标签和是否符合有效制度分开验收，才能避免以历史错误训练出更稳定的错误。",
+      "idea": "给客服质检组做一份退单规则对照表，只纳入一个原因码。在脱敏历史单上让代理提出更正，每条并列旧案结果、适用制度版本及原文，由业务负责人签认冲突项，试验不写工单。分别记录同类错误复发率、复现历史标签却违反制度的比例和每条审核分钟数。",
+      "image": {
+        "src": "/cases/policy-executable-decisions.jpg",
+        "alt": "流程规则相关既有配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "给客服主管的整班节时账",
+      "description": "选一个品牌的邮件队列，记录所有来件的人工基线及采纳、改写、弃用三种结果。坐席确认实际处理分钟，质检员盲评答复；按同类工单比较每班净工时、重开率和错发优惠码数，再讨论排班。",
+      "tags": [
+        "客服",
+        "工时核验"
+      ]
+    },
+    {
+      "title": "知识库撤权秒表",
+      "description": "文档所有者在测试库准备带唯一短语的文件，用两个测试账号分别演练单文件和继承权限撤回。管理员记录索引同步，原用户复测答案及引用；以最后一次可见时刻、重同步次数和恢复验证耗时验收。",
+      "tags": [
+        "权限",
+        "检索验收"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "When is the work actually done? This issue follows four easy-to-miss intervals: time spent editing a generated reply, the period in which revoked content remains searchable, the handoff before an incident is closed, and the policy check after an agent learns to reproduce a historical answer.\n\nKeep four independent records: edited or abandoned drafts, a test identity that just lost access, an unresolved incident in the system of record, and a current policy clause that conflicts with a historical label. Each can disprove a plausible result. Have the staffing manager, document owner, incident owner and process owner sign off on the step they control; an agent’s own output cannot certify completion.",
+      "takeaways": [
+        "L’Oréal’s updated case splits time savings by whether advisers edited the draft. Tracking only accepted drafts cannot yield net time saved across a shift, even if every individual time is accurate.",
+        "SharePoint filters chunks against indexed permissions. Time revocation from the source change to the original user’s last successful retrieval. An administrator seeing no synchronization error measures something different.",
+        "PagerDuty enforces the signed-in user’s permissions, but omitting a tool group exposes the full core catalog. A handoff assistant that only answers who is on call can omit write tools entirely.",
+        "ARISE moved four cases from all wrong to all correct using historical labels inconsistent with the written procedure. A grader can establish agreement with labels, not which rule the process owner should enforce."
+      ],
+      "contrarian": "Teams often treat an untouched draft as the best outcome. L’Oréal’s unedited group did save more time, but its quality and reopen rate were not reported. ARISE shows a sharper counterexample: the answer marked correct can depart from the written rule. Our judgment: do not use the no-edit rate as a rollout threshold before independently checking quality and policy versions. Random blinded review showing net time saved without more policy errors, reopened cases or missed escalations at comparable difficulty would overturn this judgment for that workflow.",
+      "items": [
+        {
+          "title": "How much time did L’Oréal’s advisers save? First ask which replies needed no edits",
+          "type": "Named customer deployment / comparison of regional accounts",
+          "source": "2026-11-23, Salesforce US customer story; compared with the 2026-09-11 European account of the same North American deployment, which describes the metric differently.",
+          "relatedLinks": [
+            {
+              "label": "September European account: the original average claim"
+            }
+          ],
+          "summary": "Answering a customer email traditionally meant one adviser checking an order, finding the brand policy, choosing the wording and sending the message. Starting with one brand in Canada, L’Oréal embedded summaries, drafting and promo codes in the existing case interface, then reached 25 North American brands. The news is not another rollout but a change in the supplier’s account of time saved. Its European page described an average reduction of nearly two thirds; the US case limits that figure to drafts sent without changes. A staffing manager needs the share requiring edits, the time spent on them and how often there was no suitable draft.",
+          "design": "The system brings conversations, case history and customer records together with approved knowledge and order data. A reasoning engine chooses whether to summarize, draft or flag an intent mismatch. Brand instructions govern tone and approved knowledge constrains content. L’Oréal maps which data each agent can read. Advisers review, edit and send; before closure the system checks the selected intent against the conversation. Generating a promo code is a separate action, not a right conferred by every draft. Approval for discounts, duplicate requests and timeout handling were not disclosed. Pilots involving codes should check for an existing code before retrying.",
+          "evidence": "Evidence grade: B (named customer interviews and supplier reporting; no independent validation). The European account in September described about seven minutes falling to two and a half as an average. The November US account limits the roughly 64% reduction to cases requiring no draft edits and reports about 40% for edited drafts. Both say promo-code generation fell from about ten minutes to one and more than 300 advisers use the system daily; the former is a single operation, not total service time. Both pages come from the supplier and are not independent replications. Neither provides sample size, share requiring edits, subgroup baselines, observation period or reopening rate. Without the case mix and rejected drafts, the best subgroup’s savings cannot be converted directly into staffing reductions.",
+          "idea": "Run a one-week read-only quality sample for one brand and one inquiry type. Include unchanged, edited and discarded drafts. Blind reviewers to the group as they compare replies to orders and policy, then check actual handling minutes and cases reopened within seven days. If only unchanged drafts save time, address the largest source of rework before changing staffing.",
+          "image": {
+            "alt": "Customer service",
+            "caption": "Related previously used illustration, not an original image from this issue’s sources."
+          }
+        },
+        {
+          "title": "After an employee loses document access, when does the knowledge base catch up?",
+          "type": "General availability announcement and permission synchronization documentation",
+          "source": "November 18, 2026, Microsoft Foundry announcement; related Microsoft Learn indexing and permissions guides.",
+          "relatedLinks": [
+            {
+              "label": "Permission synchronization and unsupported tenant configurations"
+            },
+            {
+              "label": "Configuring an indexed knowledge source"
+            }
+          ],
+          "summary": "In a customer escalation manual, an agent may read the standard procedure but not exceptions reserved for supervisors. Microsoft announced general availability of the indexed SharePoint knowledge source for its enterprise search service. After documents are split, retrieval can still filter evidence by the caller's identity. A change of role is the more revealing test: can someone whose access was revoked today still retrieve a passage they could see yesterday? Unlike a request to the source system, indexed retrieval relies on a copy of permissions. A revocation on the source document does not show that the knowledge base is up to date.",
+          "design": "An administrator scopes the library and configures indexing. The pipeline extracts content, splits it and saves supported user and group permissions with each chunk. At query time the application credential authenticates access to search; the user token identifies the person on whose behalf it searches. The service filters evidence before delivering it to the assistant. The model does not decide access. Item-level changes require a successful sync; changes inherited from a parent folder can require an explicit resync. Our recommendation: if sync status cannot be confirmed for newly revoked sensitive material, suspend answers from that material and refer its business owner to the source. After sync, retest with the original test account; administrator access is not a recovery test.",
+          "evidence": "Evidence grade B: a vendor announcement and documentation from the same vendor; no independent outcome measurement found. Both describe permissions copied at indexing rather than live source authorization on every query. Microsoft reports hundreds of customers tested the knowledge source and indexer, without a precise denominator, tenant configurations, study duration or distribution of time between revocation and last visibility. The comparison between a general employee and an escalation-team member is illustrative, not a measured pass rate. The technical guide excludes tenants with Microsoft Entra Conditional Access enabled. Our judgment: verify eligibility first, then measure changes on individual files and inherited permissions separately; one successful denial does not establish timely enforcement across the library.",
+          "idea": "Build a synthetic support manual with one agent and one supervisor test account. Run the same question and record chunks and citations before and after revocation. Have a document administrator separately change file and parent-folder permissions; a second reviewer checks the timeline. Record last unauthorized visibility, incorrectly hidden items and human minutes spent on remediation.",
+          "image": {
+            "alt": "Retrieval permissions",
+            "caption": "Related previously used illustration, not an original image from this issue’s sources."
+          }
+        },
+        {
+          "title": "Should a handoff assistant investigate an incident or be able to close it?",
+          "type": "Operations release notes / permissions and troubleshooting documentation",
+          "source": "2026-11-23, PagerDuty platform release notes; related hosted MCP and developer documentation",
+          "relatedLinks": [
+            {
+              "label": "Tool scope, authorization and troubleshooting"
+            },
+            {
+              "label": "Developer documentation: remote service and tool discovery"
+            }
+          ],
+          "summary": "An incoming engineer wants to know which service is still alerting, what just changed and whom to call. PagerDuty announced general availability of its hosted Model Context Protocol server. On-call staff can use their usual assistant to check incidents, changes and schedules before deciding whether to update an incident. The point is not just one fewer window. Investigation and closure can be consecutive turns in a conversation while requiring different permissions. A handoff assistant can start with read-only investigation tools and list open questions with incident IDs without turning ‘looks recovered’ into an official resolution.",
+          "design": "The assistant chooses tools in response to a question; the hosted service acts with the signed-in user’s PagerDuty permissions, and the account plan gates features. The default tool group exposes the full core catalog. Selecting incident discovery alone limits it to read-only triage, alert investigation and dependency mapping. If write tools are exposed and permission allows, the assistant can add notes, acknowledge or resolve incidents. The documentation does not promise human approval for every write. Our recommendation is to leave closure in the original platform until the incident owner verifies service health. When rate-limited, wait as directed in the response; reauthenticate expired sessions rather than treating uninspected incidents as healthy.",
+          "evidence": "Grade B: the vendor announcement and configuration guide corroborate capabilities, not independent outcomes. The November 23 release states general availability. Documentation distinguishes the exposed catalog, plan entitlements and user permissions: seeing a tool does not grant access to every incident. A misspelled name in the tool exclusion list returns an error rather than being silently ignored. The vendor suggests a smaller catalog reduces wasted tokens and tool-selection errors. It provides no incident sample size, comparison group, review time, cost per handoff or change in mean time to recovery. Editorial judgment: a pilot limited to minor daytime incidents on one service can understate the difficulty of overnight cross-team handoffs. Keep denied reads, unresolved incidents and rate-limited attempts in the denominator, not just shifts that yielded a summary.",
+          "idea": "Have one on-call team replay a week’s past incidents read-only. Limit each brief to IDs, recent changes, current owners and unknowns. Incoming staff draft their own list before seeing the assistant’s output and then compare. Count missing unresolved incidents, wrong owners and handoff minutes including verification. Mark inaccessible information unknown; do not allow the assistant to close incidents.",
+          "image": {
+            "alt": "Incident management",
+            "caption": "Related previously used illustration, not an original image from this issue’s sources."
+          }
+        },
+        {
+          "title": "Did the agent learn from a failed case, or learn an answer that contradicts policy?",
+          "type": "Engineering preprint | Ablation of agent memory",
+          "source": "2026-11-17 (UTC), Jiangyun Zhang et al., arXiv; Amazon research team",
+          "relatedLinks": [
+            {
+              "label": "Full text: memory gates, costs and two cases"
+            }
+          ],
+          "summary": "When a workflow agent repeats a mistake, retraining is not the only option: record what went wrong and test a change to its instructions. Amazon researchers’ ARISE keeps case-specific corrections as well as validated general rules. One example deserves a process owner's attention. The written procedure stopped imputing missing values only when more than two scores were missing; historical labels already said it could not decide when exactly two were missing. Learning this discrepancy took four similar test cases from none correct to all correct in one run. That measures agreement with historical labels, not which policy should govern.",
+          "design": "Inputs include instructions, execution traces and verifiable outcomes. The deployed model itself or a separate teacher attributes failures, produces case-specific corrections and proposes general rules. A new rule set replaces the incumbent only when held-out accuracy improves by a margin; training stops after consecutive rounds without an accepted update. General rules enter every prompt; similar historical cases are retrieved in limited numbers only after a separate check. Neither tools nor model weights change, and the study confers no production write authority. Operators can review rules before release; actual human sign-off on every update was not demonstrated. We suggest freezing a proposed correction when labels conflict with current policy until the process owner resolves it.",
+          "evidence": "Evidence grade B: author-run offline comparisons and ablation, not independent production validation. The study covers two benchmarks, 14 workflow domains and five models. Against baseline, the teacher variant gained 10.9 percentage points on SOP-Bench and 5.8 points on τ²-bench. On SOP-Bench, fixing the learned rules and disabling case retrieval retained 10.2 points of the gain. Cases still informed rule consolidation, so this does not establish that historical cases are unnecessary. Across 14 domains, average per-task inference token charges fell 1%, excluding embedding, storage and retrieval; this is not total enterprise cost. Tasks have verifiable outcomes. No independent field replication, post-policy-change error rate or reviewer labor cost was identified. Our judgment: measure agreement with labels separately from compliance with current policy, lest past mistakes become more repeatable.",
+          "idea": "For a customer-service QA team, build a comparison sheet covering one rejection reason. On de-identified historical cases, ask the agent to propose corrections; show the old outcome alongside the applicable policy version and text. The process owner signs off conflicts. Do not write to tickets. Measure repeated errors, the share of cases matching historical labels but violating policy, and review minutes per entry.",
+          "image": {
+            "alt": "Workflow rules",
+            "caption": "Related previously used illustration, not an original image from this issue’s sources."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "A full-shift time ledger for customer care",
+          "description": "Use one brand’s email queue. Log manual baselines and all incoming cases, distinguishing accepted, edited and discarded drafts. Advisers confirm handling minutes and QA reviews replies blind. Compare net hours per shift, reopens and incorrect promo-code issuance for similar cases before changing staffing.",
+          "tags": [
+            "Customer care",
+            "Time measurement"
+          ]
+        },
+        {
+          "title": "A revocation stopwatch for a knowledge base",
+          "description": "A document owner places a unique phrase in a test library and uses two test identities to rehearse file-level and inherited revocations. The administrator logs sync events; the original user retests answers and citations. Measure the last successful retrieval, number of explicit resyncs and time to verify recovery.",
+          "tags": [
+            "Access control",
+            "Retrieval testing"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "04e18dc4e4ce3178"
+}
