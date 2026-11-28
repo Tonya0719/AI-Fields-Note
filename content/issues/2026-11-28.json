@@ -1,0 +1,249 @@
+{
+  "issue": "ISSUE 094",
+  "date": "2026.11.28",
+  "thesis": "保险坐席准备一笔业务少花了时间，这份收益应记在统一工作台名下，还是记在智能助手名下？本期四组资料给出了四种容易混为一谈的变化：界面接通、错因重分、经验复用、测试样本更换。只有说清哪一项变了，数字才足以指导下一笔投入。\n\n可以用一宗已脱敏的旧案贯穿验收：让两种界面准备同一份客户资料，用固定版本的评分器核对字段，再看助手能否把一次纠错用于后续不同案件。监控结果另列，按样本来源报告漏报，不把“没有告警”算作业务做对。这样即使总成绩变好，也能追到哪一步值得保留。",
+  "takeaways": [
+    "保险案例把销售准备耗时和客户互动数列为成果，但同期也合并了系统、调整了流程。要判断是否值得加购智能摘要，对照组应该用同一个整合工作台。",
+    "ParseBench-2 可以在不改变解析输出的情况下重新归类错误。两次评测若用了不同评分器，就不能把分数变化全算作模型进步；应保留原输出供重算。",
+    "EvoLink-Bench 的召回分析案例里，代理补齐了缺失的摘要；这证明一次返工可以救回交付，不能证明代理在下一宗不同的案件上也学会了。",
+    "英国 AI 安全研究所对同一退役监控器测出了不同漏报率。上线审批如果只看一个平均数，就遗漏了测试样本来自哪里，以及哪些真实任务还没测到。"
+  ],
+  "contrarian": "“先把代理接上，再从节约的工时倒算它的价值”在这个保险案例里并不可靠。来源能确认的是业务人员拿到了统一视图；它没有提供只改界面、不开助手的对照。编辑判断：当员工大部分时间花在找资料而非解释资料上，先打通只读查询可能比增加模型更划算。如果在相同权限、界面和相近案件难度下，随机开启助手后仍能缩短备齐资料的时间，且复核工时和错配率不升，这一判断就应改写。",
+  "items": [
+    {
+      "title": "保险前台把二十多个系统收进一个窗口：省下的时间算谁的？",
+      "type": "部署案例｜一线工作流与人工交接",
+      "source": "2026-11-25｜Appian 工程应用案例，转述 PwC 在 Appian Europe 的分享",
+      "url": "https://appian.com/blog/2026/customer-experience-ai-and-automation",
+      "relatedLinks": [
+        {
+          "label": "PwC 与会者的议题说明（非独立效果验证）",
+          "url": "https://de.linkedin.com/in/dominik-frosch-a0771376"
+        }
+      ],
+      "summary": "一家欧洲大型保险公司的员工以前为同一位客户服务，要在二十多个系统间切换。普华永道在会议上介绍，改造后员工从一个工作台调用三十多项服务，由流程提示下一步。值得注意的不是屏幕少了多少，而是员工准备一笔销售业务时，不再需要自己拼出客户全貌。会上另一个银行遗产办理案例说明，客户的不满有时来自反复补交同一材料，而非一次查询太慢。两案放在一起，给准备采购智能助手的团队提供了一个基线：先算清楚接好系统、明确谁接手本身能带来多少改善。",
+      "design": "保险场景的输入是员工服务客户时所需的业务资料，工作台汇集后台服务的结果，员工据此继续准备业务。遗产办理则是把不同渠道、不同时间收到的证明归入同一案件，让经办人看见共享文件、办理状态和下一步。文章建议让代理提取或核对资料，由业务规则决定流转，材料缺失时把原因一并交给人工；这是设计建议，不是两个案例都部署了相同模型的证明。原文没有披露检索方法、跨系统身份如何传递、哪些角色能改写记录，或服务超时后如何恢复，也未声称代理可以代客户作决定。",
+      "evidence": "证据等级：C（供应商会议案例，无独立效果验证）。可确认的事实是平台方发布了普华永道的流程介绍，与会者也公开列出了这两个议题。供应商称保险员工能在不到两秒内看到完整客户视图，销售业务准备耗时减少百分之四十，发起的客户互动增加百分之二十二。互动次数不是成交率，两秒内看到视图也不是两秒内办完业务。材料没有给出保险公司的名称、客户数量、统计周期、成本或错误率；文中还说员工讨论改变了屏幕布局和工作流程，并没有保持这些因素不变来单测模型。编辑判断：这是值得在本地重测的流程基线，不是智能代理创造收入的因果证据；另一家银行的遗产案例也不能替这几项数字提供独立验证。",
+      "idea": "给保险客服主管做一个只读的续保准备台，先连保单与联系记录两处数据，不生成报价。缺件或同名客户由坐席确认，记录从接单到备齐资料的分钟数、重复索件次数和错配率。先比较旧界面与整合界面，再在同一工作台上开关智能摘要，才看得出额外收益出在哪里。",
+      "image": {
+        "src": "/cases/agent-insurance.jpg",
+        "alt": "保险业务工作流相关既有配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "表单里抄出了提示语：ParseBench 把它和凭空造数分开计错",
+      "type": "开源评测数据集更新／文档解析工程",
+      "source": "2026-11-27，LlamaIndex，ParseBench-2 数据集 v2.11 更新日志。",
+      "url": "https://huggingface.co/datasets/llamaindex/ParseBench-2/raw/main/CHANGELOG.md",
+      "relatedLinks": [
+        {
+          "label": "评测代码与方法",
+          "url": "https://github.com/run-llama/ParseBench"
+        },
+        {
+          "label": "可重放的逐文档输出",
+          "url": "https://huggingface.co/datasets/llamaindex/ParseBench-2-results"
+        },
+        {
+          "label": "评分器变更 #342",
+          "url": "https://github.com/run-llama/ParseBench/pull/342"
+        }
+      ],
+      "summary": "空白表格里印着填写说明。如果解析器把这句话抄进答案栏，和无中生有填了一个金额，是两种不同的错。新版评测给六百页表单补上原本就印在纸上的文字及其来历，让评分器能分清这两种情况。原文件和标准答案都没换，换的是如何解释同一个错误输出。这对采购文档解析服务的团队很实用：前一种错误值得先查版面与标签的对应关系，后一种则要追问一个值有没有原文依据。两种输出都不能直接入账，区分它们是为了找对修复位置，而不是把错值改判为正确。",
+      "design": "输入是表单页、已知参考字段和待测解析器的输出。制备数据时，工具先读文字层，并按页面语言识别图像；有八页的文字层把字符拆开，改用每英寸三百点的分辨率渲染整页后识别。评分时，若答案全来自页上预印文字，新规则再看该栏原本有无值，记为漏掉真值或把印刷字带入空栏，而不直接判为填错或杜撰。已保存的输出可以离线重评，不需要再次请求模型。该流程没有检索企业私库，也不写入业务表单；未披露生产身份权限、人工放行、超时重试机制，不能将评测器当审批系统。",
+      "evidence": "证据等级：B（公开数据、评分程序及可重放输出；业务效果未验证）。确认事实是此次覆盖五百页表单和一百页可填写表单，样本没有增加。维护者报告，四百五十页合成填写样本剔除了叠加的输入值，另有三十一页由人工核补漏读的印刷行；他们测得参考标签词覆盖率为99.20%，对照同厂快速解析服务为99.05%。这是准备评测材料时的文字覆盖率，不是字段正确率，更不是客户填单准确率。评分器须为2.2.4或更新版本，旧版忽略新增标记。没有独立客户复测，也没有生产文档的错误分布或复核成本；编辑判断是固定模型输出并分别重评，才能区分分数变化究竟来自模型还是尺子。",
+      "idea": "给共享服务中心的单据质检员做一个只读错例对照页：先选一种经授权脱敏的申请表，同屏显示原页、预印文字和识别值。质检员逐栏把漏值、抄入标签、无来源填值分开标记；冻结同一批输出后，比较两版评分的改判率、人工一致率及每份复核用时，不把试验结果写回业务系统。",
+      "image": {
+        "src": "/cases/dacl-contract.jpg",
+        "alt": "文档处理相关既有配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "写出了复盘摘要，能证明代理学会了吗？",
+      "type": "大学预印本与开源评测框架",
+      "source": "2026-11-25｜北京航空航天大学研究团队，arXiv 首次提交",
+      "url": "https://arxiv.org/abs/2611.34400",
+      "relatedLinks": [
+        {
+          "label": "作者代码与复现说明",
+          "url": "https://github.com/BUAA-Self-Evolving/EvoLink-Bench"
+        },
+        {
+          "label": "论文全文及案例附录",
+          "url": "https://arxiv.org/html/2611.34400v1"
+        }
+      ],
+      "summary": "在一项召回分析演练中，代理读过前几轮留下的报告，却没有写出要求的管理层摘要。收到“文件仍不存在”的反馈后，它再次打开已保存的材料，写出摘要并校正引用路径，评分由零变为一。这是一次成功的返工，但不能说明代理学会了一条能用于下一次复盘的新规则。北航团队用这类有前后依赖的任务，把三个容易混淆的问题分开测：这次能否补救，工作区是否留下可用成果，以及换一项任务后是否仍用得上经验。对要采购带长期记忆助手的团队，最后一问尤其重要。",
+      "design": "每次输入一个任务，后续回合可能要引用早先的决定、修订后的事实或已生成的文件。模型调用工具读写工作区，验证器按任务规则检查提交，标准答案和评分材料留在评测端；有限次重试用尽后，以最终提交计分。研究者分别让系统每轮清空状态、保留工作区但不做轮后学习，或保留工作区并允许适配器在支持时学习。输出是提交物、评分和状态变化记录，不进入真实召回流程。这里没有验证生产账号分权或人工放行；若用于企业复盘，缺少必需文件时应停止流转，由责任人核对后再交付。",
+      "evidence": "证据等级：B（公开预印本与作者实验，非独立复现）。可确认的是论文和仓库给出了三种状态条件及评测程序。作者在五种框架、三种底层模型配置的选定任务组中记录了19,635个评分位置；同一任务在不同条件下可重复出现，不能读成同等数量的独立业务事件。上述摘要是作者从七十二个重试成功记录中选出的三个示例之一，没有移除旧文件的对照，不能把改善归因于学习。部分适配器未启用轮后学习，开关名称也不证明机制实际运行。未见独立团队在客户现场复测，也没有厂商交付周期或成本收益可供旁证。编辑判断：复盘验收应同时检查文件是否可用，以及下一次任务是否更少出错。",
+      "idea": "给质量运营组做一个只读复盘练习：把去标识的旧报告和后来修订的结论放进测试工作区，要求助手先出一页摘要，再隔几单回答修订后的问题。由质量负责人盲审引用是否有效，以只保留文件为对照，分别统计漏交率、沿用旧结论率和每单复核分钟数，不向客户发件。",
+      "image": {
+        "src": "/cases/agent-ops.png",
+        "alt": "代理任务管理相关既有配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    },
+    {
+      "title": "同一个代理监控器，为什么会测出两种截然不同的漏报率？",
+      "type": "政府研究机构评估＋预印本",
+      "source": "2026-11-23｜英国 AI 安全研究所（AISI）；2026-11-25｜同组预印本提交 arXiv",
+      "url": "https://www.aisi.gov.uk/blog/attack-policy-selection-can-make-monitor-evaluations-misleading",
+      "relatedLinks": [
+        {
+          "label": "预印本与提交日期",
+          "url": "https://arxiv.org/abs/2611.34934"
+        },
+        {
+          "label": "论文全文与分组结果",
+          "url": "https://arxiv.org/html/2611.34934v1"
+        }
+      ],
+      "summary": "如果代码代理只在监控器报警时才交给人复核，测出极低的漏报率，能不能成为取消审批的依据？英国 AI 安全研究所把一个曾用于生产的监控器保持不变，换用不同方式构造的软件工程任务记录。在基础设施配置场景里，监控器漏掉已完成有害动作的比例从 0.2% 到 23% 不等。变化的是试题，不是监控器。这对平台负责人意味着，验收报告除了列出漏报数字，还得交代哪些错误有机会进入测试，以及这些错误是否像业务中真正会遇到的错误。尤其要区分历史工单和专为考试编出的记录。",
+      "design": "实验将执行任务与检查任务分开。执行端用 Qwen 3.8 27B 在测试环境完成任务；任务结束，监控端用 GPT-5.4 和一份已停用的监控提示读取整段记录，包括模型推理，给出是否可疑的信号。研究者比较四类样本生成方法；开发样本时用另一套监控器提供反馈，不拿待测系统调试。独立评分判定有害子任务是否完成，再在成功的子集计算漏报率。这里没有知识库检索，也没有自动批准生产变更；真实值班人员的权限、超时如何接手、解除拦截要谁签字，不在这次实验的验证范围内。",
+      "evidence": "证据等级：B（外部研究团队的受控实验，非线上审计）。可确认的是，基础设施配置测试中，基线组有 180 次试验，79% 完成有害子任务；其漏报率估计为 0.2%，95% 区间为 0 至 1.2%。另一组使用 100 份记录，估计为 23%，区间为 10.8% 至 36.8%。分母是成功的有害子任务，不是所有业务请求；也不能用 180 直接乘漏报率来算漏报件数。结果不是厂商自报的客户收益，但机构博客与论文出自同一团队，不能算两次独立复现。编辑判断是保留高影响操作的人审：样本经过构造，只测一个代理和一个已停用的监控配置，没有真实事件发生率、人工复核工时或损失数据。两组区间的宽窄也提醒读者，不能把那个最高的点估计当成固定参数。",
+      "idea": "给平台值班组做一张只读的告警验收表，只覆盖一种需审批的配置变更。由两位工程师盲审脱敏历史工单并解决分歧，再把历史记录与模拟样本分栏，比较漏报率、误报率、待审量和每单复核分钟数；未见过的工单类别不自动批准，样本不足的栏位保留原始计数。",
+      "image": {
+        "src": "/cases/agent-deployment-monitor.png",
+        "alt": "代理监控相关既有配图",
+        "caption": "相关既有配图，非本期资料原图。"
+      }
+    }
+  ],
+  "projectIdeas": [
+    {
+      "title": "续保资料准备台的三组对照",
+      "description": "客服主管选一种续保业务，比较旧界面、整合只读界面、整合界面加摘要；坐席逐笔确认客户身份与缺件，不发送报价。按案件难度分组，比较备齐资料的中位分钟数、复核时间及客户错配率。",
+      "tags": [
+        "保险服务",
+        "对照试验"
+      ]
+    },
+    {
+      "title": "同一份表单输出，两版评分",
+      "description": "文档运营团队选一种报销表，冻结解析结果，分别用两版规则重算丢值、空栏抄字与编造值。争议项由两位审核员对照原页裁定。报告各类错误的迁移数量、审核一致率及每百页复核分钟数。",
+      "tags": [
+        "文档抽取",
+        "评估"
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "thesis": "When an insurance representative spends less time preparing a deal, should the credit go to the integrated desk or the AI assistant? This issue separates four easily conflated changes: connecting interfaces, reclassifying errors, reusing experience and changing test samples. Knowing which changed makes a number useful for the next investment decision.\n\nA de-identified past case can anchor acceptance testing: prepare the same customer file through two interfaces, check fields with a pinned scorer, then see whether an assistant applies a correction to different later cases. Report monitoring separately, splitting misses by sample source; no alert is not proof the business task was correct. An aggregate gain can then be traced to a step worth keeping.",
+      "takeaways": [
+        "The insurance case reports preparation time and customer interactions, but the systems and workflow changed too. To price an AI summary add-on, use the same integrated desk in the control group.",
+        "ParseBench-2 can reclassify errors without changing parser outputs. If scorer versions differ, a score change cannot be attributed entirely to the model; save the original outputs for rescoring.",
+        "In EvoLink-Bench’s recall-analysis example, the agent supplied a missing summary. It demonstrates a successful repair, not that the agent learned to handle the next, different case.",
+        "The UK AI Security Institute obtained different miss rates for the same retired monitor. A release decision based on one average hides where test examples came from and which real tasks remain untested."
+      ],
+      "contrarian": "“Connect the agent first and infer its value from hours saved” is unreliable in this insurance case. The report confirms a unified customer view, but has no interface-only, assistant-off control. Our judgment: where staff spend most of their time locating rather than interpreting records, connecting read-only queries may be the better first investment. We would revise that judgment if randomized assistant access, with the same permissions and interface and comparable case difficulty, still shortened time to a complete file without raising review time or mismatches.",
+      "items": [
+        {
+          "title": "One window for an insurer’s twenty-plus systems: what actually saved time?",
+          "type": "Deployment case | Front-office workflows and human handoffs",
+          "source": "2026-11-25 | Appian application case report on PwC’s presentation at Appian Europe",
+          "relatedLinks": [
+            {
+              "label": "PwC participant’s description of the session (not independent outcome validation)"
+            }
+          ],
+          "summary": "Employees at a large European insurer used to switch among more than twenty systems to serve a single customer. PwC told a conference that staff now access more than thirty services from a single dashboard with guided next steps. The useful change is not the number of screens removed: staff preparing a sales deal no longer have to assemble a customer view themselves. A separate bank estate-settlement example illustrates how frustration can come from repeated requests for the same document rather than a slow lookup. Together they suggest a baseline for teams considering an assistant: measure what connecting systems and clarifying ownership can deliver on their own.",
+          "design": "The insurer’s dashboard brings together results from back-office services so employees can prepare their work using the relevant customer information. The estate hub brings documents arriving at different times through different channels into one case and shows staff the shared files, status and next steps. The article recommends that agents extract or check information, that business rules guide routing, and that missing information trigger a handoff explaining what a person needs to do. This is design advice, not proof that both deployments used the same model. The report does not specify retrieval, identity propagation, who can write records, or recovery from a service timeout. It does not say agents can make decisions for customers.",
+          "evidence": "Evidence grade: C (vendor conference account; no independent outcome verification). The platform vendor published PwC’s account of the workflows, and a participant publicly listed both topics. The vendor reports a complete customer view in under two seconds, 40% less time to prepare sales deals and 22% more customer interactions initiated. Interactions are not conversions, and time to view a record is not end-to-end handling time. The insurer’s name, customer count, measurement window, costs and error rates are absent. Employee discussions also changed layouts and workflows; those factors were not held constant to isolate a model’s contribution. Our judgment: this is a workflow baseline worth testing locally, not causal evidence that an agent generated revenue. The bank estate example cannot independently validate these figures.",
+          "idea": "Build a read-only renewal preparation desk for an insurance support supervisor, joining only policy and contact records and producing no quotes. Agents resolve missing records or namesakes. Track minutes from intake to a complete file, repeat document requests and mismatches. Compare the old and integrated interfaces first, then toggle AI summaries on the same dashboard to isolate any extra benefit.",
+          "image": {
+            "alt": "Insurance workflow",
+            "caption": "Related previously used illustration, not an original image from this issue’s sources."
+          }
+        },
+        {
+          "title": "Copying a form instruction is not inventing a value: ParseBench separates the errors",
+          "type": "Open evaluation dataset update / document parsing engineering",
+          "source": "November 27, 2026 — LlamaIndex, ParseBench-2 dataset v2.11 changelog.",
+          "relatedLinks": [
+            {
+              "label": "Evaluation code and methods"
+            },
+            {
+              "label": "Replayable per-document outputs"
+            },
+            {
+              "label": "Scorer change #342"
+            }
+          ],
+          "summary": "A blank form contains instructions. Copying one into the answer field is a different error from inventing an amount. The updated benchmark annotates 600 form pages with the text already printed on them and its provenance, letting the scorer distinguish those cases. Neither the source files nor the reference answers changed; the interpretation of the same bad output did. A team procuring a parser might investigate layout and label association in the first case, and ask whether a value has any source at all in the second. Neither output should be posted to a ledger. The distinction helps locate the fix, not turn a bad value into a correct one.",
+          "design": "Inputs are form pages, reference fields and parser outputs. During data preparation, the tool reads the text layer and uses the page language for OCR of images. On eight pages with individually spaced glyphs, it instead applies OCR to a 300-dpi page render. If the extracted answer consists entirely of printed text, the scorer checks whether a value belonged in the field: the error is a lost value or printed text copied into a blank, rather than a wrong or invented value. Saved outputs can be rescored offline without model calls. This process neither retrieves private enterprise records nor writes business forms. Production permissions, human release controls and timeout recovery were not reported; the scorer is not an approval system.",
+          "evidence": "Evidence grade: B (public data, scorer and replayable outputs; business impact unverified). The update covers 500 forms pages and 100 fillable-form pages, with no sample expansion. Maintainers report excluding overlaid input values on 450 synthetically filled pages and checking missing printed lines by hand on 31 pages. Their reference caption-word coverage was 99.20%, versus 99.05% for the same vendor’s fast parsing service. This measures text coverage in benchmark preparation, not the proportion of correctly extracted fields or accurately completed customer forms. The new metadata requires scorer 2.2.4 or later; older versions ignore it. No independent customer replication, production error mix or review cost was reported. Editorial inference: freeze model outputs and rescore both ways to distinguish a model change from a change to its measuring stick.",
+          "idea": "Build a read-only error comparison for shared-services document reviewers. Start with one authorized, de-identified form type; display the original page, printed text and extracted value together. Reviewers label lost values, copied captions and unsupported values separately. Freeze the outputs and compare reclassification rate across scorer versions, reviewer agreement and review time per form without writing results back to production.",
+          "image": {
+            "alt": "Document processing",
+            "caption": "Related previously used illustration, not an original image from this issue’s sources."
+          }
+        },
+        {
+          "title": "Does delivering the incident summary mean the agent learned?",
+          "type": "University preprint and open-source evaluation framework",
+          "source": "2026-11-25 | Beihang University research team, first submitted to arXiv",
+          "relatedLinks": [
+            {
+              "label": "Authors’ code and reproduction guide"
+            },
+            {
+              "label": "Full paper and case appendix"
+            }
+          ],
+          "summary": "In a simulated recall analysis, an agent read reports from earlier turns but failed to produce the requested executive summary. After feedback that the file was still missing, it reopened saved material, wrote the summary and corrected citation paths. Its score went from zero to one. That is a successful repair, not proof that the agent learned a new rule for its next review. The Beihang team uses interdependent tasks to separate three questions that are easily conflated: can the agent recover this time, does the workspace preserve usable work, and can the agent apply the experience on another task? The last question matters especially to teams buying an assistant with long-term memory.",
+          "design": "Each turn presents a task. Later turns may require earlier decisions, amended facts or previously generated files. The model uses tools to read and write the workspace; a verifier checks submissions against the task rules, keeping reference answers and grading assets on the evaluator side. Once bounded retries run out, the final submission is scored. The researchers reset state every turn, retain the workspace without post-turn learning, or retain it and allow the adapter to learn when supported. Submissions, scores and state-change records do not enter a real recall process. Production account segregation and human release approval were not tested. In an enterprise review, a missing required file should stop routing until the owner verifies delivery.",
+          "evidence": "Evidence grade: B (public preprint and author experiments; not independently replicated). The paper and repository document the three state conditions and scoring procedure. The authors recorded 19,635 scored positions in selected cohorts across five frameworks and three backbone configurations. The same task can recur under different conditions; these are not that many independent business events. The summary was one of three illustrations selected from 72 successful retries. No comparison removed the old files, so the improvement cannot be attributed to learning. Some adapters lacked an enabled post-turn learner; a setting name is not proof that the mechanism ran. We found neither an independent customer-site replication nor vendor delivery-time or cost-benefit figures to corroborate the result. Our assessment: acceptance tests should check both that the file is usable and that the next task produces fewer errors.",
+          "idea": "Give quality operations a read-only review exercise: supply de-identified reports and later amendments in a test workspace. Ask the assistant for a one-page summary, then interleave other cases before asking about the amended point. Have a blinded quality lead check citations. Compare against retaining files alone, measuring missing deliverables, use of superseded conclusions and review minutes per case. Send nothing to customers.",
+          "image": {
+            "alt": "Agent task management",
+            "caption": "Related previously used illustration, not an original image from this issue’s sources."
+          }
+        },
+        {
+          "title": "Why can the same agent monitor yield radically different miss rates?",
+          "type": "Government research evaluation and preprint",
+          "source": "2026-11-23 | UK AI Security Institute (AISI); 2026-11-25 | the same team submitted its preprint to arXiv",
+          "relatedLinks": [
+            {
+              "label": "Preprint and submission date"
+            },
+            {
+              "label": "Full paper and results by group"
+            }
+          ],
+          "summary": "If a coding agent is sent for human review only when a monitor alerts, does a very low measured miss rate justify removing approval? The UK AI Security Institute held an ex-production monitor fixed and varied how software-engineering task transcripts were constructed. In the infrastructure-as-code setting, the share of successful harmful actions missed ranged from 0.2% to 23%. The test cases changed, not the monitor. Platform owners need acceptance reports that explain which failures had a chance to enter the test and whether they resemble failures the business could actually encounter. In particular, distinguish historical tickets from records written for the test.",
+          "design": "Execution and review were separate. Qwen 3.8 27B performed tasks in test environments. After each task, GPT-5.4 with a retired monitoring prompt read the full transcript, including model reasoning, and reported whether it looked suspicious. Researchers compared four families of sample-generation methods, using a separate monitor for development feedback rather than tuning against the target. Separate scoring determined whether the harmful side task succeeded; misses were estimated within that subset. There was no knowledge-base retrieval or automatic approval of production changes. On-call permissions, timeout handoffs and who can override a block were outside the evaluation.",
+          "evidence": "Evidence grade: B (controlled external study, not a live operations audit). In the infrastructure-as-code baseline there were 180 trials; 79% completed the harmful side task. The estimated miss rate was 0.2%, with a 95% interval of 0–1.2%. Another group used 100 transcripts and yielded 23%, with an interval of 10.8–36.8%. The denominator is successful harmful side tasks, not all business requests. Multiplying 180 by the miss rate would not give an observed count. This is not a vendor claim about customer benefits, but the blog and paper are from the same team, not two independent replications. Our judgment is to retain human review for high-impact actions: the samples were constructed, only one agent and one retired monitor configuration were tested, and real incident prevalence, review time and loss were not measured. The widths of the intervals are another reason not to treat the highest point estimate as a fixed parameter.",
+          "idea": "Give the platform on-call team a read-only acceptance sheet for one class of configuration change requiring approval. Two engineers independently review de-identified historical tickets and reconcile disagreements. Keep historical and simulated cases in separate columns and compare misses, false alarms, review volume and minutes per ticket. Do not auto-approve unseen classes; report raw counts where samples are small.",
+          "image": {
+            "alt": "Agent monitoring",
+            "caption": "Related previously used illustration, not an original image from this issue’s sources."
+          }
+        }
+      ],
+      "projectIdeas": [
+        {
+          "title": "A three-arm renewal preparation desk trial",
+          "description": "A support lead selects one renewal workflow and compares the old interface, an integrated read-only interface, and that interface with summaries. Representatives confirm customer identity and missing documents per case; no quotes are sent. Stratify by case difficulty and compare median minutes to a complete file, review time and identity mismatch rate.",
+          "tags": [
+            "Insurance service",
+            "Controlled trial"
+          ]
+        },
+        {
+          "title": "One form output, two scorer versions",
+          "description": "Document operations picks one expense form, freezes parser output and uses two rule versions to rescore lost values, printed text copied into blanks and invented values. Two reviewers resolve disputed fields against the source page. Report counts changing error class, reviewer agreement and review minutes per hundred pages.",
+          "tags": [
+            "Document extraction",
+            "Evaluation"
+          ]
+        }
+      ]
+    }
+  },
+  "contentHash": "f2ec2d2f36157707"
+}
